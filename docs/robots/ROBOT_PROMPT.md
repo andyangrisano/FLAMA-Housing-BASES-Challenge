@@ -65,7 +65,7 @@ Example: robots/bedmaker.json keeps its rails and headboard camera `fixed`.
 
 ## Optional: show the work happening
 
-The scene can animate the robot and the house. Use this so viewers can see what the robot actually does. The README's "Animation" section has the full reference, and robots/laundrybot.json and robots/chefrail.json are worked examples.
+The scene can animate the robot and the house. Use this so viewers can see what the robot actually does. The README's "Animation" section has the full reference, and laundrybot.json and chefrail.json in this folder are worked examples.
 
 * `parts`: named joints with a `pivot` (and optional `parent`). Give arm primitives `"part": "<name>"`, then rotate the joint with `set` instead of drawing the arm twice.
 * `items`: objects the robot handles (clothes, dishes, crumbs, a detachable unit), each with its own primitives. Item colours may use house materials such as `fabric_blue`, `water` or `orange`.

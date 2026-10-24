@@ -1,29 +1,32 @@
 # BASES Robotics: House Sim
 
-A shared 3D model of an average Bay Area home: a single-story 1950s–60s ranch of 158 m² (~1,700 sq ft) with 3 bedrooms, 2 bathrooms, an attached garage and a back patio. It's furnished for a family of four. Each teammate drops one robot JSON file into `robots/` and the scene animates it through the house. You don't need to change any code to add a robot.
+A shared 3D model of an average Bay Area home: a single-story 1950s–60s ranch of 158 m² (~1,700 sq ft) with 3 bedrooms, 2 bathrooms, an attached garage and a back patio. It's furnished for a family of four. Each teammate drops one robot JSON file into `docs/robots/` and the scene animates it through the house. You don't need to change any code to add a robot.
 
 ## Repo layout
 
 ```
-index.html          Three.js scene (r160, no build step)
-visuals.js          Sky + procedural textures
-serve.py            Local server that never caches (python3 serve.py)
-house.json          The house as data: rooms, doors, windows, fixtures, furniture templates, materials
-robots/
-  index.json        Plain array of robot filenames to load
-  <name>.json       One file per robot (see ROBOT_PROMPT.md)
-README.md
+README.md             This file
+docs/                 The website (GitHub Pages publishes this folder)
+  index.html          Three.js scene (r160, no build step)
+  visuals.js          Sky + procedural textures
+  house.json          The house as data: rooms, doors, windows, fixtures, furniture templates, materials
+  serve.py            Local server that never caches (python3 serve.py)
+  robots/
+    index.json        Plain array of robot filenames to load
+    <name>.json       One file per robot
+    ROBOT_PROMPT.md   How to write a robot file
+costs/                Robot cost model and dashboard
 ```
 
 ## Run locally
 
-Browsers block `fetch()` on `file://` pages, so serve the folder over HTTP. Run the server **from inside this folder**; otherwise you get a file listing:
+Browsers block `fetch()` on `file://` pages, so serve the site over HTTP. Run the server **from inside the `docs` folder**; otherwise you get a file listing:
 
 ```bash
-cd ~/BASES\ Challenge && python3 serve.py
+cd ~/BASES\ Challenge/docs && python3 serve.py
 ```
 
-Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pages → deploy from branch, root folder).
+Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pages → deploy from branch `main`, folder `/docs`). Live: https://andyangrisano.github.io/bases-house-sim/
 
 ## Using the scene
 
@@ -41,23 +44,23 @@ Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pa
 
 | Button | Robot | What you'll see |
 |---|---|---|
-| Make the bed | [BedMaker](robots/bedmaker.json): two arms on rails under the primary bed | Arms unfold from under the frame, pull the rumpled comforter straight, fold the sheet edge back, put the pillows back, then fold away |
-| Clean the kitchen | [CleanSweep](robots/cleansweep.json): vacuum-mop robot + suction climber | Vacuums crumbs under the dining table, lifts its mop on the rug, leaves a wet sheen on the tile, reaches under the fridge with its crevice arm, then lifts the climber onto the island and the shower glass to wipe them |
-| Do the laundry | [LaundryBot](robots/laundrybot.json): mobile arm with a 3-bin hamper and fold board | Empties two hampers and picks up a sock, loads the washer + pod, waits at its dock, moves the load to the dryer, folds on its fold board and delivers the stacks |
-| Cook dinner | [ChefRail](robots/chefrail.json): two arms on a ceiling rail | Takes food from the fridge, dices it, fills the pot at the sink, boils and stirs (steam and bubbles), serves two bowls on the island, then loads the dishwasher and wipes the island |
-| Take out the trash | [TrashBot](robots/trashbot.json): self-driving kitchen trash can | Opens its lid, pulls the drawstring to seal the bag, drives through the garage door, raises its can on a lift column and tips the bag into the landfill cart, relines itself from its bag cartridge and docks to charge |
+| Make the bed | [BedMaker](docs/robots/bedmaker.json): two arms on rails under the primary bed | Arms unfold from under the frame, pull the rumpled comforter straight, fold the sheet edge back, put the pillows back, then fold away |
+| Clean the kitchen | [CleanSweep](docs/robots/cleansweep.json): vacuum-mop robot + suction climber | Vacuums crumbs under the dining table, lifts its mop on the rug, leaves a wet sheen on the tile, reaches under the fridge with its crevice arm, then lifts the climber onto the island and the shower glass to wipe them |
+| Do the laundry | [LaundryBot](docs/robots/laundrybot.json): mobile arm with a 3-bin hamper and fold board | Empties two hampers and picks up a sock, loads the washer + pod, waits at its dock, moves the load to the dryer, folds on its fold board and delivers the stacks |
+| Cook dinner | [ChefRail](docs/robots/chefrail.json): two arms on a ceiling rail | Takes food from the fridge, dices it, fills the pot at the sink, boils and stirs (steam and bubbles), serves two bowls on the island, then loads the dishwasher and wipes the island |
+| Take out the trash | [TrashBot](docs/robots/trashbot.json): self-driving kitchen trash can | Opens its lid, pulls the drawstring to seal the bag, drives through the garage door, raises its can on a lift column and tips the bag into the landfill cart, relines itself from its bag cartridge and docks to charge |
 
 Each robot lists what it deliberately doesn't do (`tasks_excluded`) and the cheap house changes it needs (`env_changes_required`). Click a robot to see them.
 
 ## Add a robot (three steps)
 
-1. Write `robots/<yourname>.json` following ROBOT_PROMPT.md. Use the room and fixture `id`s from `house.json` (or click things in the scene) for your waypoints.
-2. Append your filename to `robots/index.json`, e.g. `["vacuum.json", "laundry_arm.json"]`.
+1. Write `docs/robots/<yourname>.json` following ROBOT_PROMPT.md. Use the room and fixture `id`s from `docs/house.json` (or click things in the scene) for your waypoints.
+2. Append your filename to `docs/robots/index.json`, e.g. `["vacuum.json", "laundry_arm.json"]`.
 3. Reload. If your file fails to load, a red message in the side panel names the file and the error.
 
 ### Robot fields the scene reads
 
-The full format is in [ROBOT_PROMPT.md](ROBOT_PROMPT.md); [robots/bedmaker.json](robots/bedmaker.json) is a worked example.
+The full format is in [ROBOT_PROMPT.md](docs/robots/ROBOT_PROMPT.md); [robots/bedmaker.json](docs/robots/bedmaker.json) is a worked example.
 
 | Field | Use |
 |---|---|
@@ -187,4 +190,4 @@ Units are metres. The origin is the front-door threshold on the floor. +Y is up 
 | garage | Garage (2-car) | 6.1 × 6.1 | 37.21 (not counted) |
 | patio | Back Patio | 5.4 × 3.0 | 16.20 (not counted) |
 
-Edit `house.json` to change the house; leave `index.html` alone.
+Edit `docs/house.json` to change the house; leave `docs/index.html` alone.
