@@ -40,7 +40,6 @@
   .robot { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; display: grid; gap: 6px; }
   .robot .status { font-size: 12px; }
   .robot select { font: inherit; font-size: 12px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
-  .robot .opts label { font-size: 12px; }
   button:disabled { opacity: .45; cursor: default; }
   #phone div { font-size: 12px; padding: 2px 0; color: var(--text); }
   .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.22) 100%); }
@@ -67,7 +66,7 @@
   <div id="fps" hidden></div>
 </div>
 <aside id="panel">
-  <nav class="tabs"><a href="index.html" class="on">House sim</a><a href="roof.html">Roof automation</a></nav>
+  <nav class="tabs"><a href="index.html" class="on">House sim</a><a href="schematics.html">Robot schematics</a></nav>
   <h1>BASES House Sim</h1>
   <div class="row">
     <button id="play" class="on">Pause</button>
@@ -799,7 +798,7 @@ function addRobot(def, file) {
   for (const g of [R.group, R.fixed, R.world]) g.traverse(o => { o.userData.robot = R; });
 }
 
-// Build the timeline for the current options: waypoints with "only_if" are skipped unless the user picked that option.
+// Build the timeline. Each trigger option runs with its first (default) value: waypoints with "only_if" are skipped unless they match it.
 function plan(R) {
   const def = R.def;
   R.path = reactive(R) ? buildCleanPath(R) : def.path.filter(w => !w.only_if || Object.entries(w.only_if).every(([k, v]) => [].concat(v).includes(R.opts[k])));
@@ -930,7 +929,7 @@ async function loadRobots() {
     const name = R.def.display_name ?? R.def.name;
     row.innerHTML = `<label><input type="checkbox" checked> <b>${esc(name)}</b> <span class="hint">${esc(R.file)}</span></label>
       <div class="row"><button class="run on">▶ ${esc(R.def.trigger?.label ?? 'Run')}</button><button class="stop">Stop</button><button class="follow">Follow</button>
-      <span class="status hint"></span></div><div class="row opts"></div>`;
+      <span class="status hint"></span></div>`;
     row.querySelector('input').onchange = e => {
       for (const g of [R.group, R.fixed, R.world]) g.visible = e.target.checked;
       R.line.visible = e.target.checked && $('t-paths').checked;
@@ -938,15 +937,6 @@ async function loadRobots() {
     row.querySelector('.run').onclick = () => startRobot(R);
     row.querySelector('.stop').onclick = () => stopRobot(R);
     row.querySelector('.follow').onclick = () => setFollow(S.follow === R ? null : R);
-    for (const [k, vals] of Object.entries(parseOptions(R.def.trigger?.options))) {
-      const l = document.createElement('label');
-      l.innerHTML = `<span class="hint">${esc(k)}</span> <select>${vals.map(v => `<option>${esc(v)}</option>`).join('')}</select>`;
-      l.querySelector('select').onchange = e => {
-        R.opts[k] = e.target.value;
-        if (R.state !== 'running') { try { plan(R); goIdle(R, true); } catch (err) { showError(`robots/${R.file}: ${err.message}`); } }
-      };
-      row.querySelector('.opts').appendChild(l);
-    }
     R.ui = { run: row.querySelector('.run'), status: row.querySelector('.status'), follow: row.querySelector('.follow') };
     box.appendChild(row);
   }
@@ -1251,7 +1241,6 @@ function showRobot(R) {
   $('info').innerHTML = `<dl>${row('Robot', `<b>${esc(d.display_name ?? d.name)}</b> <span class="hint">${esc(R.file)}</span>`)}
     ${row('Task', esc(d.task ?? '—'))}
     ${row('Trigger', tr.label ? `${esc(tr.type ?? '')}: “${esc(tr.label)}”` : null)}
-    ${row('Options', tr.options?.length ? list(tr.options) : null)}
     ${row('Form factor', esc(d.form_factor ?? '—'))}
     ${row('Size', d.footprint_m ? `${d.footprint_m.join(' × ')} m footprint${d.height_m ? `, ${d.height_m} m tall` : ''}` : null)}
     ${row('Reach / payload', d.reach_m != null ? `${d.reach_m} m / ${d.payload_kg ?? '—'} kg` : null)}
