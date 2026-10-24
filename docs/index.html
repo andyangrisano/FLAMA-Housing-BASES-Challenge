@@ -169,7 +169,7 @@ function resize() {
 addEventListener('resize', resize);
 
 // ---------- state ----------
-const S = { playing: true, mult: 1, t: 0, anim: 0, full: false, furnished: true, sel: null };
+const S = { playing: true, mult: 1, t: 0, anim: 0, full: false, furnished: true, sel: null, started: false };   // the house clock starts with the first robot
 let H, meta, roomById = {}, fixById = {};
 const floors = {};          // floor index -> { group, walls }
 const clickables = [];      // room floors and fixtures
@@ -857,6 +857,7 @@ function startRobot(R) {
   if (R.state === 'running') return;
   if (reactive(R) && !mess.some(m => m.dirt && m.obj.visible)) { makeMess(); notify(R, 'A day later: the house is messy again'); }   // always something to clean
   cancel(R); plan(R); goIdle(R, true);
+  S.started = true;
   R.state = 'running'; R.start = S.t;
   for (const l of R.legs) if (!l.move) runOps(R, R.path[l.i], R.start + l.t0, R.start + l.t1, false);
   notify(R, `Started: ${R.def.trigger?.label ?? 'task'}`);
@@ -1427,7 +1428,8 @@ function tick() {
     fpsAvg = fpsAvg * 0.95 + (dt > 0 ? 1 / dt : 0) * 0.05;
     $('fps').hidden = false; $('fps').textContent = `${fpsAvg.toFixed(0)} fps · ${renderer.info.render.calls} draws`;
   } else $('fps').hidden = true;
-  S.t += play * S.mult; animT += play; S.anim = animT;
+  if (S.started) S.t += play * S.mult;
+  animT += play; S.anim = animT;
   restoreWobbled();
   runEvents();
   robots.forEach(R => updateRobot(R, play));
