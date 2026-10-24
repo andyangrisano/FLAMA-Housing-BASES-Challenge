@@ -310,7 +310,11 @@ function buildWalls(f) {
     }
     piece(axis, c, cur, b + T / 2, 0, wallH);
   }
-  for (const d of H.doors.filter(d => (d.floor || 0) === f)) if (d.swing && d.leaf !== false) g.add(doorLeaf(d));
+  for (const d of H.doors.filter(d => (d.floor || 0) === f)) {
+    if (d.swing && d.leaf !== false) g.add(doorLeaf(d));
+    if (d.fold) bifoldPanels(d).forEach(o => g.add(o));
+    if (d.type === 'garage' && S.full) g.add(garageDoor(d));
+  }
 }
 
 // Door leaf hinged at the 'start' (lower coordinate) or 'end' of the opening, swung open_deg into swing.into.
@@ -328,12 +332,40 @@ function leafGeom(d) {
   const hinge = [px - u[0] * half, pz - u[1] * half], a = rad(d.swing.open_deg ?? 90);
   return { hinge, half, dir: [u[0] * Math.cos(a) + n[0] * Math.sin(a), u[1] * Math.cos(a) + n[1] * Math.sin(a)] };
 }
+// Leaves are cut down with the walls in the dollhouse view, so they don't stick up above them.
+const leafHeight = d => S.full ? d.height || meta.door_height : Math.min(d.height || meta.door_height, meta.dollhouse_wall_height ?? 99);
 function doorLeaf(d) {
-  const { hinge, dir, half } = leafGeom(d), h = d.height || meta.door_height;
-  const leaf = box(0.04, h, d.width, houseMat('door_leaf', M.wall));
-  leaf.position.set(hinge[0] + dir[0] * half, h / 2, hinge[1] + dir[1] * half);
-  leaf.rotation.y = Math.atan2(dir[0], dir[1]);
-  return leaf;
+  const { hinge, dir, half } = leafGeom(d), h = leafHeight(d);
+  const g = new THREE.Group(), leaf = box(0.04, h, d.width, houseMat('door_leaf', M.wall));
+  leaf.position.y = h / 2; g.add(leaf);
+  for (const sx of [-1, 1]) {                    // a lever handle on each face, near the free edge
+    const knob = box(0.025, 0.025, 0.12, houseMat('steel', M.joint)); knob.position.set(sx * 0.04, 0.95, half - 0.1); g.add(knob);
+  }
+  g.position.set(hinge[0] + dir[0] * half, 0, hinge[1] + dir[1] * half);
+  g.rotation.y = Math.atan2(dir[0], dir[1]);
+  return g;
+}
+// An open bifold: at each end of the opening, its two panels sit folded together, sticking out into fold.into.
+function bifoldFootprints(d) {
+  const into = roomById[d.fold.into], vertical = doorIsVertical(d), [px, pz] = d.position, w = d.width / 4, t = 0.08;
+  const n = vertical ? Math.sign(into.origin[0] + into.size[0] / 2 - px) : Math.sign(into.origin[1] + into.size[1] / 2 - pz);
+  return [-1, 1].map(s => {
+    const along = (vertical ? pz : px) + s * (d.width / 2 - t / 2 - 0.01), out = (vertical ? px : pz) + n * (w / 2 + 0.05);
+    return vertical ? { x: out, z: along, sx: w, sz: t } : { x: along, z: out, sx: t, sz: w };
+  });
+}
+function bifoldPanels(d) {
+  const h = leafHeight(d);
+  return bifoldFootprints(d).map(({ x, z, sx, sz }) => { const m = box(sx, h, sz, houseMat('door_leaf', M.wall)); m.position.set(x, h / 2, z); return m; });
+}
+// The garage door rolled up on its tracks: a flat panel under the garage ceiling (only drawn with full-height walls).
+function garageDoor(d) {
+  const room = roomById[d.between.find(id => roomById[id] && !roomById[id].outdoor)], h = d.height || 2.13;
+  const vertical = doorIsVertical(d), [px, pz] = d.position, depth = 2.4;
+  const n = vertical ? Math.sign(room.origin[0] + room.size[0] / 2 - px) : Math.sign(room.origin[1] + room.size[1] / 2 - pz);
+  const m = box(vertical ? depth : d.width, 0.05, vertical ? d.width : depth, houseMat('door_leaf', M.wall));
+  m.position.set(vertical ? px + n * (depth / 2 + 0.1) : px, h + 0.12, vertical ? pz : pz + n * (depth / 2 + 0.1));
+  return m;
 }
 
 // ---------- house: floors, fixtures, stairs ----------
@@ -1001,6 +1033,8 @@ function buildGrid(r, withObstacles, rooms, height = 0.35) {
     const { hinge, dir, half } = leafGeom(d), ex = hinge[0] + dir[0] * 2 * half, ez = hinge[1] + dir[1] * 2 * half;
     fill(Math.min(hinge[0], ex) - r, Math.min(hinge[1], ez) - r, Math.max(hinge[0], ex) + r, Math.max(hinge[1], ez) + r, 0);
   }
+  for (const d of H.doors) if (d.fold && !(d.floor || 0))
+    for (const { x, z, sx, sz } of bifoldFootprints(d)) fill(x - sx / 2 - r, z - sz / 2 - r, x + sx / 2 + r, z + sz / 2 + r, 0);
   if (withObstacles) for (const m of mess) if (!m.dirt && m.obj.visible) {
     const bb = new THREE.Box3().setFromObject(m.obj); fill(bb.min.x - r, bb.min.z - r, bb.max.x + r, bb.max.z + r, 0);
   }
@@ -1197,8 +1231,12 @@ function setFollow(R) {
 function followTick(dt) {
   const R = S.follow; if (!R || dragging) return;
   const p = R.group.getWorldPosition(new THREE.Vector3());
-  followAt.lerp(p, 1 - Math.exp(-dt * 2.2));               // the working spot trails the robot a little
-  const k = 1 - Math.exp(-dt * 3);
+  // The working spot trails the robot a little, but never by more than 1.2 m, so at 32x / 64x (when the robot
+  // crosses a room in a second) the camera keeps up instead of being left behind.
+  followAt.lerp(p, 1 - Math.exp(-dt * 2.2 * Math.max(1, Math.sqrt(S.mult))));
+  const lag = followAt.distanceTo(p);
+  if (lag > 1.2) followAt.lerp(p, 1 - 1.2 / lag);
+  const k = 1 - Math.exp(-dt * 6);
   controls.target.lerp(followAt.clone().setY(0.4), k);
   camera.position.lerp(followAt.clone().setY(0.4).add(followOff), k);
 }
@@ -1347,6 +1385,7 @@ function tick() {
   });
   frame(houseBox(), CAMS.threequarter);
   camera.position.copy(tween.p1); controls.target.copy(tween.t1); tween = null;
+  window.sim = { S, robots, camera, controls };   // for poking at the scene from the browser console
   tick();
   await loadRobots();
 })();

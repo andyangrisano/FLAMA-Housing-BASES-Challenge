@@ -6,7 +6,7 @@ A shared 3D model of an average Bay Area home: a single-story 1950s–60s ranch 
 
 ```
 index.html          Three.js scene (r160, no build step)
-roof.html           Roof automation tab: step-by-step diagram of Robot 1 building the roof
+roof.html           Roof automation tab: the robotic factory line that builds the roof
 visuals.js          Sky + procedural textures
 serve.py            Local server that never caches (python3 serve.py)
 house.json          The house as data: rooms, doors, windows, fixtures, furniture templates, materials
@@ -53,7 +53,12 @@ Each robot lists what it deliberately doesn't do (`tasks_excluded`) and the chea
 
 ## Roof automation page
 
-`roof.html` (the **Roof automation** tab) walks through how Robot 1 from the team's research, an outdoor track loader with a telescoping 6 m boom and swappable tools, builds the whole roof from the ground, with no construction workers: scan, trusses, bracing, sheathing, drip edge, underlayment, rake edges and flashing, shingles, ridge, gutters and a final inspection report. Each step shows a section drawing of the roof at that stage, the tool, what the robot does, how it checks its work, and the material. Quantities are computed from the sim's house (`house.json` roof dimensions).
+`roof.html` (the **Roof automation** tab) shows our concept on one part of the house: the robotic factory line that replaces the human crews in a modular-home factory. It has:
+- a top view of the line: material store, eight robot stations, self-driving carts carrying the roof jig, the house-module line and the shipping dock;
+- a drawing and description for each station: cut, truss assembly, framing, sheathing, drip edge and underlayment, shingles, scan, and setting the roof on the module (folded for the road);
+- the on-site step, where Robot 1 caps the ridge and hangs the gutters from the ground.
+
+Quantities (roof area, trusses, OSB sheets, shingle bundles) are computed from the sim's house.
 
 ## Add a robot (three steps)
 
