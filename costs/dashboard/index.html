@@ -1,0 +1,402 @@
+<style>
+.rc { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); font-variant-numeric: tabular-nums; }
+.rc-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); text-wrap: balance; }
+.rc-head p { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 70ch; }
+.rc-head .rc-take b { font-weight: 600; }
+.rc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.rc-card { position: relative; min-width: 0; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+.rc-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.rc-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rc-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
+.rc-section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cds-gap-sm); }
+.rc-section-head h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.rc-pick { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+.rc-pick button { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); cursor: pointer; }
+.rc-pick button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.rc-pick button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.rc-chart { position: relative; min-height: 300px; }
+.rc-chart svg { display: block; overflow: visible; }
+.rc-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.rc-tip .rc-tip-h { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.rc-tip .rc-sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.rc-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rc-legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--sw); }
+.rc-tablebox { overflow: auto; max-height: 34rem; }
+.rc table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+.rc th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); }
+.rc td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.rc th.num, .rc td.num { text-align: right; white-space: nowrap; }
+.rc td.first { font-weight: var(--cds-font-weight-medium); }
+.rc tr.rc-ref td { color: var(--color-fg-muted); font-style: italic; }
+.rc-bar { position: relative; }
+.rc-bar i { position: absolute; left: 0; top: 50%; height: 6px; margin-top: 7px; border-radius: 3px; background: var(--rc-c); opacity: .55; }
+.rc-good { color: var(--color-ok); }
+.rc-sub { color: var(--color-fg-muted); }
+.rc-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rc-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.rc-method { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); max-width: 80ch; display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+.rc-method p { margin: 0; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 640px) { .rc .rc-wide { display: none; } }
+</style>
+
+<div class="rc">
+  <header class="rc-head" id="summary">
+    <h1>Robot fleet manufacturing cost, 2026–2050</h1>
+    <p class="rc-take">All five robots together cost <b data-source="fleet" data-field="usd_2026" data-row="0" class="dash-skeleton">—</b> to build today at quantity 1 and fall to about <b data-source="fleet" data-field="usd_2030" data-row="0" class="dash-skeleton">—</b> by 2030 and <b data-source="fleet" data-field="usd_2040" data-row="0" class="dash-skeleton">—</b> at the 2040+ floor, if each part follows the Optimus module cost curve. Actuators are <b data-source="act_share" data-field="share" data-row="0" class="dash-skeleton">—</b> of today's cost, so they drive most of the drop.</p>
+  </header>
+
+  <div class="rc-grid">
+    <section class="rc-card" id="per-robot">
+      <h2>Unit cost per robot</h2>
+      <p class="rc-note">Hardware BOM per unit at each anchor year. Optimus is the humanoid reference the curves come from.</p>
+      <div class="rc-tablebox">
+        <table id="summary-table" data-source="summary" data-row-key="robot">
+          <thead><tr>
+            <th data-field="robot">Robot</th>
+            <th data-field="form" class="rc-wide">Form</th>
+            <th data-field="usd_2026" class="num">2026</th>
+            <th data-field="usd_2030" class="num">2030</th>
+            <th data-field="usd_2035" class="num">2035</th>
+            <th data-field="usd_2040" class="num">2040+</th>
+            <th data-source="drop2030" data-field="drop" class="num">vs 2026 by 2030</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rc-card" id="over-time">
+      <h2>Unit cost over time</h2>
+      <p class="rc-note">Yearly baseline, 2026–2050. Hover for each year's values. Optimus left off this chart for scale.</p>
+      <div class="rc-chart" id="lines" data-source="totals"></div>
+    </section>
+  </div>
+
+  <section class="rc-section" id="breakdown">
+    <div class="rc-section-head">
+      <h2 id="breakdown-title">Breakdown by robot</h2>
+      <div class="rc-pick" id="pick" role="group" aria-label="Robot" data-source="summary"></div>
+    </div>
+    <div class="rc-grid">
+      <section class="rc-card" id="modules-card">
+        <h2>Cost by module</h2>
+        <p class="rc-note">Where the money sits in this robot at each anchor year.</p>
+        <div class="rc-chart" id="stack" data-source="modules"></div>
+      </section>
+      <section class="rc-card" id="curves-card">
+        <h2>Module cost curves</h2>
+        <p class="rc-note">Optimus module midpoints. Every part is projected with its module's ratio to 2026.</p>
+        <div class="rc-tablebox">
+          <table id="curves-table" data-source="module_curves" data-row-key="module">
+            <thead><tr>
+              <th data-field="module">Module</th>
+              <th data-field="usd_2026" class="num">2026</th>
+              <th data-field="usd_2030" class="num">2030</th>
+              <th data-field="usd_2040" class="num">2040+</th>
+              <th data-field="pct_left_2030" class="num">Left by 2030</th>
+              <th data-field="pct_left_2040" class="num">Left at floor</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <section class="rc-card" id="parts-card">
+      <h2 id="parts-title">Parts</h2>
+      <p class="rc-note">Each line item of the robot's BOM, largest first. Bar shows 2026 cost.</p>
+      <div class="rc-tablebox">
+        <table id="parts-table" data-source="parts" data-row-key="part_id">
+          <thead><tr>
+            <th data-field="part">Part</th>
+            <th data-field="group" class="rc-wide">Subsystem</th>
+            <th data-field="module" class="rc-wide">Module</th>
+            <th data-field="usd_2026" class="num">2026</th>
+            <th data-field="usd_2030" class="num">2030</th>
+            <th data-field="usd_2035" class="num">2035</th>
+            <th data-field="usd_2040" class="num">2040+</th>
+            <th data-field="note" class="rc-wide">Note</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <section class="rc-method" id="method">
+    <h2 class="rc-note" style="font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-body); color: var(--color-fg)">How this baseline is built</h2>
+    <p>Each robot's 2026 quantity-1 BOM from its robot file is split into parts that add up to its stated total. Parts the file prices are used as stated; the rest are estimates and say so in the Note column.</p>
+    <p>Every part is mapped to one of the five modules in the Optimus cost projection (actuators, sensors, compute, structure, battery and power) and scaled by that module's cost ratio. Years between anchors use a constant yearly rate of decline, and costs hold at the 2040 floor through 2050.</p>
+    <p>Grippers, rail motors and motor drivers count as actuators, as they do in the Optimus model. LaundryBot's itemized parts fall short of its stated BOM, so the gap is carried as an Unitemized line under structure.</p>
+    <p>The curves assume humanoid-scale production. CleanSweep and TrashBot are already built from mass-market consumer parts (robot-vacuum and self-sealing-can components) and will fall less than shown. The cost map's own notes also flag the 2035 total and floor as below every published forecast, so treat 2035 onward as optimistic.</p>
+  </section>
+</div>
+
+<script>
+dash.calc('fleet', {
+  inputs: ['summary'],
+  title: 'Fleet total, all robots',
+  description: 'Sum of all our robots’ unit costs at each anchor year, leaving out the Optimus reference.',
+  fn: (summary) => {
+    const ours = summary.filter((r) => r.robot !== 'Optimus (reference)');
+    const sum = (k) => ours.reduce((a, r) => a + Number(r[k]), 0);
+    return [{ usd_2026: sum('usd_2026'), usd_2030: sum('usd_2030'), usd_2035: sum('usd_2035'), usd_2040: sum('usd_2040') }];
+  },
+});
+dash.calc('act_share', {
+  inputs: ['modules'],
+  title: 'Actuator share of 2026 cost',
+  description: 'Actuator cost across all our robots in 2026, divided by their total 2026 cost.',
+  fn: (modules) => {
+    const y = modules.filter((r) => Number(r.year) === 2026);
+    const all = y.reduce((a, r) => a + Number(r.usd), 0);
+    const act = y.filter((r) => r.module.startsWith('Actuators')).reduce((a, r) => a + Number(r.usd), 0);
+    return [{ share: act / all }];
+  },
+});
+dash.calc('drop2030', {
+  inputs: ['summary'],
+  title: 'Change from 2026 to 2030',
+  description: '2030 unit cost divided by 2026 unit cost, minus one.',
+  fn: (summary) => summary.map((r) => ({ robot: r.robot, drop: Number(r.usd_2030) / Number(r.usd_2026) - 1 })),
+});
+
+window.rcFmt = d3.format('$,.0f');
+window.rcPct = d3.format('.0%');
+window.rcRef = 'Optimus (reference)';
+window.rcAnchor = (y) => (Number(y) === 2040 ? '2040+' : String(y));
+window.rcFail = (el, s) => {
+  el.querySelectorAll('svg, .rc-legend, .rc-fail').forEach((n) => n.remove());
+  if (s === 'error' || s === 'connect' || s === 'declined' || s === 'missing') {
+    el.classList.remove('dash-skeleton');
+    const d = document.createElement('div'); d.className = 'rc-fail'; d.textContent = 'Failed to load'; el.append(d);
+  } else el.classList.add('dash-skeleton');
+};
+window.rcTip = (box) => {
+  let t = box.querySelector('.rc-tip');
+  if (!t) { t = document.createElement('div'); t.className = 'rc-tip'; t.hidden = true; box.append(t); }
+  return t;
+};
+window.rcPlaceTip = (box, tip, x, y) => {
+  tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight, W = box.clientWidth;
+  let left = x + 12; if (left + w > W) left = x - w - 12; if (left < 0) left = 0;
+  tip.style.left = left + 'px'; tip.style.top = Math.max(0, y - h - 8) + 'px';
+};
+window.rcTipLines = (tip, head, lines) => {
+  tip.replaceChildren();
+  const h = document.createElement('div'); h.className = 'rc-tip-h'; h.textContent = head; tip.append(h);
+  for (const [color, name, val] of lines) {
+    const row = document.createElement('div');
+    if (color) { const sw = document.createElement('span'); sw.className = 'rc-sw'; sw.style.background = color; row.append(sw); }
+    row.append(name + '  ' + val); tip.append(row);
+  }
+};
+</script>
+
+<script>
+// Header figures, summary table, curves table, robot picker
+const fillMarks = () => {
+  for (const el of document.querySelectorAll('.rc-head [data-source]')) {
+    const d = dash.data(el.dataset.source);
+    if (d.status !== 'ok') { el.textContent = '—'; continue; }
+    el.classList.remove('dash-skeleton');
+    const v = d.data[0]?.[el.dataset.field];
+    el.textContent = v == null ? '—' : el.dataset.field === 'share' ? rcPct(v) : rcFmt(v);
+  }
+};
+
+const fillSummary = () => {
+  const tb = document.querySelector('#summary-table tbody');
+  const s = dash.data('summary'), dr = dash.data('drop2030');
+  tb.replaceChildren();
+  if (s.status !== 'ok') return;
+  const drop = new Map((dr.status === 'ok' ? dr.data : []).map((r) => [r.robot, r.drop]));
+  for (const r of s.data) {
+    const tr = document.createElement('tr');
+    if (r.robot === rcRef) tr.className = 'rc-ref';
+    const cells = [
+      [r.robot, 'first'], [r.form, 'rc-wide'],
+      [rcFmt(+r.usd_2026), 'num'], [rcFmt(+r.usd_2030), 'num'], [rcFmt(+r.usd_2035), 'num'], [rcFmt(+r.usd_2040), 'num'],
+      [drop.has(r.robot) ? d3.format('+.0%')(drop.get(r.robot)) : '—', 'num rc-good'],
+    ];
+    for (const [txt, cls] of cells) { const td = document.createElement('td'); td.className = cls; td.textContent = txt; tr.append(td); }
+    tb.append(tr);
+  }
+};
+
+const fillCurves = () => {
+  const tb = document.querySelector('#curves-table tbody');
+  const c = dash.data('module_curves');
+  tb.replaceChildren();
+  if (c.status !== 'ok') return;
+  for (const r of c.data) {
+    const tr = document.createElement('tr');
+    const cells = [[r.module, 'first'], [rcFmt(+r.usd_2026), 'num'], [rcFmt(+r.usd_2030), 'num'], [rcFmt(+r.usd_2040), 'num'],
+      [rcPct(+r.pct_left_2030), 'num'], [rcPct(+r.pct_left_2040), 'num']];
+    for (const [txt, cls] of cells) { const td = document.createElement('td'); td.className = cls; td.textContent = txt; tr.append(td); }
+    tb.append(tr);
+  }
+};
+
+const pick = document.getElementById('pick');
+pick.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-robot]');
+  if (b) dash.setParams({ robot: b.dataset.robot });
+});
+window.rcRobot = () => {
+  const s = dash.data('summary');
+  const names = s.status === 'ok' ? s.data.map((r) => r.robot).filter((n) => n !== rcRef) : [];
+  const p = dash.params().robot;
+  return names.includes(p) ? p : names[0] || p;
+};
+const fillPick = () => {
+  const s = dash.data('summary');
+  if (s.status !== 'ok') { pick.replaceChildren(); return; }
+  const cur = rcRobot();
+  const names = s.data.map((r) => r.robot).filter((n) => n !== rcRef);
+  if (pick.children.length !== names.length) {
+    pick.replaceChildren(...names.map((n) => { const b = document.createElement('button'); b.type = 'button'; b.dataset.robot = n; b.textContent = n; return b; }));
+  }
+  for (const b of pick.children) b.setAttribute('aria-pressed', String(b.dataset.robot === cur));
+  const row = s.data.find((r) => r.robot === cur);
+  document.getElementById('breakdown-title').textContent = row ? `${cur} breakdown · ${row.form}` : 'Breakdown by robot';
+};
+
+dash.onData(() => { fillMarks(); fillSummary(); fillCurves(); fillPick(); });
+</script>
+
+<script>
+// Line chart: unit cost per robot over time
+const linesEl = document.getElementById('lines');
+dash.onData(() => {
+  const d = dash.data('totals');
+  if (d.status !== 'ok') { rcFail(linesEl, d.status); return; }
+  linesEl.classList.remove('dash-skeleton');
+  linesEl.querySelectorAll('svg, .rc-fail').forEach((n) => n.remove());
+  const rows = d.data.filter((r) => r.robot !== rcRef).map((r) => ({ robot: r.robot, year: +r.year, usd: +r.usd }));
+  const series = d3.groups(rows, (r) => r.robot).map(([name, pts]) => ({ name, pts: pts.sort((a, b) => a.year - b.year) }));
+  const W = Math.max(280, linesEl.clientWidth), H = 300;
+  const svg = d3.select(linesEl).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  const y = d3.scaleLinear([0, d3.max(rows, (r) => r.usd)], [H - 28, 10]).nice();
+  // measure left ticks and end labels
+  const probe = svg.append('g').attr('font-size', 'var(--cds-font-size-caption)');
+  const tickW = d3.max(y.ticks(5), (t) => probe.append('text').text(rcFmt(t)).node().getComputedTextLength());
+  const endW = d3.max(series, (s) => probe.append('text').text(`${s.name} ${rcFmt(s.pts.at(-1).usd)}`).node().getComputedTextLength());
+  probe.remove();
+  const m = { l: tickW + 10, r: Math.min(endW + 12, W * 0.45) };
+  const years = d3.extent(rows, (r) => r.year);
+  const x = d3.scaleLinear(years, [m.l, W - m.r]);
+  svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
+    .attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+  const ya = svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(rcFmt).tickSize(0).tickPadding(8));
+  ya.attr('font-size', null).attr('font-family', null).select('.domain').remove();
+  ya.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)');
+  const xa = svg.append('g').attr('transform', `translate(0,${H - 28})`).call(d3.axisBottom(x).tickValues([2026, 2030, 2035, 2040, 2045, 2050]).tickFormat(d3.format('d')).tickSizeOuter(0));
+  xa.attr('font-size', null).attr('font-family', null);
+  xa.select('.domain').attr('stroke', 'var(--cds-chart-axis)'); xa.selectAll('line').attr('stroke', 'var(--cds-chart-axis)');
+  xa.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)');
+  const line = d3.line().x((p) => x(p.year)).y((p) => y(p.usd));
+  series.forEach((s, i) => {
+    svg.append('path').datum(s.pts).attr('d', line).attr('fill', 'none').attr('stroke', dash.colors[i])
+      .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+  });
+  // end labels, nudged apart
+  const ends = series.map((s, i) => ({ s, i, y: y(s.pts.at(-1).usd) })).sort((a, b) => b.y - a.y);
+  for (let k = 1; k < ends.length; k++) if (ends[k - 1].y - ends[k].y < 14) ends[k].y = ends[k - 1].y - 14;
+  for (const e of ends) {
+    svg.append('text').attr('x', W - m.r + 6).attr('y', e.y).attr('dy', '0.35em').attr('fill', dash.colors[e.i])
+      .style('font-size', 'var(--cds-font-size-caption)').text(`${e.s.name} ${rcFmt(e.s.pts.at(-1).usd)}`);
+  }
+  // hover
+  const tip = rcTip(linesEl);
+  const rule = svg.append('line').attr('y1', 10).attr('y2', H - 28).attr('stroke', 'var(--cds-chart-reference)').attr('opacity', 0);
+  const dots = svg.append('g');
+  svg.append('rect').attr('x', m.l).attr('y', 0).attr('width', W - m.l - m.r).attr('height', H - 28).attr('fill', 'transparent')
+    .on('mousemove', (ev) => {
+      const [px] = d3.pointer(ev);
+      const yr = Math.round(x.invert(px));
+      const yrC = Math.min(years[1], Math.max(years[0], yr));
+      rule.attr('x1', x(yrC)).attr('x2', x(yrC)).attr('opacity', 1);
+      const pts = series.map((s, i) => ({ i, name: s.name, p: s.pts.find((q) => q.year === yrC) }));
+      dots.selectAll('circle').data(pts).join('circle').attr('r', 3.5).attr('cx', (q) => x(q.p.year)).attr('cy', (q) => y(q.p.usd)).attr('fill', (q) => dash.colors[q.i]);
+      rcTipLines(tip, String(yrC), pts.sort((a, b) => b.p.usd - a.p.usd).map((q) => [dash.colors[q.i], q.name, rcFmt(q.p.usd)]));
+      const sc = linesEl.clientWidth / W;
+      rcPlaceTip(linesEl, tip, x(yrC) * sc, 40);
+    })
+    .on('mouseleave', () => { tip.hidden = true; rule.attr('opacity', 0); dots.selectAll('circle').remove(); });
+});
+</script>
+
+<script>
+// Stacked bars by module, and parts table, for the chosen robot
+const stackEl = document.getElementById('stack');
+dash.onData(() => {
+  const d = dash.data('modules');
+  if (d.status !== 'ok') { rcFail(stackEl, d.status); return; }
+  stackEl.classList.remove('dash-skeleton');
+  stackEl.querySelectorAll('svg, .rc-legend, .rc-fail').forEach((n) => n.remove());
+  const robot = rcRobot();
+  const rows = d.data.filter((r) => r.robot === robot);
+  const mods = [...new Set(d.data.map((r) => r.module))];
+  const years = [...new Set(rows.map((r) => +r.year))].sort((a, b) => a - b);
+  const wide = years.map((yr) => Object.fromEntries([['year', yr], ...mods.map((mo) => [mo, +(rows.find((r) => +r.year === yr && r.module === mo)?.usd ?? 0)])]));
+  const stacked = d3.stack().keys(mods)(wide);
+  const W = Math.max(280, stackEl.clientWidth), H = 270;
+  const svg = d3.select(stackEl).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+  const top = d3.max(wide, (w) => d3.sum(mods, (mo) => w[mo])) || 1;
+  const y = d3.scaleLinear([0, top], [H - 26, 26]);
+  const x = d3.scaleBand(years, [8, W - 8]).padding(0.35);
+  const color = (mo) => dash.colors[mods.indexOf(mo) % dash.colors.length];
+  const tip = rcTip(stackEl);
+  svg.append('line').attr('x1', 8).attr('x2', W - 8).attr('y1', H - 26).attr('y2', H - 26).attr('stroke', 'var(--cds-chart-axis)');
+  for (const layer of stacked) {
+    svg.append('g').selectAll('rect').data(layer).join('rect')
+      .attr('x', (p) => x(p.data.year)).attr('width', x.bandwidth())
+      .attr('y', (p) => y(p[1])).attr('height', (p) => Math.max(0, y(p[0]) - y(p[1]) - 1))
+      .attr('fill', color(layer.key))
+      .on('mousemove', (ev, p) => {
+        const sc = stackEl.clientWidth / W;
+        const total = d3.sum(mods, (mo) => p.data[mo]);
+        rcTipLines(tip, `${robot} · ${rcAnchor(p.data.year)}`, [[color(layer.key), layer.key, `${rcFmt(p.data[layer.key])} (${rcPct(p.data[layer.key] / total)})`]]);
+        rcPlaceTip(stackEl, tip, (x(p.data.year) + x.bandwidth()) * sc, y(p[1]) * sc + 20);
+      })
+      .on('mouseleave', () => { tip.hidden = true; });
+  }
+  svg.append('g').selectAll('text').data(wide).join('text')
+    .attr('x', (w) => x(w.year) + x.bandwidth() / 2).attr('y', (w) => y(d3.sum(mods, (mo) => w[mo])) - 6).attr('text-anchor', 'middle')
+    .attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').style('font-weight', '600')
+    .text((w) => rcFmt(d3.sum(mods, (mo) => w[mo])));
+  svg.append('g').selectAll('text').data(years).join('text')
+    .attr('x', (yr) => x(yr) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle')
+    .attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)').text(rcAnchor);
+  const lg = document.createElement('div'); lg.className = 'rc-legend';
+  for (const mo of mods) { const s = document.createElement('span'); s.style.setProperty('--sw', color(mo)); s.textContent = mo; lg.append(s); }
+  stackEl.append(lg);
+});
+
+dash.onData(() => {
+  const d = dash.data('parts');
+  const tb = document.querySelector('#parts-table tbody');
+  tb.replaceChildren();
+  const robot = rcRobot();
+  document.getElementById('parts-title').textContent = robot ? `${robot} parts` : 'Parts';
+  if (d.status !== 'ok') return;
+  const mods = dash.data('modules').status === 'ok' ? [...new Set(dash.data('modules').data.map((r) => r.module))] : [];
+  const rows = d.data.filter((r) => r.robot === robot).sort((a, b) => +b.usd_2026 - +a.usd_2026);
+  const max = d3.max(rows, (r) => +r.usd_2026) || 1;
+  for (const r of rows) {
+    const tr = document.createElement('tr'); tr.dataset.key = r.part_id;
+    const add = (txt, cls) => { const td = document.createElement('td'); td.className = cls; td.textContent = txt; tr.append(td); return td; };
+    add(r.part, 'first'); add(r.group, 'rc-wide rc-sub'); add(r.module, 'rc-wide rc-sub');
+    const c = add(rcFmt(+r.usd_2026), 'num rc-bar');
+    const bar = document.createElement('i');
+    bar.style.width = (100 * +r.usd_2026 / max) + '%';
+    bar.style.setProperty('--rc-c', dash.colors[Math.max(0, mods.indexOf(r.module)) % dash.colors.length]);
+    c.append(bar);
+    add(rcFmt(+r.usd_2030), 'num'); add(rcFmt(+r.usd_2035), 'num'); add(rcFmt(+r.usd_2040), 'num');
+    add(r.note, 'rc-wide rc-sub');
+  }
+});
+</script>

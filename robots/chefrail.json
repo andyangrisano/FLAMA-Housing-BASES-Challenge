@@ -1,0 +1,2762 @@
+{
+  "name": "chefrail",
+  "display_name": "ChefRail (two arms on a ceiling rail)",
+  "task": "Two arms on a ceiling rail over the kitchen cook simple one-pot recipes, serve them on the island and load the dishwasher afterwards.",
+  "trigger": {
+    "type": "phone_button",
+    "label": "Cook dinner",
+    "options": [
+      "Recipe: chicken stir-fry / veggie pasta / omelette",
+      "Servings: 2 / 4"
+    ],
+    "notify_on": [
+      "done",
+      "blocked",
+      "needs_help"
+    ]
+  },
+  "form_factor": "arm_on_rail",
+  "footprint_m": [
+    4.2,
+    0.4
+  ],
+  "height_m": 0.45,
+  "reach_m": 1.4,
+  "payload_kg": 3,
+  "speed_mps": 0.4,
+  "battery_h": 0,
+  "bom_usd": 18100,
+  "bom_assumptions": "Quantity-1 2026 prices. Arms: 2 x 6-DOF, 1.4 m reach, 3 kg payload (a pot of water), built from quasi-direct-drive actuators (~$5,000 each). Ceiling rail: 4.2 m motorised linear track + carriage + joist mounting (~$2,000). Vision + compute: ceiling RGB-D camera, 2 wrist cameras, Jetson AGX Orin (~$2,500). Tool changer + dicer + spoon/ladle/tongs (~$1,500). 2 parallel grippers (~$1,600). Safety light curtain + e-stop (~$500). Wall-powered; height_m is how far the folded arms hang below the ceiling.",
+  "cost_drivers": [
+    [
+      "2 x 6-DOF arms, 1.4 m reach, 3 kg payload",
+      10000
+    ],
+    [
+      "Vision + compute: ceiling + wrist cameras, Jetson AGX Orin",
+      2500
+    ],
+    [
+      "4.2 m motorised ceiling rail, carriage and mounting",
+      2000
+    ]
+  ],
+  "env_changes_required": [
+    "Ceiling rail screwed into joists along the kitchen at 2.15 m (needs a joist run parallel to the counters; ~1 day install).",
+    "Open shelf for bowls/plates at the west end of the counter, within reach of the rail (~$80); cabinet doors are not opened.",
+    "Cutting board and a lever dicer kept on the north edge of the island as the prep zone.",
+    "Stove safety shutoff that cuts the burners if the robot or the user walks away (~$150); the robot turns the knobs itself.",
+    "Pantry staples in labelled bins on one fridge shelf so the arms can find them."
+  ],
+  "tasks_excluded": [
+    "Freehand knife work: cutting irregular produce next to people is high-risk; it uses a mounted dicer, pre-cut or frozen ingredients instead.",
+    "Tasting and seasoning by taste: no reliable sensor; it follows the recipe amounts.",
+    "Serving at the dining table: the rail doesn't reach it; food is served on the island and the user carries it.",
+    "Hand-washing pans and putting dishes away in cabinets: everything goes in the dishwasher's top rack; unloading is left to the user.",
+    "Oven roasting with heavy dishes (>3 kg) and deep frying: payload and spill risk.",
+    "Starting on its own: on-demand only, from the phone button."
+  ],
+  "turn_to_path": false,
+  "parts": {
+    "arm_l": {
+      "pivot": [
+        -0.15,
+        2.05,
+        0
+      ]
+    },
+    "fore_l": {
+      "pivot": [
+        -0.15,
+        1.35,
+        0
+      ],
+      "parent": "arm_l"
+    },
+    "arm_r": {
+      "pivot": [
+        0.15,
+        2.05,
+        0
+      ]
+    },
+    "fore_r": {
+      "pivot": [
+        0.15,
+        1.35,
+        0
+      ],
+      "parent": "arm_r"
+    }
+  },
+  "items": {
+    "veg": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.2,
+            0.08,
+            0.14
+          ],
+          "position": [
+            0,
+            0.04,
+            0
+          ],
+          "color": "plant"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.04,
+          "position": [
+            0.05,
+            0.08,
+            0
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "protein": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.18,
+            0.04,
+            0.12
+          ],
+          "position": [
+            0,
+            0.02,
+            0
+          ],
+          "color": "terracotta"
+        }
+      ]
+    },
+    "pot": {
+      "at": [
+        4.47,
+        0.935,
+        9.77
+      ],
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.12,
+          "height": 0.14,
+          "position": [
+            0,
+            0.07,
+            0
+          ],
+          "color": "steel"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.2,
+            0.015,
+            0.03
+          ],
+          "position": [
+            0.2,
+            0.12,
+            0
+          ],
+          "color": "black"
+        }
+      ]
+    },
+    "pot_food": {
+      "at": [
+        4.47,
+        1.03,
+        9.49
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.1,
+          "height": 0.02,
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "spoon": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.02,
+            0.3,
+            0.02
+          ],
+          "position": [
+            0,
+            0.1,
+            0
+          ],
+          "color": "wood_light"
+        }
+      ]
+    },
+    "bowl_1": {
+      "at": [
+        2.665,
+        0.91,
+        9.6
+      ],
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.06,
+          "radius_top": 0.085,
+          "height": 0.06,
+          "position": [
+            0,
+            0.03,
+            0
+          ],
+          "color": "ceramic"
+        }
+      ]
+    },
+    "bowl_2": {
+      "at": [
+        2.665,
+        0.97,
+        9.6
+      ],
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.06,
+          "radius_top": 0.085,
+          "height": 0.06,
+          "position": [
+            0,
+            0.03,
+            0
+          ],
+          "color": "ceramic"
+        }
+      ]
+    },
+    "food_1": {
+      "at": [
+        3.95,
+        0.96,
+        7.85
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.07,
+          "height": 0.02,
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "food_2": {
+      "at": [
+        5.05,
+        0.96,
+        7.85
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.07,
+          "height": 0.02,
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "cloth": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.2,
+            0.02,
+            0.15
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "fabric_blue"
+        }
+      ]
+    },
+    "cutting_board": {
+      "at": [
+        4.3,
+        0.91,
+        7.95
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.42,
+            0.02,
+            0.28
+          ],
+          "position": [
+            0,
+            0.01,
+            0
+          ],
+          "color": "wood_light"
+        }
+      ]
+    },
+    "dicer": {
+      "at": [
+        4.75,
+        0.91,
+        7.95
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.18,
+            0.1,
+            0.18
+          ],
+          "position": [
+            0,
+            0.05,
+            0
+          ],
+          "color": "white_appliance"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.16,
+            0.02,
+            0.16
+          ],
+          "position": [
+            0,
+            0.13,
+            0
+          ],
+          "color": "accent"
+        }
+      ]
+    }
+  },
+  "setup": {
+    "set": {
+      "@fridge.door_right": {
+        "hinge": {
+          "point": [
+            0.455,
+            0,
+            0.355
+          ],
+          "axis": "y",
+          "deg": 0
+        },
+        "over_s": 2,
+        "delay_s": 0
+      },
+      "@fridge.handle_right": {
+        "hinge": {
+          "point": [
+            0.455,
+            0,
+            0.355
+          ],
+          "axis": "y",
+          "deg": 0
+        },
+        "over_s": 2,
+        "delay_s": 0
+      },
+      "@dishwasher.door": {
+        "hinge": {
+          "point": [
+            0,
+            0.13,
+            0.28
+          ],
+          "axis": "x",
+          "deg": 0
+        },
+        "over_s": 2,
+        "delay_s": 0
+      },
+      "@dishwasher.handle": {
+        "hinge": {
+          "point": [
+            0,
+            0.13,
+            0.28
+          ],
+          "axis": "x",
+          "deg": 0
+        },
+        "over_s": 2,
+        "delay_s": 0
+      },
+      "@dishwasher.control_strip": {
+        "hinge": {
+          "point": [
+            0,
+            0.13,
+            0.28
+          ],
+          "axis": "x",
+          "deg": 0
+        },
+        "over_s": 2,
+        "delay_s": 0
+      }
+    }
+  },
+  "primitives": [
+    {
+      "type": "box",
+      "size": [
+        4.2,
+        0.05,
+        0.1
+      ],
+      "position": [
+        1.7,
+        2.17,
+        0
+      ],
+      "color": "joint",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.04,
+        0.27,
+        0.04
+      ],
+      "position": [
+        -0.35,
+        2.31,
+        0
+      ],
+      "color": "joint",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.04,
+        0.27,
+        0.04
+      ],
+      "position": [
+        3.75,
+        2.31,
+        0
+      ],
+      "color": "joint",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.12,
+        0.06,
+        0.08
+      ],
+      "position": [
+        1.7,
+        2.11,
+        -0.1
+      ],
+      "color": "accent",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.4,
+        0.08,
+        0.16
+      ],
+      "position": [
+        0,
+        2.11,
+        0
+      ],
+      "color": "body"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.06,
+      "position": [
+        -0.15,
+        2.05,
+        0
+      ],
+      "color": "joint",
+      "part": "arm_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.07,
+        0.7,
+        0.07
+      ],
+      "position": [
+        -0.15,
+        1.7,
+        0
+      ],
+      "color": "body",
+      "part": "arm_l"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.05,
+      "position": [
+        -0.15,
+        1.35,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.06,
+        0.6,
+        0.06
+      ],
+      "position": [
+        -0.15,
+        1.05,
+        0
+      ],
+      "color": "body",
+      "part": "fore_l"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.04,
+      "position": [
+        -0.15,
+        0.75,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.08,
+        0.06,
+        0.1
+      ],
+      "position": [
+        -0.15,
+        0.7,
+        0
+      ],
+      "color": "accent",
+      "part": "fore_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.08,
+        0.03
+      ],
+      "position": [
+        -0.18,
+        0.63,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.08,
+        0.03
+      ],
+      "position": [
+        -0.12,
+        0.63,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.04,
+        0.03,
+        0.04
+      ],
+      "position": [
+        -0.15,
+        0.8,
+        0.06
+      ],
+      "color": "accent",
+      "part": "fore_l"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.06,
+      "position": [
+        0.15,
+        2.05,
+        0
+      ],
+      "color": "joint",
+      "part": "arm_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.07,
+        0.7,
+        0.07
+      ],
+      "position": [
+        0.15,
+        1.7,
+        0
+      ],
+      "color": "body",
+      "part": "arm_r"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.05,
+      "position": [
+        0.15,
+        1.35,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.06,
+        0.6,
+        0.06
+      ],
+      "position": [
+        0.15,
+        1.05,
+        0
+      ],
+      "color": "body",
+      "part": "fore_r"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.04,
+      "position": [
+        0.15,
+        0.75,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.08,
+        0.06,
+        0.1
+      ],
+      "position": [
+        0.15,
+        0.7,
+        0
+      ],
+      "color": "accent",
+      "part": "fore_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.08,
+        0.03
+      ],
+      "position": [
+        0.18,
+        0.63,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.08,
+        0.03
+      ],
+      "position": [
+        0.12,
+        0.63,
+        0
+      ],
+      "color": "joint",
+      "part": "fore_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.04,
+        0.03,
+        0.04
+      ],
+      "position": [
+        0.15,
+        0.8,
+        0.06
+      ],
+      "color": "accent",
+      "part": "fore_r"
+    }
+  ],
+  "path": [
+    {
+      "label": "idle at dock: arms folded up against the rail",
+      "room": "kitchen",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 5,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            0,
+            0,
+            -90
+          ]
+        },
+        "fore_l": {
+          "rotation": [
+            0,
+            0,
+            180
+          ]
+        },
+        "arm_r": {
+          "rotation": [
+            0,
+            0,
+            90
+          ]
+        },
+        "fore_r": {
+          "rotation": [
+            0,
+            0,
+            -180
+          ]
+        }
+      }
+    },
+    {
+      "label": "button press: \"Cook dinner\" (phone app)",
+      "room": "kitchen",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 3
+    },
+    {
+      "label": "unfold arms; ceiling camera checks nobody is under the rail",
+      "room": "kitchen",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 8,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 5,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 5,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 5,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 5,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken (open fridge)",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "@fridge.door_right": {
+          "hinge": {
+            "point": [
+              0.455,
+              0,
+              0.355
+            ],
+            "axis": "y",
+            "deg": 100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@fridge.handle_right": {
+          "hinge": {
+            "point": [
+              0.455,
+              0,
+              0.355
+            ],
+            "axis": "y",
+            "deg": 100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "arm_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "fore_l": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "arm_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "fore_r": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken (pick veg)",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "veg": {
+          "at": [
+            6.05,
+            1.0,
+            9.15
+          ],
+          "visible": true,
+          "over_s": 0.1,
+          "delay_s": 4
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken (grip veg)",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "veg": {
+          "to": "fore_r",
+          "delay_s": 4.5
+        }
+      },
+      "set": {
+        "veg": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 4.6
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken (pick protein)",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "protein": {
+          "at": [
+            6.25,
+            1.0,
+            9.15
+          ],
+          "visible": true,
+          "over_s": 0.1,
+          "delay_s": 6
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken (grip protein)",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "protein": {
+          "to": "fore_l",
+          "delay_s": 6.5
+        }
+      },
+      "set": {
+        "protein": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 6.6
+        }
+      }
+    },
+    {
+      "label": "open the fridge and take out vegetables and chicken",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.05,
+        8.9
+      ],
+      "dwell_s": 14,
+      "set": {
+        "@fridge.door_right": {
+          "hinge": {
+            "point": [
+              0.455,
+              0,
+              0.355
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 10
+        },
+        "@fridge.handle_right": {
+          "hinge": {
+            "point": [
+              0.455,
+              0,
+              0.355
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 10
+        },
+        "arm_l": {
+          "rotation": [
+            -5,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 10
+        },
+        "fore_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 10
+        },
+        "arm_r": {
+          "rotation": [
+            -5,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 10
+        },
+        "fore_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 10
+        }
+      }
+    },
+    {
+      "label": "prep on the island: dice the vegetables in the mounted dicer (reach island)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "prep on the island: dice the vegetables in the mounted dicer (veg to dicer)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "veg": {
+          "delay_s": 3.5
+        }
+      },
+      "set": {
+        "veg": {
+          "at": [
+            4.75,
+            1.03,
+            7.95
+          ],
+          "over_s": 1.5,
+          "delay_s": 3.6
+        }
+      }
+    },
+    {
+      "label": "prep on the island: dice the vegetables in the mounted dicer (protein to board)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "protein": {
+          "delay_s": 4
+        }
+      },
+      "set": {
+        "protein": {
+          "at": [
+            4.2,
+            0.935,
+            7.95
+          ],
+          "over_s": 1.5,
+          "delay_s": 4.1
+        }
+      }
+    },
+    {
+      "label": "prep on the island: dice the vegetables in the mounted dicer",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 60,
+      "set": {
+        "veg": {
+          "at": [
+            4.75,
+            0.935,
+            8.0
+          ],
+          "scale": [
+            1.3,
+            0.4,
+            1.2
+          ],
+          "over_s": 30,
+          "delay_s": 10
+        }
+      },
+      "motion": [
+        {
+          "target": "fore_r",
+          "type": "move",
+          "axis": "y",
+          "amount": 0.04,
+          "period_s": 0.6,
+          "delay_s": 6,
+          "for_s": 40
+        },
+        {
+          "target": "fore_l",
+          "type": "rotate",
+          "axis": "x",
+          "amount": 6,
+          "period_s": 1.4,
+          "delay_s": 6,
+          "for_s": 40
+        }
+      ]
+    },
+    {
+      "label": "take the pot to the sink and fill it (reach)",
+      "room": "kitchen",
+      "fixture": "kitchen_counter",
+      "position": [
+        3.9,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "take the pot to the sink and fill it (grip pot)",
+      "room": "kitchen",
+      "fixture": "kitchen_counter",
+      "position": [
+        3.9,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "pot": {
+          "to": "fore_r",
+          "delay_s": 3.5
+        }
+      },
+      "set": {
+        "pot": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 3.6
+        }
+      }
+    },
+    {
+      "label": "take the pot to the sink and fill it (place pot)",
+      "room": "kitchen",
+      "fixture": "kitchen_counter",
+      "position": [
+        3.9,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "pot": {
+          "delay_s": 7
+        }
+      },
+      "set": {
+        "pot": {
+          "at": [
+            3.87,
+            0.82,
+            9.62
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.5,
+          "delay_s": 7.1
+        }
+      }
+    },
+    {
+      "label": "take the pot to the sink and fill it",
+      "room": "kitchen",
+      "fixture": "kitchen_counter",
+      "position": [
+        3.9,
+        8.9
+      ],
+      "dwell_s": 40,
+      "effects": [
+        {
+          "type": "water",
+          "at": "@kitchen_counter.faucet_spout",
+          "offset": [
+            0,
+            -0.02,
+            0.09
+          ],
+          "delay_s": 9,
+          "for_s": 25
+        }
+      ]
+    },
+    {
+      "label": "pot onto the front burner; turn the burner on high (reach)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "pot onto the front burner; turn the burner on high (grip pot)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "pot": {
+          "to": "fore_r",
+          "delay_s": 2.5
+        }
+      },
+      "set": {
+        "pot": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 2.6
+        }
+      }
+    },
+    {
+      "label": "pot onto the front burner; turn the burner on high",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 8,
+      "detach": {
+        "pot": {
+          "delay_s": 6
+        }
+      },
+      "set": {
+        "pot": {
+          "at": [
+            4.47,
+            0.935,
+            9.49
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.5,
+          "delay_s": 6.1
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (boil)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "effects": [
+        {
+          "type": "steam",
+          "at": "pot",
+          "offset": [
+            0,
+            0.17,
+            0
+          ],
+          "for_s": 600
+        },
+        {
+          "type": "bubbles",
+          "at": "pot",
+          "offset": [
+            0,
+            0.13,
+            0
+          ],
+          "rate": 25,
+          "for_s": 600
+        }
+      ]
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (reach island)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 120
+        },
+        "fore_l": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 120
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 120
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 120
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (grip veg)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "veg": {
+          "to": "fore_l",
+          "delay_s": 124.5
+        }
+      },
+      "set": {
+        "veg": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 124.6
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (place veg)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "veg": {
+          "delay_s": 128
+        }
+      },
+      "set": {
+        "veg": {
+          "at": [
+            4.47,
+            1.18,
+            9.49
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.5,
+          "delay_s": 128.1
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (veg in)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "veg": {
+          "at": [
+            4.47,
+            1.0,
+            9.49
+          ],
+          "visible": false,
+          "over_s": 1,
+          "delay_s": 130
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (grip protein)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "protein": {
+          "to": "fore_l",
+          "delay_s": 134.5
+        }
+      },
+      "set": {
+        "protein": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 134.6
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (place protein)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "protein": {
+          "delay_s": 138
+        }
+      },
+      "set": {
+        "protein": {
+          "at": [
+            4.47,
+            1.18,
+            9.49
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.5,
+          "delay_s": 138.1
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir (protein in)",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "protein": {
+          "at": [
+            4.47,
+            1.0,
+            9.49
+          ],
+          "visible": false,
+          "over_s": 1,
+          "delay_s": 140
+        },
+        "pot_food": {
+          "visible": true,
+          "over_s": 0.5,
+          "delay_s": 131
+        },
+        "arm_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 142
+        },
+        "fore_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 142
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 142
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 142
+        }
+      }
+    },
+    {
+      "label": "bring to a boil, add the vegetables and chicken, stir",
+      "room": "kitchen",
+      "fixture": "oven",
+      "position": [
+        4.47,
+        8.9
+      ],
+      "dwell_s": 600,
+      "attach": {
+        "spoon": {
+          "to": "fore_l",
+          "delay_s": 146
+        }
+      },
+      "set": {
+        "spoon": {
+          "position": [
+            0,
+            -0.85,
+            0
+          ],
+          "visible": true,
+          "over_s": 0.5,
+          "delay_s": 146.2
+        }
+      },
+      "motion": [
+        {
+          "target": "fore_l",
+          "type": "circle",
+          "amount": 0.05,
+          "period_s": 1.5,
+          "delay_s": 147,
+          "for_s": 420
+        }
+      ]
+    },
+    {
+      "label": "get two bowls from the open shelf (reach)",
+      "room": "kitchen",
+      "fixture": "counter_west",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 2.5,
+          "delay_s": 0
+        },
+        "spoon": {
+          "visible": false,
+          "over_s": 0.1
+        }
+      }
+    },
+    {
+      "label": "get two bowls from the open shelf (grip bowl_1)",
+      "room": "kitchen",
+      "fixture": "counter_west",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "bowl_1": {
+          "to": "fore_l",
+          "delay_s": 2.5
+        }
+      },
+      "set": {
+        "bowl_1": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 2.6
+        }
+      }
+    },
+    {
+      "label": "get two bowls from the open shelf",
+      "room": "kitchen",
+      "fixture": "counter_west",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 8,
+      "attach": {
+        "bowl_2": {
+          "to": "fore_r",
+          "delay_s": 3.5
+        }
+      },
+      "set": {
+        "bowl_2": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 3.6
+        }
+      }
+    },
+    {
+      "label": "serve: bowls on the island, ladle the stir-fry in (reach island)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "serve: bowls on the island, ladle the stir-fry in (place bowls)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "bowl_1": {
+          "delay_s": 3
+        },
+        "bowl_2": {
+          "delay_s": 3
+        }
+      },
+      "set": {
+        "bowl_1": {
+          "at": [
+            3.95,
+            0.91,
+            7.85
+          ],
+          "over_s": 1.5,
+          "delay_s": 3.1
+        },
+        "bowl_2": {
+          "at": [
+            5.05,
+            0.91,
+            7.85
+          ],
+          "over_s": 1.5,
+          "delay_s": 3.1
+        }
+      }
+    },
+    {
+      "label": "serve: bowls on the island, ladle the stir-fry in",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 40,
+      "set": {
+        "food_1": {
+          "visible": true,
+          "scale": 1,
+          "over_s": 6,
+          "delay_s": 8
+        },
+        "food_2": {
+          "visible": true,
+          "scale": 1,
+          "over_s": 6,
+          "delay_s": 16
+        },
+        "pot_food": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 22
+        }
+      },
+      "effects": [
+        {
+          "type": "steam",
+          "at": "food_1",
+          "offset": [
+            0,
+            0.03,
+            0
+          ],
+          "delay_s": 10,
+          "for_s": 40
+        },
+        {
+          "type": "steam",
+          "at": "food_2",
+          "offset": [
+            0,
+            0.03,
+            0
+          ],
+          "delay_s": 18,
+          "for_s": 40
+        }
+      ],
+      "motion": [
+        {
+          "target": "fore_r",
+          "type": "rotate",
+          "axis": "x",
+          "amount": 15,
+          "period_s": 2,
+          "delay_s": 8,
+          "for_s": 16
+        }
+      ]
+    },
+    {
+      "label": "dinner is on the island: notify, wait for the user to tap 'Done eating'",
+      "room": "kitchen",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 1800,
+      "needs_user": true,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            -10,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "food_1": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 600,
+          "delay_s": 900
+        },
+        "food_2": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 600,
+          "delay_s": 900
+        }
+      },
+      "notify": "Dinner's ready on the island"
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (open dishwasher)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "@dishwasher.door": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 85
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@dishwasher.handle": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 85
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@dishwasher.control_strip": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 85
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "arm_l": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (grip bowl_1)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "bowl_1": {
+          "to": "fore_l",
+          "delay_s": 3.5
+        }
+      },
+      "set": {
+        "bowl_1": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 3.6
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (grip bowl_2)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "bowl_2": {
+          "to": "fore_r",
+          "delay_s": 3.5
+        }
+      },
+      "set": {
+        "bowl_2": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 3.6
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (reach rack)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        },
+        "fore_l": {
+          "rotation": [
+            5,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        },
+        "arm_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        },
+        "fore_r": {
+          "rotation": [
+            5,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (bowls in)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "bowl_1": {
+          "delay_s": 10
+        },
+        "bowl_2": {
+          "delay_s": 10
+        }
+      },
+      "set": {
+        "bowl_1": {
+          "at": [
+            3.05,
+            0.62,
+            9.3
+          ],
+          "over_s": 1.5,
+          "delay_s": 10.1
+        },
+        "bowl_2": {
+          "at": [
+            3.3,
+            0.62,
+            9.3
+          ],
+          "over_s": 1.5,
+          "delay_s": 10.1
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (hide bowls)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "bowl_1": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 14
+        },
+        "bowl_2": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 14
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (rinse the pot)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 15
+        },
+        "fore_l": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 15
+        },
+        "arm_r": {
+          "rotation": [
+            -20,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 15
+        },
+        "fore_r": {
+          "rotation": [
+            -15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 15
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (grip pot)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "pot": {
+          "to": "fore_r",
+          "delay_s": 18.5
+        }
+      },
+      "set": {
+        "pot": {
+          "position": [
+            0,
+            -0.72,
+            0
+          ],
+          "over_s": 1,
+          "delay_s": 18.6
+        }
+      }
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack (pot in)",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 0,
+      "detach": {
+        "pot": {
+          "delay_s": 28
+        }
+      },
+      "set": {
+        "pot": {
+          "at": [
+            3.17,
+            0.62,
+            9.45
+          ],
+          "over_s": 1.5,
+          "delay_s": 28.1
+        }
+      },
+      "effects": [
+        {
+          "type": "water",
+          "at": "@kitchen_counter.faucet_spout",
+          "offset": [
+            0,
+            -0.02,
+            0.09
+          ],
+          "delay_s": 19,
+          "for_s": 7
+        }
+      ]
+    },
+    {
+      "label": "load bowls and the pot into the dishwasher top rack",
+      "room": "kitchen",
+      "fixture": "dishwasher",
+      "position": [
+        3.17,
+        8.9
+      ],
+      "dwell_s": 40,
+      "set": {
+        "pot": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 31
+        },
+        "@dishwasher.door": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 32
+        },
+        "@dishwasher.handle": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 32
+        },
+        "@dishwasher.control_strip": {
+          "hinge": {
+            "point": [
+              0,
+              0.13,
+              0.28
+            ],
+            "axis": "x",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 32
+        }
+      },
+      "notify": "Dishwasher started",
+      "notify_delay_s": 35
+    },
+    {
+      "label": "wipe the island (reach)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            22,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "wipe the island (cloth)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 0,
+      "attach": {
+        "cloth": {
+          "to": "fore_l",
+          "delay_s": 3
+        }
+      },
+      "set": {
+        "cloth": {
+          "position": [
+            0,
+            -0.74,
+            0
+          ],
+          "visible": true,
+          "over_s": 0.5,
+          "delay_s": 3.1
+        }
+      },
+      "motion": [
+        {
+          "target": "fore_l",
+          "type": "circle",
+          "amount": 0.12,
+          "period_s": 1.8,
+          "delay_s": 4,
+          "for_s": 45
+        },
+        {
+          "target": "arm_l",
+          "type": "rotate",
+          "axis": "y",
+          "amount": 20,
+          "period_s": 5,
+          "delay_s": 4,
+          "for_s": 45
+        }
+      ],
+      "effects": [
+        {
+          "type": "spray",
+          "at": "cloth",
+          "offset": [
+            0,
+            0.1,
+            0
+          ],
+          "dir": [
+            0,
+            -1,
+            0
+          ],
+          "delay_s": 4,
+          "for_s": 6
+        },
+        {
+          "type": "sparkle",
+          "at": [
+            4.5,
+            0.95,
+            7.9
+          ],
+          "delay_s": 15,
+          "for_s": 30
+        }
+      ]
+    },
+    {
+      "label": "wipe the island",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        4.4,
+        8.9
+      ],
+      "dwell_s": 55,
+      "set": {
+        "cloth": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 50
+        }
+      }
+    },
+    {
+      "label": "fold arms up against the rail; back to the dock",
+      "room": "kitchen",
+      "position": [
+        2.9,
+        8.9
+      ],
+      "dwell_s": 8,
+      "set": {
+        "arm_l": {
+          "rotation": [
+            0,
+            0,
+            -90
+          ],
+          "over_s": 6,
+          "delay_s": 0
+        },
+        "fore_l": {
+          "rotation": [
+            0,
+            0,
+            180
+          ],
+          "over_s": 6,
+          "delay_s": 0
+        },
+        "arm_r": {
+          "rotation": [
+            0,
+            0,
+            90
+          ],
+          "over_s": 6,
+          "delay_s": 0
+        },
+        "fore_r": {
+          "rotation": [
+            0,
+            0,
+            -180
+          ],
+          "over_s": 6,
+          "delay_s": 0
+        }
+      },
+      "notify": "Kitchen clean"
+    }
+  ],
+  "cycle_minutes_estimate": 50,
+  "human_minutes_equivalent": 45
+}

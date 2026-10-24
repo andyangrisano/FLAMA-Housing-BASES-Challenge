@@ -1,0 +1,1873 @@
+{
+  "name": "cleansweep",
+  "display_name": "CleanSweep (floor robot + suction climber)",
+  "task": "A vacuum-mop floor robot cleans the floors and lifts a small suction climber onto counters and glass to wipe them, then empties itself at its dock.",
+  "trigger": {
+    "type": "phone_button",
+    "label": "Clean the kitchen",
+    "options": [
+      "Route: react to the mess / scripted demo",
+      "Surfaces: floors + counters + glass / floors only"
+    ],
+    "notify_on": [
+      "done",
+      "blocked",
+      "needs_help"
+    ]
+  },
+  "form_factor": "wheeled",
+  "footprint_m": [
+    0.4,
+    0.42
+  ],
+  "height_m": 0.32,
+  "reach_m": 0.42,
+  "payload_kg": 1.0,
+  "speed_mps": 0.3,
+  "battery_h": 2.5,
+  "bom_usd": 2200,
+  "bom_assumptions": "Quantity-1 component prices, 2026. Floor robot base = lidar, vacuum fan + brush roll, mop module with 2 tanks, 2 drive motors, 5 Ah battery, bumper. Dock station = pumps, tanks, dust-bag fan, pad heater. Climber = 4 suction chambers with one 12 V fan, 2 tread motors, 1 Ah battery, microfibre pad, spray pump. Compute = Jetson Orin Nano (~$250) + RGB-D camera (~$150). The robot runs at 0.3 m/s in the sim (below the 0.6-1.0 wheeled range) because it is cleaning while it drives.",
+  "cost_drivers": [
+    [
+      "Floor robot base: lidar, vacuum, mop module, battery, motors",
+      650
+    ],
+    [
+      "Telescoping mast + lift cradle + crevice arm",
+      450
+    ],
+    [
+      "Suction climber: 4-chamber fan, treads, battery, spray pad",
+      420
+    ]
+  ],
+  "env_changes_required": [
+    "Dock at the dead end of the hallway needs a wall outlet (~$150 if one isn't there).",
+    "Push dining chairs in when the robot runs: the 0.45 m gap between them is only 5 cm wider than the robot.",
+    "Keep a ~25 cm strip on counters clear where the climber is launched (here: the west end of the island).",
+    "Cords, socks and pet toys off the floor before a run (the robot avoids them but skips that area)."
+  ],
+  "tasks_excluded": [
+    "Painted drywall walls: suction on matte, porous paint is unreliable and a failed grip drops the climber; only glass, tile, stone and cabinet fronts.",
+    "Wall-to-ceiling corners and above 1.9 m: past the mast's reach, and the climber never transitions between surfaces on its own.",
+    "Cleaning around the stove, sink and knives: those are keep-out zones; the climber cleans the rest of the counter.",
+    "Moving objects off counters: it cleans around them and reports what it skipped.",
+    "Scheduled runs (daily floors, weekly glass): team rule is on-demand only, but the button works remotely from the app.",
+    "Pet messes: detected and avoided, never spread; it notifies the user."
+  ],
+  "turn_to_path": true,
+  "auto_clean": {
+    "radius_m": 0.2,
+    "arm_reach_m": 0.4,
+    "vacuum_s": 6,
+    "mop_s": 14,
+    "rooms": [
+      "hallway",
+      "foyer",
+      "living",
+      "dining",
+      "kitchen",
+      "bed2",
+      "bed3",
+      "primary",
+      "primary_bath",
+      "bath2"
+    ],
+    "parts": {
+      "brush": "brush",
+      "mop": "mop",
+      "arm": "arm"
+    }
+  },
+  "parts": {
+    "brush": {
+      "pivot": [
+        0.13,
+        0.012,
+        0.13
+      ]
+    },
+    "mop": {
+      "pivot": [
+        0,
+        0.01,
+        -0.11
+      ]
+    },
+    "mast": {
+      "pivot": [
+        0,
+        0.12,
+        0.03
+      ]
+    },
+    "lift": {
+      "pivot": [
+        0,
+        0.22,
+        0.03
+      ]
+    },
+    "arm": {
+      "pivot": [
+        0.12,
+        0.09,
+        0.18
+      ]
+    }
+  },
+  "items": {
+    "climber": {
+      "at": "lift",
+      "offset": [
+        0,
+        0.02,
+        0
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.24,
+            0.012,
+            0.24
+          ],
+          "position": [
+            0,
+            0.006,
+            0
+          ],
+          "color": "joint"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.22,
+            0.05,
+            0.22
+          ],
+          "position": [
+            0,
+            0.037,
+            0
+          ],
+          "color": "body"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.03,
+            0.03,
+            0.2
+          ],
+          "position": [
+            -0.1,
+            0.03,
+            0
+          ],
+          "color": "joint"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.03,
+            0.03,
+            0.2
+          ],
+          "position": [
+            0.1,
+            0.03,
+            0
+          ],
+          "color": "joint"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.02,
+            0.02,
+            0.12
+          ],
+          "position": [
+            0.07,
+            0.07,
+            0.1
+          ],
+          "color": "accent"
+        }
+      ]
+    },
+    "crumbs_dining": {
+      "demo_only": true,
+      "at": [
+        0.9,
+        0.0,
+        7.6
+      ],
+      "primitives": [
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0,
+            0.012,
+            0
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.12,
+            0.012,
+            0.08
+          ],
+          "color": "wood_light"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.1,
+            0.012,
+            0.15
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.2,
+            0.012,
+            -0.12
+          ],
+          "color": "wood_light"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.18,
+            0.012,
+            -0.1
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.05,
+            0.012,
+            0.25
+          ],
+          "color": "wood_light"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.25,
+            0.012,
+            0.05
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.15,
+            0.012,
+            0.3
+          ],
+          "color": "wood_light"
+        }
+      ]
+    },
+    "crumbs_kitchen": {
+      "demo_only": true,
+      "at": [
+        4.4,
+        -0.012,
+        6.4
+      ],
+      "primitives": [
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0,
+            0.012,
+            0
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.12,
+            0.012,
+            0.08
+          ],
+          "color": "orange"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.1,
+            0.012,
+            0.15
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.2,
+            0.012,
+            -0.12
+          ],
+          "color": "orange"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.18,
+            0.012,
+            -0.1
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.05,
+            0.012,
+            0.25
+          ],
+          "color": "orange"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            -0.25,
+            0.012,
+            0.05
+          ],
+          "color": "paper"
+        },
+        {
+          "type": "sphere",
+          "radius": 0.014,
+          "position": [
+            0.15,
+            0.012,
+            0.3
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "spill": {
+      "demo_only": true,
+      "at": [
+        4.6,
+        0.912,
+        7.7
+      ],
+      "primitives": [
+        {
+          "type": "cylinder",
+          "radius": 0.12,
+          "height": 0.003,
+          "position": [
+            0,
+            0.0015,
+            0
+          ],
+          "color": "orange"
+        }
+      ]
+    },
+    "smudge": {
+      "demo_only": true,
+      "at": [
+        -1.66,
+        1.2,
+        9.03
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.55,
+            0.004,
+            0.5
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "wicker"
+        }
+      ]
+    }
+  },
+  "setup": {
+    "set": {
+      "crumbs_dining": {
+        "visible": true,
+        "scale": 1
+      },
+      "crumbs_kitchen": {
+        "visible": true,
+        "scale": 1
+      },
+      "spill": {
+        "visible": true,
+        "scale": 1
+      },
+      "smudge": {
+        "visible": true,
+        "scale": 1
+      }
+    }
+  },
+  "primitives": [
+    {
+      "type": "cylinder",
+      "radius": 0.2,
+      "height": 0.09,
+      "position": [
+        0,
+        0.055,
+        0
+      ],
+      "color": "body"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.18,
+      "height": 0.02,
+      "position": [
+        0,
+        0.11,
+        0
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.04,
+      "height": 0.03,
+      "position": [
+        0,
+        0.135,
+        -0.1
+      ],
+      "color": "accent"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.05,
+        0.03
+      ],
+      "position": [
+        0,
+        0.05,
+        0.19
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.035,
+      "height": 0.025,
+      "position": [
+        -0.165,
+        0.035,
+        0
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.035,
+      "height": 0.025,
+      "position": [
+        0.165,
+        0.035,
+        0
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        0.1,
+        0.05,
+        0.09
+      ],
+      "position": [
+        -0.07,
+        0.14,
+        -0.06
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.1,
+        0.05,
+        0.09
+      ],
+      "position": [
+        0.07,
+        0.14,
+        -0.06
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.05,
+      "height": 0.006,
+      "position": [
+        0.13,
+        0.012,
+        0.13
+      ],
+      "color": "accent",
+      "part": "brush"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.012,
+        0.12
+      ],
+      "position": [
+        0,
+        0.008,
+        -0.11
+      ],
+      "color": "accent",
+      "part": "mop"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.05,
+        0.1,
+        0.05
+      ],
+      "position": [
+        0,
+        0.17,
+        0.03
+      ],
+      "color": "body",
+      "part": "mast"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.26,
+        0.02,
+        0.24
+      ],
+      "position": [
+        0,
+        0.23,
+        0.03
+      ],
+      "color": "joint",
+      "part": "lift"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.03,
+        0.03,
+        0.4
+      ],
+      "position": [
+        0.12,
+        0.09,
+        0.38
+      ],
+      "color": "body",
+      "part": "arm"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.05,
+        0.025,
+        0.06
+      ],
+      "position": [
+        0.12,
+        0.09,
+        0.6
+      ],
+      "color": "accent",
+      "part": "arm"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.26,
+        0.42,
+        0.4
+      ],
+      "position": [
+        -0.38,
+        0.21,
+        0
+      ],
+      "color": "body",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.2,
+        0.12,
+        0.16
+      ],
+      "position": [
+        -0.38,
+        0.48,
+        0.09
+      ],
+      "color": "accent",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.2,
+        0.12,
+        0.16
+      ],
+      "position": [
+        -0.38,
+        0.48,
+        -0.09
+      ],
+      "color": "joint",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.22,
+        0.01,
+        0.36
+      ],
+      "position": [
+        -0.15,
+        0.005,
+        0
+      ],
+      "color": "joint",
+      "fixed": true
+    }
+  ],
+  "path": [
+    {
+      "label": "idle at dock (hallway end): charging, tanks full",
+      "room": "hallway",
+      "position": [
+        -8.5,
+        4.335
+      ],
+      "dwell_s": 5,
+      "heading_deg": 90,
+      "set": {
+        "mast": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 0
+        },
+        "lift": {
+          "position": [
+            0,
+            0.22,
+            0.03
+          ],
+          "over_s": 0
+        },
+        "arm": {
+          "scale": [
+            1,
+            1,
+            0.2
+          ]
+        },
+        "mop": {
+          "position": [
+            0,
+            0.01,
+            -0.11
+          ]
+        }
+      }
+    },
+    {
+      "label": "button press: \"Clean the kitchen\" (phone app)",
+      "room": "hallway",
+      "position": [
+        -8.5,
+        4.335
+      ],
+      "dwell_s": 3
+    },
+    {
+      "label": "vacuum + mop the hallway on the way out",
+      "room": "hallway",
+      "position": [
+        -1.6,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass hallway -> foyer opening (1.07 m; robot 0.40 m)",
+      "room": "foyer",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> dining opening (2.0 m)",
+      "room": "dining",
+      "position": [
+        0.0,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "rug ahead: lift the mop pad 2 cm",
+      "room": "dining",
+      "position": [
+        2.1,
+        6.2
+      ],
+      "dwell_s": 3,
+      "set": {
+        "mop": {
+          "position": [
+            0,
+            0.035,
+            -0.11
+          ],
+          "over_s": 1.5
+        }
+      }
+    },
+    {
+      "label": "line up between the dining chairs (0.45 m gap)",
+      "room": "dining",
+      "position": [
+        2.1,
+        7.6
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "vacuum crumbs under the dining table",
+      "room": "dining",
+      "fixture": "dining_table",
+      "position": [
+        0.9,
+        7.6
+      ],
+      "dwell_s": 40,
+      "set": {
+        "crumbs_dining": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 30
+        }
+      },
+      "effects": [
+        {
+          "type": "dust",
+          "at": "body",
+          "offset": [
+            0,
+            0.06,
+            0.15
+          ],
+          "for_s": 40
+        }
+      ],
+      "motion": [
+        {
+          "target": "brush",
+          "type": "spin",
+          "axis": "y",
+          "period_s": 0.4,
+          "for_s": 40
+        }
+      ]
+    },
+    {
+      "label": "back out between the chairs",
+      "room": "dining",
+      "position": [
+        2.1,
+        7.6
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "onto kitchen tile: mop pad down, vacuum + mop",
+      "room": "kitchen",
+      "position": [
+        2.6,
+        8.7
+      ],
+      "dwell_s": 2,
+      "set": {
+        "mop": {
+          "position": [
+            0,
+            0.01,
+            -0.11
+          ],
+          "over_s": 1.5
+        }
+      }
+    },
+    {
+      "label": "mop the aisle between counters and island",
+      "room": "kitchen",
+      "position": [
+        5.8,
+        8.7
+      ],
+      "dwell_s": 10,
+      "effects": [
+        {
+          "type": "dust",
+          "at": "body",
+          "offset": [
+            0,
+            0.06,
+            0.15
+          ],
+          "for_s": 10
+        },
+        {
+          "type": "water",
+          "at": "mop",
+          "offset": [
+            0,
+            0.01,
+            0
+          ],
+          "rate": 25,
+          "for_s": 10
+        }
+      ],
+      "motion": [
+        {
+          "target": "brush",
+          "type": "spin",
+          "axis": "y",
+          "period_s": 0.4,
+          "for_s": 10
+        }
+      ]
+    },
+    {
+      "label": "extend crevice arm under the fridge toe-kick",
+      "room": "kitchen",
+      "fixture": "fridge",
+      "position": [
+        6.25,
+        8.9
+      ],
+      "dwell_s": 25,
+      "heading_deg": 0,
+      "set": {
+        "arm": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 3
+        }
+      },
+      "motion": [
+        {
+          "target": "arm",
+          "type": "rotate",
+          "axis": "y",
+          "amount": 12,
+          "period_s": 1.6,
+          "delay_s": 3,
+          "for_s": 18
+        }
+      ],
+      "effects": [
+        {
+          "type": "dust",
+          "at": "arm",
+          "offset": [
+            0,
+            0,
+            0.42
+          ],
+          "dir": [
+            0,
+            0,
+            -1
+          ],
+          "delay_s": 3,
+          "for_s": 18
+        }
+      ]
+    },
+    {
+      "label": "retract arm",
+      "room": "kitchen",
+      "position": [
+        5.8,
+        8.7
+      ],
+      "dwell_s": 3,
+      "set": {
+        "arm": {
+          "scale": [
+            1,
+            1,
+            0.2
+          ],
+          "over_s": 2
+        }
+      }
+    },
+    {
+      "label": "vacuum along the island stools",
+      "room": "kitchen",
+      "position": [
+        5.8,
+        6.4
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "vacuum crumbs under the bar stools",
+      "room": "kitchen",
+      "fixture": "bar_stool_1",
+      "position": [
+        3.4,
+        6.4
+      ],
+      "dwell_s": 15,
+      "set": {
+        "crumbs_kitchen": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 10
+        }
+      },
+      "effects": [
+        {
+          "type": "dust",
+          "at": "body",
+          "offset": [
+            0,
+            0.06,
+            0.15
+          ],
+          "for_s": 15
+        }
+      ],
+      "motion": [
+        {
+          "target": "brush",
+          "type": "spin",
+          "axis": "y",
+          "period_s": 0.4,
+          "for_s": 15
+        }
+      ]
+    },
+    {
+      "label": "pull up to the west end of the island",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 4,
+      "heading_deg": 90,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "mast": {
+          "scale": [
+            1,
+            8.1,
+            1
+          ],
+          "over_s": 3
+        },
+        "lift": {
+          "position": [
+            0,
+            0.93,
+            0.03
+          ],
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "detach": {
+        "climber": {
+          "delay_s": 0
+        }
+      },
+      "set": {
+        "climber": {
+          "at": [
+            3.65,
+            0.912,
+            7.6
+          ],
+          "over_s": 3
+        }
+      },
+      "effects": [
+        {
+          "type": "spray",
+          "at": "climber",
+          "offset": [
+            0,
+            0.04,
+            0.13
+          ],
+          "dir": [
+            0,
+            -0.3,
+            1
+          ],
+          "delay_s": 5,
+          "for_s": 40
+        },
+        {
+          "type": "sparkle",
+          "at": "climber",
+          "offset": [
+            0,
+            0.05,
+            0
+          ],
+          "delay_s": 10,
+          "for_s": 45
+        }
+      ]
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (1/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            4.1,
+            0.912,
+            7.75
+          ],
+          "over_s": 7,
+          "delay_s": 6
+        },
+        "spill": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 20,
+          "delay_s": 10
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (2/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            4.9,
+            0.912,
+            7.75
+          ],
+          "over_s": 7,
+          "delay_s": 14
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (3/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            4.9,
+            0.912,
+            7.45
+          ],
+          "over_s": 7,
+          "delay_s": 24
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (4/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            4.1,
+            0.912,
+            7.45
+          ],
+          "over_s": 7,
+          "delay_s": 32
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (5/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            5.2,
+            0.912,
+            7.6
+          ],
+          "over_s": 7,
+          "delay_s": 42
+        }
+      }
+    },
+    {
+      "label": "launch the climber onto the island counter and wipe it (6/6)",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 70,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            3.65,
+            0.912,
+            7.6
+          ],
+          "over_s": 7,
+          "delay_s": 55
+        }
+      }
+    },
+    {
+      "label": "catch the climber and lower the mast",
+      "room": "kitchen",
+      "fixture": "island",
+      "position": [
+        3.05,
+        7.6
+      ],
+      "dwell_s": 8,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "attach": {
+        "climber": "lift"
+      },
+      "set": {
+        "climber": {
+          "position": [
+            0,
+            0.02,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2
+        },
+        "mast": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 4
+        },
+        "lift": {
+          "position": [
+            0,
+            0.22,
+            0.03
+          ],
+          "over_s": 4
+        }
+      }
+    },
+    {
+      "label": "drive to the hallway",
+      "room": "dining",
+      "position": [
+        2.1,
+        6.2
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass dining -> foyer opening",
+      "room": "foyer",
+      "position": [
+        0.0,
+        5.2
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass foyer -> hallway opening",
+      "room": "hallway",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "hallway, outside the primary bedroom",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass primary bedroom door (0.82 m)",
+      "room": "primary",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "around the armchair",
+      "room": "primary",
+      "position": [
+        -5.95,
+        7.0
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "toward the primary bath",
+      "room": "primary",
+      "position": [
+        -5.95,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass primary bath door (0.82 m)",
+      "room": "primary_bath",
+      "position": [
+        -4.6,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "face the glass shower door",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 4,
+      "heading_deg": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "mast": {
+          "scale": [
+            1,
+            8.799999999999999,
+            1
+          ],
+          "over_s": 3
+        },
+        "lift": {
+          "position": [
+            0,
+            1.0,
+            0.03
+          ],
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "detach": [
+        "climber"
+      ],
+      "set": {
+        "climber": {
+          "at": [
+            -1.66,
+            1.0,
+            9.035
+          ],
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "over_s": 3
+        }
+      },
+      "effects": [
+        {
+          "type": "spray",
+          "at": "climber",
+          "offset": [
+            0,
+            0.06,
+            0.12
+          ],
+          "dir": [
+            0,
+            -1,
+            0.4
+          ],
+          "delay_s": 4,
+          "for_s": 60
+        },
+        {
+          "type": "sparkle",
+          "at": "climber",
+          "offset": [
+            0,
+            0.07,
+            0
+          ],
+          "delay_s": 10,
+          "for_s": 60
+        }
+      ]
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (1/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -2.05,
+            1.6,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 8
+        },
+        "smudge": {
+          "scale": 0.01,
+          "visible": false,
+          "over_s": 40,
+          "delay_s": 15
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (2/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -1.3,
+            1.6,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 18
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (3/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -1.3,
+            1.25,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 26
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (4/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -2.05,
+            1.25,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 36
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (5/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -2.05,
+            0.75,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 46
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (6/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -1.3,
+            0.75,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 56
+        }
+      }
+    },
+    {
+      "label": "press the climber onto the shower glass; it squeegees the glass (7/7)",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 80,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "set": {
+        "climber": {
+          "at": [
+            -1.66,
+            1.0,
+            9.035
+          ],
+          "over_s": 7,
+          "delay_s": 68
+        }
+      }
+    },
+    {
+      "label": "catch the climber, lower the mast",
+      "room": "primary_bath",
+      "fixture": "pbath_shower",
+      "position": [
+        -1.66,
+        8.5
+      ],
+      "dwell_s": 8,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      },
+      "attach": {
+        "climber": "lift"
+      },
+      "set": {
+        "climber": {
+          "position": [
+            0,
+            0.02,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2
+        },
+        "mast": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 4
+        },
+        "lift": {
+          "position": [
+            0,
+            0.22,
+            0.03
+          ],
+          "over_s": 4
+        }
+      }
+    },
+    {
+      "label": "back out of the bath",
+      "room": "primary_bath",
+      "position": [
+        -3.9,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass primary bath door",
+      "room": "primary",
+      "position": [
+        -4.6,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "back past the bed",
+      "room": "primary",
+      "position": [
+        -5.95,
+        8.5
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "around the armchair",
+      "room": "primary",
+      "position": [
+        -5.95,
+        7.0
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "pass primary bedroom door",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "hallway",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors + counters + glass"
+      }
+    },
+    {
+      "label": "head home past the dining table",
+      "room": "dining",
+      "position": [
+        0.0,
+        5.2
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors only"
+      }
+    },
+    {
+      "label": "pass foyer -> hallway opening",
+      "room": "hallway",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Surfaces": "floors only"
+      }
+    },
+    {
+      "label": "dock: empty dust into the bag, drain dirty water, refill, wash + dry the mop pad",
+      "room": "hallway",
+      "position": [
+        -8.5,
+        4.335
+      ],
+      "dwell_s": 90,
+      "heading_deg": 90,
+      "effects": [
+        {
+          "type": "dust",
+          "at": [
+            -8.88,
+            0.5,
+            4.335
+          ],
+          "for_s": 25
+        },
+        {
+          "type": "water",
+          "at": [
+            -8.88,
+            0.4,
+            4.24
+          ],
+          "delay_s": 25,
+          "for_s": 30
+        },
+        {
+          "type": "steam",
+          "at": [
+            -8.8,
+            0.45,
+            4.335
+          ],
+          "delay_s": 55,
+          "for_s": 30
+        }
+      ],
+      "notify": "Kitchen clean. Dust bag 40% full."
+    }
+  ],
+  "cycle_minutes_estimate": 14,
+  "human_minutes_equivalent": 25
+}

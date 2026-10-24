@@ -1,0 +1,905 @@
+{
+  "name": "trashbot",
+  "display_name": "TrashBot (self-driving kitchen can)",
+  "task": "A kitchen trash can on wheels that seals the full bag, drives it to the landfill cart in the garage, tips it in, puts in a fresh bag from its own cartridge and returns to charge.",
+  "trigger": {
+    "type": "phone_button",
+    "label": "Take out the trash",
+    "options": [],
+    "notify_on": [
+      "done",
+      "blocked",
+      "needs_help"
+    ]
+  },
+  "form_factor": "wheeled",
+  "footprint_m": [
+    0.32,
+    0.42
+  ],
+  "height_m": 0.78,
+  "reach_m": 0,
+  "payload_kg": 8,
+  "speed_mps": 0.5,
+  "battery_h": 3,
+  "bom_usd": 1150,
+  "bom_assumptions": "Quantity-1 2026 prices. Base: 2 hub motors + drivers, 4-cell Li-ion pack, 2D lidar (~$100), depth camera (~$150), Raspberry Pi 5 + AI accelerator (~$150). Lift-and-tip: ~1.1 m telescoping linear actuator rated ~20 kg plus a tilt actuator and steel frame. Seal + reline: drawstring-pull motor and a bag-ring cartridge like today's self-sealing cans (e.g. Townew). Rest: can body, lid motor, load cell, bumper switches, charging dock (~$160).",
+  "cost_drivers": [
+    [
+      "Mobile base: hub motors, battery, lidar, depth camera, compute",
+      520
+    ],
+    [
+      "Lift-and-tip mechanism: 1.1 m column + tilt actuator",
+      320
+    ],
+    [
+      "Auto seal + reline module with bag cartridge",
+      150
+    ]
+  ],
+  "env_changes_required": [
+    "Kitchen -> garage door: an automatic door opener or a robot/pet flap (~$250-400); TrashBot has no arm to open doors.",
+    "Threshold ramp at the garage step (~$60, shared with LaundryBot).",
+    "A lid-lifter bracket on the landfill cart that the robot triggers by pressing against it (~$15-40).",
+    "Keep a 0.4 m lane clear along the garage shelving (LaundryBot's dock moved 20 cm in house.json-matched paths).",
+    "Uses refill bag cartridges (~$0.20 per bag), which the self-sealing mechanism needs."
+  ],
+  "tasks_excluded": [
+    "Rolling the big cart to the curb on trash day: a 30 m outdoor trip with a curb, weather and a 50 kg cart needs a different robot; the user still does it once a week.",
+    "Starting on its own (when full or on a schedule): on-demand only; the full sensor sends a phone notification and the user taps the button.",
+    "Steps higher than ~3 cm without a ramp, and stairs.",
+    "Sorting recycling and compost: it only handles the landfill bag.",
+    "Rain and long outdoor trips: in this house the carts are in the garage, so the trip stays indoors."
+  ],
+  "turn_to_path": true,
+  "parts": {
+    "mast": {
+      "pivot": [
+        0,
+        0.12,
+        -0.05
+      ]
+    },
+    "can": {
+      "pivot": [
+        0,
+        0.17,
+        0.2
+      ]
+    },
+    "lid": {
+      "pivot": [
+        0,
+        0.75,
+        -0.2
+      ],
+      "parent": "can"
+    },
+    "cinch": {
+      "pivot": [
+        0,
+        0.715,
+        0
+      ],
+      "parent": "can"
+    }
+  },
+  "items": {
+    "bag": {
+      "at": "can",
+      "offset": [
+        0,
+        0.27,
+        -0.2
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.28,
+            0.5,
+            0.36
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "bin_black"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.2,
+            0.05,
+            0.2
+          ],
+          "position": [
+            0,
+            0.26,
+            0
+          ],
+          "color": "bin_black"
+        }
+      ]
+    },
+    "knot": {
+      "at": "can",
+      "offset": [
+        0,
+        0.56,
+        -0.2
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "sphere",
+          "radius": 0.045,
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "bin_black"
+        }
+      ]
+    },
+    "liner": {
+      "at": "can",
+      "offset": [
+        0,
+        0.27,
+        -0.2
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.29,
+            0.5,
+            0.37
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "fabric_grey"
+        }
+      ]
+    }
+  },
+  "setup": {
+    "set": {
+      "@kitchen_trash": {
+        "visible": false
+      },
+      "@garage_trash.lid": {
+        "hinge": {
+          "point": [
+            0,
+            1.09,
+            -0.37
+          ],
+          "axis": "x",
+          "deg": 0
+        }
+      },
+      "liner": {
+        "visible": false,
+        "scale": [
+          1,
+          0.05,
+          1
+        ]
+      },
+      "bag": {
+        "visible": true,
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "primitives": [
+    {
+      "type": "box",
+      "size": [
+        0.32,
+        0.1,
+        0.42
+      ],
+      "position": [
+        0,
+        0.09,
+        0
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.03,
+      "position": [
+        -0.17,
+        0.06,
+        0.08
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.03,
+      "position": [
+        0.17,
+        0.06,
+        0.08
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "sphere",
+      "radius": 0.03,
+      "position": [
+        0,
+        0.03,
+        -0.16
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.32,
+        0.04,
+        0.02
+      ],
+      "position": [
+        0,
+        0.05,
+        0.215
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.08,
+        0.03,
+        0.02
+      ],
+      "position": [
+        0,
+        0.12,
+        0.215
+      ],
+      "color": "accent"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.26,
+        0.05,
+        0.02
+      ],
+      "position": [
+        0,
+        0.09,
+        -0.215
+      ],
+      "color": "accent"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.3,
+        0.012,
+        0.3
+      ],
+      "position": [
+        0,
+        0.006,
+        0
+      ],
+      "color": "accent",
+      "fixed": true
+    },
+    {
+      "type": "box",
+      "size": [
+        0.1,
+        0.1,
+        0.1
+      ],
+      "position": [
+        0,
+        0.17,
+        -0.05
+      ],
+      "color": "joint",
+      "part": "mast"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.32,
+        0.58,
+        0.4
+      ],
+      "position": [
+        0,
+        0.46,
+        0
+      ],
+      "color": "body",
+      "part": "can"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.33,
+        0.04,
+        0.41
+      ],
+      "position": [
+        0,
+        0.73,
+        0
+      ],
+      "color": "joint",
+      "part": "can"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.12,
+        0.02,
+        0.04
+      ],
+      "position": [
+        0,
+        0.18,
+        0.215
+      ],
+      "color": "joint",
+      "part": "can"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.015,
+      "position": [
+        0.12,
+        0.7,
+        0.205
+      ],
+      "color": "accent",
+      "part": "can"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.15,
+      "height": 0.01,
+      "position": [
+        0,
+        0.715,
+        0
+      ],
+      "color": "accent",
+      "part": "cinch"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.32,
+        0.03,
+        0.4
+      ],
+      "position": [
+        0,
+        0.765,
+        0
+      ],
+      "color": "body",
+      "part": "lid"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.12,
+        0.02,
+        0.03
+      ],
+      "position": [
+        0,
+        0.785,
+        0.18
+      ],
+      "color": "joint",
+      "part": "lid"
+    }
+  ],
+  "path": [
+    {
+      "label": "idle in its kitchen spot, charging (works as a normal pedal can)",
+      "room": "kitchen",
+      "fixture": "kitchen_trash",
+      "position": [
+        6.54,
+        8.5
+      ],
+      "dwell_s": 5,
+      "heading_deg": 270,
+      "set": {
+        "lid": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 0,
+          "delay_s": 0
+        },
+        "can": {
+          "position": [
+            0,
+            0.17,
+            0.2
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mast": {
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "cinch": {
+          "scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "label": "button press: \"Take out the trash\" (phone app)",
+      "room": "kitchen",
+      "position": [
+        6.54,
+        8.5
+      ],
+      "dwell_s": 3,
+      "notify": "Bag is 92% full (weight sensor)"
+    },
+    {
+      "label": "open the lid, pull the drawstring closed and tie the bag",
+      "room": "kitchen",
+      "fixture": "kitchen_trash",
+      "position": [
+        6.54,
+        8.5
+      ],
+      "dwell_s": 12,
+      "set": {
+        "lid": {
+          "rotation": [
+            -105,
+            0,
+            0
+          ],
+          "over_s": 1.2,
+          "delay_s": 0
+        },
+        "cinch": {
+          "scale": [
+            0.25,
+            1,
+            0.25
+          ],
+          "over_s": 5,
+          "delay_s": 1.5
+        },
+        "bag": {
+          "scale": [
+            0.9,
+            0.95,
+            0.9
+          ],
+          "over_s": 5,
+          "delay_s": 1.5
+        },
+        "knot": {
+          "visible": true,
+          "over_s": 0.1,
+          "delay_s": 6.5
+        }
+      },
+      "motion": [
+        {
+          "target": "cinch",
+          "type": "spin",
+          "axis": "y",
+          "period_s": 0.5,
+          "delay_s": 1.5,
+          "for_s": 5
+        }
+      ]
+    },
+    {
+      "label": "close the lid for the trip (keeps smells in)",
+      "room": "kitchen",
+      "position": [
+        6.54,
+        8.5
+      ],
+      "dwell_s": 2,
+      "set": {
+        "lid": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.2,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "out of its spot",
+      "room": "kitchen",
+      "position": [
+        6.0,
+        8.5
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "past the island, toward the garage door",
+      "room": "kitchen",
+      "position": [
+        6.0,
+        6.0
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> garage door (0.915 m; robot 0.32 m) and down the threshold ramp",
+      "room": "garage",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "into the garage",
+      "room": "garage",
+      "position": [
+        7.3,
+        5.85
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        10.4,
+        5.82
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "around the recycling cart",
+      "room": "garage",
+      "position": [
+        10.9,
+        5.6
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "line up with the landfill cart",
+      "room": "garage",
+      "fixture": "garage_trash",
+      "position": [
+        11.93,
+        5.45
+      ],
+      "dwell_s": 2,
+      "heading_deg": 0
+    },
+    {
+      "label": "lid opener lifts the cart lid; the can rises on its lift column",
+      "room": "garage",
+      "fixture": "garage_trash",
+      "position": [
+        11.93,
+        5.45
+      ],
+      "dwell_s": 7,
+      "heading_deg": 0,
+      "set": {
+        "@garage_trash.lid": {
+          "hinge": {
+            "point": [
+              0,
+              1.09,
+              -0.37
+            ],
+            "axis": "x",
+            "deg": -110
+          },
+          "over_s": 1.5
+        },
+        "mast": {
+          "scale": [
+            1,
+            10.6,
+            1
+          ],
+          "over_s": 4,
+          "delay_s": 1.5
+        },
+        "can": {
+          "position": [
+            0,
+            1.23,
+            0.2
+          ],
+          "over_s": 4,
+          "delay_s": 1.5
+        }
+      }
+    },
+    {
+      "label": "tip the can forward like a garbage truck: the sealed bag drops into the cart",
+      "room": "garage",
+      "fixture": "garage_trash",
+      "position": [
+        11.93,
+        5.45
+      ],
+      "dwell_s": 7,
+      "heading_deg": 0,
+      "set": {
+        "lid": {
+          "rotation": [
+            -110,
+            0,
+            0
+          ],
+          "over_s": 0.8,
+          "delay_s": 0
+        },
+        "can": {
+          "rotation": [
+            118,
+            0,
+            0
+          ],
+          "over_s": 2.2,
+          "delay_s": 0.6
+        },
+        "bag": {
+          "at": [
+            12.0,
+            0.75,
+            6.2
+          ],
+          "rotation": [
+            20,
+            30,
+            0
+          ],
+          "over_s": 1.0,
+          "delay_s": 2.9
+        },
+        "knot": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 2.8
+        }
+      },
+      "detach": {
+        "bag": {
+          "delay_s": 2.8
+        }
+      },
+      "notify": "Bag in the cart"
+    },
+    {
+      "label": "hide the bag in the cart, level the can, lower it and close the cart lid",
+      "room": "garage",
+      "fixture": "garage_trash",
+      "position": [
+        11.93,
+        5.45
+      ],
+      "dwell_s": 7,
+      "heading_deg": 0,
+      "set": {
+        "bag": {
+          "visible": false,
+          "over_s": 0.1
+        },
+        "can": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "position": [
+            0,
+            0.17,
+            0.2
+          ],
+          "over_s": 3
+        },
+        "mast": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 3
+        },
+        "@garage_trash.lid": {
+          "hinge": {
+            "point": [
+              0,
+              1.09,
+              -0.37
+            ],
+            "axis": "x",
+            "deg": 0
+          },
+          "over_s": 1.5,
+          "delay_s": 3.5
+        }
+      }
+    },
+    {
+      "label": "pull a fresh bag from the cartridge, open it and line the can",
+      "room": "garage",
+      "position": [
+        11.93,
+        5.45
+      ],
+      "dwell_s": 9,
+      "heading_deg": 0,
+      "set": {
+        "liner": {
+          "visible": true,
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 6,
+          "delay_s": 0.5
+        },
+        "cinch": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 1.5,
+          "delay_s": 6
+        },
+        "lid": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.2,
+          "delay_s": 7.5
+        }
+      },
+      "motion": [
+        {
+          "target": "can",
+          "type": "move",
+          "axis": "y",
+          "amount": 0.008,
+          "period_s": 0.25,
+          "for_s": 6
+        }
+      ],
+      "notify": "New bag in. 4 bags left in the cartridge: reorder soon",
+      "notify_delay_s": 7
+    },
+    {
+      "label": "back around the recycling cart",
+      "room": "garage",
+      "position": [
+        10.9,
+        5.6
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        10.4,
+        5.82
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "toward the kitchen door",
+      "room": "garage",
+      "position": [
+        7.3,
+        5.85
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass garage -> kitchen door, up the ramp",
+      "room": "kitchen",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "past the island",
+      "room": "kitchen",
+      "position": [
+        6.0,
+        6.0
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "back to its spot",
+      "room": "kitchen",
+      "position": [
+        6.0,
+        8.5
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "dock and charge",
+      "room": "kitchen",
+      "fixture": "kitchen_trash",
+      "position": [
+        6.54,
+        8.5
+      ],
+      "dwell_s": 4,
+      "heading_deg": 270,
+      "notify": "Trash taken out; back on the charger"
+    }
+  ],
+  "cycle_minutes_estimate": 5,
+  "human_minutes_equivalent": 3
+}

@@ -1,0 +1,6 @@
+module,usd_2026,usd_2030,usd_2035,usd_2040,pct_left_2030,pct_left_2040
+"Actuators (joints, grippers, drives)",31000,7500,5000,4000,0.242,0.129
+Sensors & vision,6500,2750,1500,1000,0.423,0.154
+Compute & electronics,4000,1150,600,400,0.287,0.1
+Structure & housings,6000,2250,1200,800,0.375,0.133
+Battery & power,2000,950,600,500,0.475,0.25

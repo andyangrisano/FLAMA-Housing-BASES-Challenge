@@ -1,0 +1,1428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BASES House Sim</title>
+<style>
+  :root {
+    --bg: #E9E8E4; --panel: #FFFFFF; --text: #1E1E1E; --muted: #6B6B6B; --line: #D6D4CE;
+    --accent: #3A7BD5; --error: #B3261E; --label-bg: rgba(255,255,255,.85);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16181B; --panel: #1F2226; --text: #ECECEA; --muted: #9A9C9F; --line: #33373C;
+            --error: #FF8A80; --label-bg: rgba(31,34,38,.85); }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  body { display: flex; overflow: hidden; }
+  #view { flex: 1; position: relative; min-width: 0; }
+  #view canvas { display: block; }
+  #panel { width: 340px; background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; padding: 12px 14px; }
+  h1 { font-size: 15px; margin: 0 0 8px; }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  button { font: inherit; color: var(--text); background: transparent; border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  #clock { font-variant-numeric: tabular-nums; font-weight: 600; margin-left: auto; }
+  #info dl { display: grid; grid-template-columns: max-content 1fr; gap: 3px 10px; margin: 0; }
+  #info dt { color: var(--muted); }
+  #info dd { margin: 0; word-break: break-word; }
+  #info ul { margin: 0; padding-left: 16px; }
+  #info code { font-size: 11px; }
+  .hint { color: var(--muted); }
+  #errors div { color: var(--error); border-left: 3px solid var(--error); padding: 4px 8px; margin: 4px 0; word-break: break-word; }
+  .robot { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; display: grid; gap: 6px; }
+  .robot .status { font-size: 12px; }
+  .robot select { font: inherit; font-size: 12px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+  .robot .opts label { font-size: 12px; }
+  button:disabled { opacity: .45; cursor: default; }
+  #phone div { font-size: 12px; padding: 2px 0; color: var(--text); }
+  .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.22) 100%); }
+  #fade { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: #0b0d10; opacity: 0; }
+  #fps { position: absolute; right: 10px; bottom: 10px; z-index: 2; font: 12px/1 ui-monospace, monospace; padding: 5px 7px;
+    border-radius: 6px; background: var(--label-bg); color: var(--text); pointer-events: none; }
+  #story { position: absolute; left: 16px; top: 16px; max-width: min(440px, calc(100% - 32px)); z-index: 2; padding: 14px 16px;
+    background: var(--label-bg); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 10px; }
+  #story h3 { margin: 2px 0 6px; font-size: 17px; }
+  #story p { margin: 0 0 8px; }
+  #story .story-step, #story .story-real { color: var(--muted); font-size: 12px; }
+  body.editing #story { top: auto; bottom: 16px; }
+  .story-bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .story-bar div { height: 100%; width: 0; background: var(--accent); }
+  #panel.story-mode #robots, #panel.story-mode #make-mess, #panel.story-mode #clear-mess, #panel.story-mode #roomcams, #panel.story-mode #cams { opacity: .4; pointer-events: none; }
+  .room-label { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--label-bg); color: var(--text); pointer-events: none; white-space: nowrap; }
+  @media (max-width: 720px) { body { flex-direction: column; } #view { height: 55vh; flex: none; }
+    #panel { width: 100%; border-left: 0; border-top: 1px solid var(--line); flex: 1; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "@theatre/core": "https://cdn.jsdelivr.net/npm/@theatre/core@0.7.2/+esm",
+  "@theatre/studio": "https://cdn.jsdelivr.net/npm/@theatre/studio@0.7.2/+esm"
+} }
+</script>
+</head>
+<body>
+<div id="view">
+  <div class="vignette"></div><div id="fade"></div>
+  <div id="fps" hidden></div>
+  <div id="story" hidden>
+    <div class="story-step"></div><h3></h3><p class="story-body"></p><p class="story-real"></p>
+    <div class="row"><button id="st-prev">◀ Back</button><button id="st-next" class="on">Next ▶</button><button id="st-exit">Skip to the house</button></div>
+    <div class="story-bar"><div></div></div>
+  </div>
+</div>
+<aside id="panel">
+  <h1>BASES House Sim</h1>
+  <button id="story-start" class="on" style="width:100%;margin-bottom:8px">▶ Watch: robots build this house</button>
+  <div id="edit-box" hidden style="border:1px dashed var(--accent);border-radius:8px;padding:8px;margin-bottom:8px">
+    <b>Theatre.js edit mode</b>
+    <p class="hint" style="margin:4px 0 6px">Start the story, then scrub or play it on the Theatre timeline. Orbit to a view you like and press
+      <i>Capture camera view</i> to keyframe it at the playhead (in Theatre, right-click the Camera's props → <i>Sequence all</i> once first).
+      Save the keyframes file into the project as <code>story-theatre.json</code> and everyone sees your shots.</p>
+    <div class="row"><button id="capture-view">Capture camera view</button><button id="save-theatre">Save keyframes file</button></div>
+  </div>
+  <div class="row">
+    <button id="play" class="on">Pause</button>
+    <button data-mult="1" class="on">1x</button><button data-mult="4">4x</button><button data-mult="16">16x</button><button data-mult="32">32x</button><button data-mult="64">64x</button>
+    <span id="clock">00:00:00</span>
+  </div>
+  <h2>Camera</h2>
+  <div class="row" id="cams"><button data-cam="overhead">Overhead</button><button data-cam="threequarter">3/4 View</button></div>
+  <div class="row" id="roomcams" style="margin-top:6px"></div>
+  <h2>Display</h2>
+  <div class="row">
+    <label><input type="checkbox" id="t-furnished" checked> Furnished</label>
+    <label><input type="checkbox" id="t-labels" checked> Room labels</label>
+    <label><input type="checkbox" id="t-paths" checked> Robot paths</label>
+    <label><input type="checkbox" id="t-full"> Full-height walls</label>
+    <label><input type="checkbox" id="t-hq" checked> Shadows</label>
+    <label><input type="checkbox" id="t-fps"> Show FPS</label>
+    <label id="t-upper-wrap" hidden><input type="checkbox" id="t-upper" checked> Upper floor</label>
+  </div>
+  <h2>Scenario</h2>
+  <div class="row"><button id="make-mess">Make it messy</button><button id="clear-mess">Clear mess</button><span id="mess-status" class="hint"></span></div>
+  <h2>Robots</h2>
+  <div id="robots" class="hint">Loading…</div>
+  <h2>Phone notifications</h2>
+  <div id="phone" class="hint"></div>
+  <h2>Selection</h2>
+  <div id="info" class="hint">Click a robot, a piece of furniture or a room.</div>
+  <div id="errors"></div>
+</aside>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { createStory } from './story.js';
+import { makeTextures, makeSky } from './visuals.js';
+
+const PAL = { wall: 0xF2F2F0, floor: 0xD9D4C7, fixture: 0x2B2B2B, body: 0xF2F2F0, joint: 0x2B2B2B, accent: 0x3A7BD5 };
+const CAMS = { overhead: [0, 1, 0.001], threequarter: [0.75, 0.95, -1], room: [0.3, 1, -0.55] };
+const $ = id => document.getElementById(id);
+const rad = d => (d || 0) * Math.PI / 180;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const list = v => Array.isArray(v) ? (v.length ? '<ul>' + v.map(x => `<li>${esc(typeof x === 'object' ? JSON.stringify(x) : x)}</li>`).join('') + '</ul>' : '—') : esc(v ?? '—');
+const fmtTime = t => [t / 3600, (t / 60) % 60, t % 60].map(n => String(Math.floor(n)).padStart(2, '0')).join(':');
+const INFO_HINT = 'Click a robot, a piece of furniture or a room.';
+
+function showError(msg) { const d = document.createElement('div'); d.textContent = msg; $('errors').appendChild(d); console.error(msg); }
+
+// ---------- renderer / scene ----------
+const view = $('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));   // retina at 2x costs ~2x the pixels for little visible gain
+renderer.info.autoReset = false;   // count draw calls across all post-processing passes (reset each frame)
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;   // stable, no soft-shadow noise
+view.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer();
+Object.assign(labelRenderer.domElement.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+view.appendChild(labelRenderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 900);   // a tight near/far range keeps depth precise (no flicker between close surfaces)
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+// Image-based lighting gives soft ambient light and reflections; the sun casts the shadows.
+const studioEnv = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(renderer), 0.04).texture;
+scene.environment = studioEnv;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a8a, 0.35));
+const sun = new THREE.DirectionalLight(0xfff4e5, 2.4);
+sun.position.set(-9, 22, -12); sun.target.position.set(2, 0, 5); scene.add(sun, sun.target);
+sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -24, right: 24, top: 24, bottom: -24, near: 1, far: 90 });
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.04;
+// Surface finish per material name (everything else is matte).
+const FINISH = {
+  metal: { metalness: 0.75, roughness: 0.3 }, steel: { metalness: 0.65, roughness: 0.32 }, glass: { roughness: 0.04 },
+  mirror: { metalness: 1, roughness: 0.04 }, quartz: { roughness: 0.22 }, porcelain: { roughness: 0.18 }, ceramic: { roughness: 0.3 },
+  screen: { roughness: 0.12, metalness: 0.3 }, car_body: { metalness: 0.55, roughness: 0.22 }, car_glass: { roughness: 0.05, metalness: 0.4 },
+  hardwood: { roughness: 0.45 }, tile: { roughness: 0.3 }, wood_light: { roughness: 0.55 }, wood_dark: { roughness: 0.5 },
+  white_appliance: { roughness: 0.3 }, white_cabinet: { roughness: 0.45 }, water: { roughness: 0.05 }, black: { roughness: 0.55 },
+  accent: { roughness: 0.35, metalness: 0.1 }, joint: { roughness: 0.4, metalness: 0.3 }, body: { roughness: 0.5 },
+};
+const mat = (c, opacity = 1, finish = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, transparent: opacity < 1, opacity, depthWrite: opacity === 1, ...finish });
+const M = { wall: mat(PAL.wall), floor: mat(PAL.floor), fixture: mat(PAL.fixture), body: mat(PAL.body, 1, FINISH.body),
+            joint: mat(PAL.joint, 1, FINISH.joint), accent: mat(PAL.accent, 1, FINISH.accent) };
+const bgQuery = matchMedia('(prefers-color-scheme: dark)');
+// Furnished: a real sky that also lights the scene. Massing: the plain theme background for clean diagrams.
+const TEX = makeTextures();
+const SKY = makeSky(renderer, sun.position.clone().sub(sun.target.position));
+scene.add(SKY.sky);
+const syncBg = () => {
+  const furnished = S.furnished;
+  SKY.sky.visible = furnished;
+  scene.environment = furnished ? SKY.env : studioEnv;
+  scene.background = furnished ? null : new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+};
+bgQuery.addEventListener('change', () => syncBg());
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); labelRenderer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+// ---------- state ----------
+const S = { playing: true, mult: 1, t: 0, anim: 0, full: false, furnished: true, sel: null };
+let H, meta, roomById = {}, fixById = {};
+const floors = {};          // floor index -> { group, walls }
+const clickables = [];      // room floors and fixtures
+const robots = [];          // see addRobot
+const fixtureObjs = {};     // fixture id -> { outer, parts: { name: mesh } }, rebuilt with the house
+const houseState = {};      // "@fixture.part" -> last change a robot made, re-applied when the house is rebuilt
+const fl = r => r?.floor || 0;
+const baseY = f => f * meta.floor_to_floor;
+
+// Named house materials (furnished style); massing style collapses everything to the team palette.
+const matCache = {};
+function houseMat(name, fallback = M.fixture) {
+  if (!S.furnished) return name === 'glass' || name === 'mirror' ? houseMat.glass ??= mat(H.materials.glass, 0.35) : fallback;
+  const hex = H.materials?.[name];
+  if (!hex) return fallback;
+  return matCache[name] ??= Object.assign(mat(hex, H.transparent_materials?.[name] ?? 1, FINISH[name]),
+    MAT_DETAIL[name] ? { map: TEX.tile(MAT_DETAIL[name], 2, 2) } : {});
+}
+// Greyscale detail texture per material (wood grain, fabric weave, stone speckle), tinted by the material's colour.
+const MAT_DETAIL = { wood_light: 'grain', wood_dark: 'grain', fabric_grey: 'weave', fabric_blue: 'weave', fabric_beige: 'weave', linen_white: 'weave',
+  towel: 'weave', wicker: 'weave', quartz: 'stone', ceramic: 'stone', terracotta: 'stone', rug_living: 'weave', rug_neutral: 'weave', rug_kid: 'weave',
+  rug_bath: 'weave', rug_kitchen: 'weave', rug_coir: 'weave', door_leaf: 'grain', cardboard: 'grain' };
+
+function applyTwoStory(h) {
+  const v = h.two_story_variant;
+  if (!h.meta.two_story || !v) return h;
+  for (const k of ['rooms', 'doors', 'fixtures', 'windows']) for (const item of v[k] || []) {
+    h[k] ??= [];
+    const i = h[k].findIndex(o => o.id === item.id);
+    if (i >= 0) h[k][i] = item; else h[k].push(item);
+  }
+  h.stairs = v.stairs ?? h.stairs;
+  Object.assign(h.meta, v.meta || {});
+  return h;
+}
+
+function floorGroup(f) {
+  if (!floors[f]) { const g = new THREE.Group(); g.position.y = baseY(f); scene.add(g); floors[f] = { group: g, walls: null }; }
+  return floors[f];
+}
+
+function box(w, h, d, material) { return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material); }
+
+// Shared by house templates and robots: box / cylinder / sphere with optional rotation (degrees).
+// Boxes get softly rounded edges (cached by size); very thin ones stay sharp.
+const boxCache = new Map();
+function roundedBox(w, h, d) {
+  const key = `${w}|${h}|${d}`, min = Math.min(w, h, d);
+  if (!boxCache.has(key)) boxCache.set(key, min < 0.012 || !isFinite(min) ? new THREE.BoxGeometry(w, h, d) : new RoundedBoxGeometry(w, h, d, 2, Math.min(0.02, min * 0.25)));
+  return boxCache.get(key);
+}
+function primitive(p, material) {
+  const s = p.size || [];
+  let geo;
+  if (p.type === 'box') geo = roundedBox(s[0], s[1], s[2]);
+  else if (p.type === 'cylinder') geo = new THREE.CylinderGeometry(p.radius_top ?? p.radius ?? s[0] / 2, p.radius ?? s[0] / 2, p.height ?? s[1], 24);
+  else if (p.type === 'sphere') geo = new THREE.SphereGeometry(p.radius ?? s[0] / 2, 24, 16);
+  else throw new Error(`unknown primitive type "${p.type}" (use box, cylinder or sphere)`);
+  if (Object.values(geo.parameters).some(v => typeof v === 'number' && !isFinite(v))) throw new Error(`primitive "${p.type}" is missing size/radius/height`);
+  const m = new THREE.Mesh(geo, material);
+  m.castShadow = m.receiveShadow = !material.transparent;
+  m.position.fromArray(p.position || [0, 0, 0]);
+  const rt = p.rotation || [0, 0, 0]; m.rotation.set(rad(rt[0]), rad(rt[1]), rad(rt[2]));
+  return m;
+}
+
+// ---------- house: walls, doors, windows ----------
+function onLine(item, axis, c, eps) { return Math.abs((axis === 'x' ? item.position[1] : item.position[0]) - c) < eps; }
+function along(item, axis) { return axis === 'x' ? item.position[0] : item.position[1]; }
+
+// Every wall run on floor f: where two different rooms (or a room and the outside) meet, with the doors and
+// windows that cut it. Shared by the house walls and the construction story's stud frames.
+function wallSegments(f) {
+  const rooms = H.rooms.filter(r => fl(r) === f);
+  const doors = H.doors.filter(d => (d.floor || 0) === f);
+  const wins = (H.windows || []).filter(w => fl(roomById[w.room]) === f);
+  const EPS = 1e-4, segs = [];
+  const uniq = a => [...new Set(a.map(v => +v.toFixed(4)))].sort((p, q) => p - q);
+  const xs = uniq(rooms.flatMap(r => [r.origin[0], r.origin[0] + r.size[0]]));
+  const zs = uniq(rooms.flatMap(r => [r.origin[1], r.origin[1] + r.size[1]]));
+  const at = (x, z) => rooms.find(r => x > r.origin[0] && x < r.origin[0] + r.size[0] && z > r.origin[1] && z < r.origin[1] + r.size[1]);
+  const open = r => !r || r.outdoor;
+  for (const [axis, cs, ts] of [['x', zs, xs], ['z', xs, zs]]) for (const c of cs) for (let i = 0; i < ts.length - 1; i++) {
+    const a = ts[i], b = ts[i + 1], m = (a + b) / 2;
+    const r1 = axis === 'x' ? at(m, c - EPS * 10) : at(c - EPS * 10, m);
+    const r2 = axis === 'x' ? at(m, c + EPS * 10) : at(c + EPS * 10, m);
+    if (r1 === r2 || (open(r1) && open(r2))) continue;
+    const cuts = [...doors, ...wins].filter(d => onLine(d, axis, c, EPS * 10))
+      .map(d => ({ lo: along(d, axis) - d.width / 2, hi: along(d, axis) + d.width / 2, d }))
+      .filter(k => k.hi > a && k.lo < b).sort((p, q) => p.lo - q.lo);
+    segs.push({ axis, c, a, b, cuts, rooms: [r1, r2], exterior: open(r1) || open(r2), outside: open(r1) ? -1 : open(r2) ? 1 : 0 });
+  }
+  return segs;
+}
+
+function buildWalls(f) {
+  const F = floorGroup(f);
+  if (F.walls) { F.group.remove(F.walls); F.walls.traverse(o => o.geometry?.dispose()); }
+  const g = F.walls = new THREE.Group(); F.group.add(g);
+  const T = meta.wall_thickness, EPS = 1e-4;
+  const wallH = S.full ? meta.ceiling_height : meta.dollhouse_wall_height;
+  const piece = (axis, c, a, b, y0, y1, material = M.wall, thick = T) => {
+    y1 = Math.min(y1, wallH);
+    if (b - a < EPS || y1 - y0 < EPS) return;
+    const m = axis === 'x' ? box(b - a, y1 - y0, thick, material) : box(thick, y1 - y0, b - a, material);
+    m.position.set(axis === 'x' ? (a + b) / 2 : c, (y0 + y1) / 2, axis === 'x' ? c : (a + b) / 2);
+    m.castShadow = m.receiveShadow = !material.transparent;
+    g.add(m);
+    if (S.furnished && y0 === 0 && material === M.wall && b - a > 0.05) {     // baseboard on both faces
+      const bb = axis === 'x' ? box(b - a, 0.09, thick + 0.024, baseboard) : box(thick + 0.024, 0.09, b - a, baseboard);
+      bb.position.set(m.position.x, 0.045, m.position.z); bb.receiveShadow = true; g.add(bb);
+    }
+  };
+  for (const { axis, c, a, b, cuts } of wallSegments(f)) {
+    let cur = a - T / 2;
+    for (const k of cuts) {
+      const lo = Math.max(k.lo, a), hi = Math.min(k.hi, b), d = k.d;
+      piece(axis, c, cur, Math.max(k.lo, a - T / 2), 0, wallH);
+      if (d.sill != null) {            // window: wall below the sill and above the head, glass between
+        piece(axis, c, lo, hi, 0, d.sill);
+        piece(axis, c, lo, hi, d.sill + d.height, wallH);
+        piece(axis, c, lo, hi, d.sill, d.sill + d.height, houseMat('glass'), T * 0.25);
+        piece(axis, c, lo, hi, d.sill - 0.03, d.sill, houseMat('white_cabinet', M.wall), T + 0.06);
+      } else if (d.type !== 'opening') {
+        piece(axis, c, lo, hi, d.height || meta.door_height, wallH);
+        if (d.type === 'slider') {      // fixed pane on the 'start' half; the moving pane is slid open behind it
+          const half = (k.lo + k.hi) / 2;
+          piece(axis, c - T * 0.2, Math.max(k.lo, a), Math.min(half, b), 0, meta.door_height, houseMat('glass'), 0.03);
+          piece(axis, c + T * 0.2, Math.max(k.lo, a), Math.min(half, b), 0, meta.door_height, houseMat('glass'), 0.03);
+        }
+      }
+      cur = Math.max(cur, k.hi);
+    }
+    piece(axis, c, cur, b + T / 2, 0, wallH);
+  }
+  for (const d of H.doors.filter(d => (d.floor || 0) === f)) if (d.swing && d.leaf !== false) g.add(doorLeaf(d));
+}
+
+// Door leaf hinged at the 'start' (lower coordinate) or 'end' of the opening, swung open_deg into swing.into.
+// A door on an x = const wall line (its rooms meet left/right) is "vertical" in plan view.
+function doorIsVertical(d) {
+  return d.between.map(id => roomById[id]).filter(Boolean).some(r =>
+    Math.abs(r.origin[0] - d.position[0]) < 1e-3 || Math.abs(r.origin[0] + r.size[0] - d.position[0]) < 1e-3);
+}
+function leafGeom(d) {
+  const into = roomById[d.swing.into], vertical = doorIsVertical(d);
+  const [px, pz] = d.position, half = d.width / 2, startHinge = (d.swing.hinge || 'start') === 'start';
+  const u = vertical ? [0, startHinge ? 1 : -1] : [startHinge ? 1 : -1, 0];
+  const cx = into.origin[0] + into.size[0] / 2, cz = into.origin[1] + into.size[1] / 2;
+  const n = vertical ? [Math.sign(cx - px), 0] : [0, Math.sign(cz - pz)];
+  const hinge = [px - u[0] * half, pz - u[1] * half], a = rad(d.swing.open_deg ?? 90);
+  return { hinge, half, dir: [u[0] * Math.cos(a) + n[0] * Math.sin(a), u[1] * Math.cos(a) + n[1] * Math.sin(a)] };
+}
+function doorLeaf(d) {
+  const { hinge, dir, half } = leafGeom(d), h = d.height || meta.door_height;
+  const leaf = box(0.04, h, d.width, houseMat('door_leaf', M.wall));
+  leaf.position.set(hinge[0] + dir[0] * half, h / 2, hinge[1] + dir[1] * half);
+  leaf.rotation.y = Math.atan2(dir[0], dir[1]);
+  return leaf;
+}
+
+// ---------- house: floors, fixtures, stairs ----------
+function fixtureObject(f) {
+  const outer = new THREE.Group();
+  const t = f.template && H.templates?.[f.template];
+  if (f.template && !t) showError(`house.json: fixture "${f.id}" uses unknown template "${f.template}"`);
+  if (t) {
+    const inner = new THREE.Group();
+    const size = f.size || t.size;
+    inner.scale.set(size[0] / t.size[0], size[1] / t.size[1], size[2] / t.size[2]);
+    for (const p of t.parts) { const m = primitive(p, houseMat(p.material)); m.userData.partName = p.name; inner.add(m); }
+    outer.add(inner);
+  } else {
+    const [w, h, d] = f.size, m = box(w, h, d, houseMat(f.material));
+    m.position.y = h / 2; outer.add(m);
+  }
+  outer.position.set(f.position[0], f.elevation || 0, f.position[1]);
+  outer.rotation.y = rad(f.rotation);
+  const parts = {};
+  outer.traverse(o => { o.userData.fixture = f; if (o.isMesh) clickables.push(o); if (o.userData.partName) parts[o.userData.partName] ??= o; });
+  fixtureObjs[f.id] = { outer, parts };
+  if (f.type === 'rug' && !S.furnished) outer.visible = false;
+  return outer;
+}
+
+function buildHouse() {
+  for (const F of Object.values(floors)) {
+    scene.remove(F.group);
+    F.group.traverse(o => { o.geometry?.dispose(); if (o.isCSS2DObject) o.element.remove(); });  // CSS2D leaves its divs behind otherwise
+  }
+  for (const k of Object.keys(floors)) delete floors[k];
+  clickables.length = 0;
+  const ft = meta.floor_thickness;
+  for (const r of H.rooms) {
+    const F = floorGroup(fl(r));
+    const [w, d] = r.size, cx = r.origin[0] + w / 2, cz = r.origin[1] + d / 2;
+    if (!r.void) {
+      const m = box(w, ft, d, S.furnished ? floorMat(r) : M.floor);
+      m.position.set(cx, -ft / 2, cz); m.receiveShadow = true; m.userData.room = r; F.group.add(m); clickables.push(m);
+    }
+    const div = document.createElement('div'); div.className = 'room-label'; div.textContent = r.name;
+    const lbl = new CSS2DObject(div); lbl.position.set(cx, 0.05, cz); lbl.userData.isLabel = true; F.group.add(lbl);
+  }
+  for (const f of H.fixtures) {
+    const r = roomById[f.room]; if (!r) { showError(`house.json: fixture "${f.id}" references unknown room "${f.room}"`); continue; }
+    floorGroup(fl(r)).group.add(fixtureObject(f));
+  }
+  for (const st of [].concat(H.stairs || [])) {
+    const g = floorGroup(st.from_floor || 0).group, n = st.steps;
+    const rise = (st.to_floor - st.from_floor) * meta.floor_to_floor / n, run = st.length / n;
+    const [dx, dz] = st.direction, yaw = Math.atan2(dx, dz);
+    for (let i = 0; i < n; i++) {
+      const s = box(st.width, rise * (i + 1), run, houseMat('wood_dark'));
+      s.position.set(st.start[0] + dx * run * (i + 0.5), rise * (i + 1) / 2, st.start[1] + dz * run * (i + 0.5));
+      s.rotation.y = yaw; g.add(s);
+    }
+  }
+  Object.keys(floors).forEach(f => buildWalls(+f));
+  applyHouseState();
+  $('t-upper-wrap').hidden = Object.keys(floors).length < 2;
+  Object.entries(floors).forEach(([f, F]) => { if (+f > 0) F.group.visible = $('t-upper').checked; });
+  syncLabels();
+}
+
+const baseboard = mat('#f7f6f2', 1, { roughness: 0.4 });
+
+// ---------- the lot around the house ----------
+// Lawn, foundation, driveway, street, fence and trees. Shown in Furnished mode; the story builds on top of it.
+const site = { group: new THREE.Group(), plinth: null };
+scene.add(site.group);
+// Textured floor finish, tiled at real-world scale (planks ~1.2 m per tile, tiles 1.2 m, carpet 1 m).
+const FLOOR_TEX = { hardwood: ['planks', 1.2], tile: ['tiles', 1.2], carpet: ['carpet', 1], concrete: ['concrete', 3], pavers: ['tiles', 2.4] };
+function floorMat(r) {
+  const t = FLOOR_TEX[r.finish];
+  if (!t) return houseMat(r.finish, M.floor);
+  return new THREE.MeshStandardMaterial({ map: TEX.tile(t[0], r.size[0] / t[1], r.size[1] / t[1]), roughness: FINISH[r.finish]?.roughness ?? 0.8 });
+}
+function buildSite() {
+  const g = site.group, m = (c, f) => mat(c, 1, { roughness: 0.95, ...f });
+  const tm = (name, rx, ry, f) => new THREE.MeshStandardMaterial({ map: TEX.tile(name, rx, ry), roughness: 0.95, ...f });
+  const slab = (x0, x1, z0, z1, top, h, material) => {
+    const b = box(x1 - x0, h, z1 - z0, material); b.position.set((x0 + x1) / 2, top - h / 2, (z0 + z1) / 2);
+    b.receiveShadow = true; b.castShadow = h > 0.1; g.add(b); return b;
+  };
+  site.lawn = slab(-18, 22, -8, 24, -0.06, 0.1, tm('grass', 16, 13));                 // lawn
+  slab(-18, 22, -9.6, -8, -0.035, 0.1, tm('concrete', 20, 1));                          // sidewalk
+  slab(-18, 22, -18, -9.6, -0.07, 0.1, tm('asphalt', 10, 2.5));                         // street
+  slab(7.2, 12.6, -8, 0.5, -0.04, 0.1, tm('concrete', 2.5, 4));                         // driveway
+  slab(-0.55, 0.55, -8, 0, -0.045, 0.1, tm('concrete', 1, 4));                          // front walk
+  // concrete foundation under the conditioned rooms and the garage
+  const fp = H.rooms.filter(r => !fl(r) && !r.outdoor);
+  const b = new THREE.Box3(); fp.forEach(r => b.union(new THREE.Box3(new THREE.Vector3(r.origin[0], 0, r.origin[1]), new THREE.Vector3(r.origin[0] + r.size[0], 0, r.origin[1] + r.size[1]))));
+  site.plinth = new THREE.Group(); g.add(site.plinth);
+  for (const r of fp) {
+    const p = box(r.size[0] + 0.12, 0.35, r.size[1] + 0.12, tm('concrete', r.size[0] / 3, 0.2)); p.position.set(r.origin[0] + r.size[0] / 2, -0.225, r.origin[1] + r.size[1] / 2);
+    p.receiveShadow = p.castShadow = true; site.plinth.add(p);
+  }
+  // fence around the back yard
+  const wood = tm('wood', 12, 1, { color: '#a88563' });
+  site.fence = new THREE.Group(); g.add(site.fence);
+  for (const [x0, z0, x1, z1] of [[-18, 24, 22, 24], [-18, 2, -18, 24], [22, 2, 22, 24]]) {
+    const len = Math.hypot(x1 - x0, z1 - z0), f = box(x0 === x1 ? 0.05 : len, 1.8, x0 === x1 ? len : 0.05, wood);
+    f.position.set((x0 + x1) / 2, 0.9 - 0.06, (z0 + z1) / 2); f.castShadow = f.receiveShadow = true; site.fence.add(f);
+  }
+  // planting beds along the front of the house: mulch, shrubs and a few flowers (kept in site.garden so the story can plant them last)
+  const before = g.children.length;
+  const mulch = tm('dirt', 6, 1, { color: '#7a5a42' }), leafy = [m('#456f35'), m('#55803f'), m('#3d6430')];
+  const flower = ['#e9d36b', '#d96a6a', '#f1f1ee', '#b48ad6'].map(c => m(c, { roughness: 0.6 }));
+  const rand = (() => { let t = 11; return () => (t = (t * 9301 + 49297) % 233280) / 233280; })();
+  for (const [x0, x1] of [[-9.2, -0.9], [0.9, 6.9]]) {
+    slab(x0, x1, -1.25, -0.08, -0.04, 0.08, mulch);
+    for (let x = x0 + 0.5; x < x1 - 0.3; x += 0.9 + rand() * 0.4) {
+      const r = 0.28 + rand() * 0.18, sh = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), leafy[(rand() * 3) | 0]);
+      sh.position.set(x, r * 0.75, -0.7 + (rand() - 0.5) * 0.3); sh.scale.y = 0.8; sh.castShadow = sh.receiveShadow = true; g.add(sh);
+      for (let k = 0; k < 3; k++) { const fl = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), flower[(rand() * 4) | 0]); fl.position.set(x + (rand() - 0.5) * 0.7, 0.06, -0.25 - rand() * 0.2); g.add(fl); }
+    }
+  }
+  site.garden = new THREE.Group(); g.add(site.garden);
+  g.children.slice(before, -1).forEach(o => site.garden.add(o));
+  // mailbox at the curb
+  const post = box(0.08, 1.05, 0.08, m('#5a4a3a')); post.position.set(1.6, 0.47, -8.3); post.castShadow = true; g.add(post);
+  const mb = new THREE.Mesh(new RoundedBoxGeometry(0.22, 0.24, 0.48, 2, 0.06), m('#2f3a44', { roughness: 0.5, metalness: 0.4 })); mb.position.set(1.6, 1.08, -8.3); mb.castShadow = true; g.add(mb);
+  // trees
+  const trunk = m('#6b4e37'), leaves = [m('#4f7a3a'), m('#5e8a44')];
+  for (const [x, z, s] of [[-13, -5.5, 1], [16.5, -3.5, 1.2], [-12, 18, 1.3], [14, 19.5, 1.1], [3, 21, 0.9], [-15, 6, 1]]) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.12 * s, 0.18 * s, 2.6 * s, 10), trunk); t.position.set(x, 1.3 * s - 0.06, z);
+    t.castShadow = true; g.add(t);
+    for (const [dx, dy, dz, r] of [[0, 3.2, 0, 1.6], [0.8, 2.7, 0.4, 1.1], [-0.7, 2.8, -0.5, 1.2]]) {
+      const c = new THREE.Mesh(new THREE.IcosahedronGeometry(r * s, 1), leaves[(dx > 0) | 0]); c.position.set(x + dx * s, dy * s, z + dz * s);
+      c.castShadow = true; g.add(c);
+    }
+  }
+}
+
+// ---------- camera ----------
+let tween = null;
+function frame(box3, dir) {
+  S.follow = null;
+  const c = box3.getCenter(new THREE.Vector3()), s = box3.getSize(new THREE.Vector3());
+  const r = Math.max(s.x, s.z, s.y) / 2, dist = r / Math.sin(rad(camera.fov) / 2) * 1.3;
+  const to = c.clone().add(new THREE.Vector3(...dir).normalize().multiplyScalar(dist));
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: to, t1: c, k: 0 };
+}
+function roomBox(r) {
+  const y = baseY(fl(r));
+  return new THREE.Box3(new THREE.Vector3(r.origin[0], y, r.origin[1]), new THREE.Vector3(r.origin[0] + r.size[0], y + meta.dollhouse_wall_height, r.origin[1] + r.size[1]));
+}
+function houseBox() { const b = new THREE.Box3(); H.rooms.forEach(r => b.union(roomBox(r))); return b; }
+
+// ---------- animation: tweens, scheduled events, wobbles, particles ----------
+// Sim time (S.t) decides WHEN things happen; wobbles and particles run on wall-clock time (animT)
+// so they stay watchable at 64x.
+const tweens = [], events = [], motions = [], emitters = [], wobbled = new Map();
+let animT = 0;
+const ease = k => k * k * (3 - 2 * k);
+const AXES = { x: new THREE.Vector3(1, 0, 0), y: new THREE.Vector3(0, 1, 0), z: new THREE.Vector3(0, 0, 1) };
+const vec = a => new THREE.Vector3(...(a || [0, 0, 0]));
+
+// "@fixture" is a whole piece of furniture, "@fixture.part" one named part of its template.
+function houseTarget(name) {
+  const [id, part] = name.slice(1).split('.');
+  const F = fixtureObjs[id];
+  if (!F) throw new Error(`unknown fixture "${id}" in "${name}"`);
+  const o = part ? F.parts[part] : F.outer;
+  if (!o) throw new Error(`fixture "${id}" has no part "${part}"`);
+  return o;
+}
+function resolve(R, name) {
+  if (name.startsWith('@')) return houseTarget(name);
+  if (name === 'body') return R.group;
+  if (name.startsWith('mess:')) { const m = mess.find(x => x.id === name.slice(5)); if (!m) throw new Error(`mess item "${name}" is gone`); return m.obj; }
+  const o = R.parts[name]?.pivot ?? R.items[name]?.root;
+  if (!o) throw new Error(`unknown part or item "${name}"`);
+  return o;
+}
+function worldAt(R, at, offset) {
+  if (Array.isArray(at)) return vec(at).add(vec(offset));
+  if (/^@[^.]+$/.test(at)) {                       // whole fixture: top-centre of its box, offset in world axes
+    const f = fixById[at.slice(1)]; if (!f) throw new Error(`unknown fixture "${at}"`);
+    return new THREE.Vector3(f.position[0], baseY(fl(roomById[f.room])) + (f.elevation || 0) + f.size[1], f.position[1]).add(vec(offset));
+  }
+  scene.updateMatrixWorld();
+  return resolve(R, at).localToWorld(vec(offset));  // part or fixture part: offset in its own frame
+}
+
+// Move / turn / scale / show / hinge a target, eased over over_s seconds of sim time.
+function setTarget(R, name, spec, t0, instant) {
+  const o = resolve(R, name);
+  o.userData.rest ??= { pos: o.position.clone(), quat: o.quaternion.clone() };
+  const tw = { R, obj: o, t0, dur: instant ? 0 : spec.over_s ?? 1 };
+  if (spec.at || spec.position) {
+    const p = spec.at ? worldAt(R, spec.at, spec.offset) : vec(spec.position);
+    if (spec.at) { scene.updateMatrixWorld(); o.parent.worldToLocal(p); }
+    tw.pos = [o.position.clone(), p];
+  }
+  if (spec.rotation) tw.rot = [[o.rotation.x, o.rotation.y, o.rotation.z], spec.rotation.map(rad)];
+  if (spec.scale != null) tw.scale = [o.scale.clone(), Array.isArray(spec.scale) ? vec(spec.scale) : new THREE.Vector3().setScalar(spec.scale)];
+  if (spec.hinge) tw.hinge = { ...spec.hinge, from: o.userData.hingeDeg ?? 0 };
+  if (spec.visible === true) o.visible = true;
+  tw.hide = spec.visible === false;
+  for (const old of tweens) if (old.obj === o) for (const k of ['pos', 'rot', 'scale', 'hinge']) if (tw[k]) delete old[k];  // latest command wins
+  tweens.push(tw); stepTween(tw);
+  if (name.startsWith('@')) houseState[name] = { ...houseState[name], ...spec };
+}
+function stepTween(tw) {
+  const k = tw.dur > 0 ? ease(Math.min(1, Math.max(0, (S.t - tw.t0) / tw.dur))) : 1, o = tw.obj;
+  if (tw.pos) o.position.lerpVectors(tw.pos[0], tw.pos[1], k);
+  if (tw.rot) o.rotation.set(...tw.rot[0].map((a, i) => a + (tw.rot[1][i] - a) * k));
+  if (tw.scale) o.scale.lerpVectors(tw.scale[0], tw.scale[1], k);
+  if (tw.hinge) {                                   // swing about an axis through point (parent frame), relative to rest
+    const deg = tw.hinge.from + (tw.hinge.deg - tw.hinge.from) * k, rest = o.userData.rest, p = vec(tw.hinge.point);
+    const q = new THREE.Quaternion().setFromAxisAngle(AXES[tw.hinge.axis || 'y'], rad(deg));
+    o.quaternion.copy(q).multiply(rest.quat);
+    o.position.copy(rest.pos).sub(p).applyQuaternion(q).add(p);
+    o.userData.hingeDeg = deg;
+  }
+  if (k >= 1 && tw.hide) o.visible = false;
+  return k >= 1;
+}
+function applyHouseState() {                        // the house was rebuilt (style toggle): re-apply robot changes
+  for (const [name, spec] of Object.entries(houseState)) try { setTarget(null, name, spec, S.t, true); } catch { /* fixture gone */ }
+}
+
+function attachItem(R, name, to) {
+  const it = R.items[name]; if (!it) throw new Error(`unknown item "${name}"`);
+  const parent = !to ? R.world : to === 'body' ? R.group : R.parts[to]?.wob;
+  if (!parent) throw new Error(`cannot attach "${name}" to unknown part "${to}"`);
+  scene.updateMatrixWorld();
+  parent.attach(it.root);
+}
+
+function schedule(R, t, fn) { events.push({ R, t, fn }); }
+function runEvents() {
+  events.sort((a, b) => a.t - b.t);                 // stable, so same-time events keep their order
+  while (events.length && events[0].t <= S.t) {
+    const e = events.shift();
+    try { e.fn(e.t); } catch (err) { showError(`robots/${e.R.file}: ${err.message}`); }
+  }
+}
+
+// One block of actions, from a waypoint (starts when the robot arrives, lasts its dwell) or "setup" (instant).
+function runOps(R, w, t0, t1, instant) {
+  const when = (delay, fn) => instant ? fn(S.t) : schedule(R, t0 + (delay || 0), fn);
+  const each = v => Array.isArray(v) ? v.map(n => [n, {}]) : Object.entries(v || {}).map(([n, s]) => [n, typeof s === 'string' ? { to: s } : s]);
+  for (const [name, s] of each(w.attach)) when(s.delay_s, () => attachItem(R, name, s.to));
+  for (const [name, s] of each(w.detach)) when(s.delay_s, () => attachItem(R, name, null));
+  for (const [name, spec] of Object.entries(w.set || {})) when(spec.delay_s, t => setTarget(R, name, spec, t, instant));
+  if (instant) return;
+  const win = x => ({ from: t0 + (x.delay_s || 0), to: x.for_s != null ? t0 + (x.delay_s || 0) + x.for_s : t1 });
+  for (const m of [].concat(w.motion || [])) motions.push({ R, ...m, ...win(m) });
+  for (const e of [].concat(w.effects || [])) emitters.push({ R, ...e, ...win(e), acc: 0 });
+  if (w.notify) when(w.notify_delay_s, () => notify(R, w.notify));
+}
+
+function applyMotions() {
+  for (const R of robots) for (const p of [...Object.values(R.parts), ...Object.values(R.items)]) {
+    p.wob.position.set(0, 0, 0); p.wob.rotation.set(0, 0, 0); p.wob.scale.set(1, 1, 1);
+  }
+  for (let i = motions.length - 1; i >= 0; i--) {
+    const m = motions[i];
+    if (S.t > m.to) { motions.splice(i, 1); continue; }
+    if (S.t < m.from) continue;
+    let o;
+    try { o = m.target.startsWith('@') ? houseTarget(m.target) : (m.R.parts[m.target] ?? m.R.items[m.target])?.wob; }
+    catch (err) { showError(`robots/${m.R.file}: ${err.message}`); motions.splice(i, 1); continue; }
+    if (!o) { showError(`robots/${m.R.file}: motion target "${m.target}" is not a part or item`); motions.splice(i, 1); continue; }
+    if (m.target.startsWith('@') && !wobbled.has(o)) wobbled.set(o, { p: o.position.clone(), r: o.rotation.clone(), s: o.scale.clone() });
+    const cyc = animT / (m.period_s || 1) + (m.phase || 0), s = Math.sin(2 * Math.PI * cyc), ax = m.axis || 'y';
+    const amt = m.amount ?? { rotate: 15, move: 0.05, scale: 0.2, circle: 0.05 }[m.type] ?? 0;
+    if (m.type === 'rotate') o.rotation[ax] += rad(amt) * s;
+    else if (m.type === 'spin') o.rotation[ax] += 2 * Math.PI * (cyc % 1) * (m.reverse ? -1 : 1);
+    else if (m.type === 'move') o.position[ax] += amt * s;
+    else if (m.type === 'scale') o.scale[ax] *= 1 + amt * s;
+    else if (m.type === 'circle') { o.position.x += amt * Math.cos(2 * Math.PI * cyc); o.position.z += amt * s; }
+  }
+}
+function restoreWobbled() {
+  for (const [o, b] of wobbled) { o.position.copy(b.p); o.rotation.copy(b.r); o.scale.copy(b.s); }
+  wobbled.clear();
+}
+
+const FXLOOK = {   // speeds in m/s of wall-clock time
+  water:   { color: 0x5aa9e6, size: 0.03, speed: 0.8, dir: [0, -1, 0], spread: 0.2, gravity: -4, life: 0.6, rate: 90, opacity: 0.9 },
+  spray:   { color: 0xd6eeff, size: 0.025, speed: 1.0, dir: [0, 0, 1], spread: 0.35, gravity: -1, life: 0.5, rate: 90, opacity: 0.8 },
+  steam:   { color: 0xf4f4f4, size: 0.1, speed: 0.25, dir: [0, 1, 0], spread: 0.18, gravity: 0.15, life: 1.8, rate: 25, opacity: 0.35 },
+  bubbles: { color: 0xe6f6ff, size: 0.035, speed: 0.25, dir: [0, 1, 0], spread: 0.4, gravity: 0.1, life: 1.2, rate: 40, opacity: 0.75 },
+  dust:    { color: 0x8d7b62, size: 0.025, speed: 0.4, dir: [0, 1, 0], spread: 0.6, gravity: -0.5, life: 0.5, rate: 60, opacity: 0.9 },
+  concrete:{ color: 0x9a968f, size: 0.06, speed: 0.6, dir: [0, -1, 0], spread: 0.15, gravity: -9, life: 0.6, rate: 80, opacity: 1 },
+  sparkle: { color: 0xfff1a0, size: 0.045, speed: 0.3, dir: [0, 1, 0], spread: 1, gravity: 0, life: 0.6, rate: 30, opacity: 0.9 },
+};
+const POOL = 700, pools = {};
+// soft round dot so particles read as droplets and dust, not squares
+const DOT = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.5, 'rgba(255,255,255,.8)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+})();
+for (const [k, c] of Object.entries(FXLOOK)) {
+  const geo = new THREE.BufferGeometry(), pos = new Float32Array(POOL * 3).fill(-999);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: c.color, size: c.size, map: DOT, transparent: true, opacity: c.opacity, depthWrite: false }));
+  pts.frustumCulled = false; scene.add(pts);
+  pools[k] = { geo, pos, vel: new Float32Array(POOL * 3), life: new Float32Array(POOL), next: 0 };
+}
+function stepParticles(dt) {
+  if (!dt) return;
+  scene.updateMatrixWorld();
+  for (let i = emitters.length - 1; i >= 0; i--) {
+    const e = emitters[i], c = FXLOOK[e.type];
+    if (S.t > e.to || !c) { if (!c) showError(`robots/${e.R.file}: unknown effect "${e.type}"`); emitters.splice(i, 1); continue; }
+    if (S.t < e.from) continue;
+    let origin, dir = vec(e.dir || c.dir);
+    try {
+      if (Array.isArray(e.at)) origin = vec(e.at).add(vec(e.offset));
+      else { const o = resolve(e.R, e.at); origin = o.localToWorld(vec(e.offset)); if (e.dir) dir.transformDirection(o.matrixWorld); }
+    } catch (err) { showError(`robots/${e.R.file}: ${err.message}`); emitters.splice(i, 1); continue; }
+    if (!e.R.world.visible) continue;
+    dir.normalize();
+    const P = pools[e.type];
+    for (e.acc += dt * (e.rate ?? c.rate); e.acc >= 1; e.acc--) {
+      const j = P.next = (P.next + 1) % POOL, r = () => (Math.random() - 0.5) * 2 * c.spread;
+      P.pos.set([origin.x, origin.y, origin.z], j * 3);
+      P.vel.set([(dir.x + r()) * c.speed, (dir.y + r()) * c.speed, (dir.z + r()) * c.speed], j * 3);
+      P.life[j] = c.life * (0.6 + Math.random() * 0.8);
+    }
+  }
+  for (const [k, P] of Object.entries(pools)) {
+    const g = FXLOOK[k].gravity;
+    for (let j = 0; j < POOL; j++) {
+      if (P.life[j] <= 0) continue;
+      if ((P.life[j] -= dt) <= 0) { P.pos[j * 3 + 1] = -999; continue; }
+      P.vel[j * 3 + 1] += g * dt;
+      for (let a = 0; a < 3; a++) P.pos[j * 3 + a] += P.vel[j * 3 + a] * dt;
+    }
+    P.geo.attributes.position.needsUpdate = true;
+  }
+}
+
+// ---------- robots ----------
+function waypoint(w) {
+  let x, z, f = w.floor;
+  if (Array.isArray(w.position)) [x, z] = w.position.length === 3 ? [w.position[0], w.position[2]] : w.position;
+  else if (w.fixture) {
+    const fx = fixById[w.fixture]; if (!fx) throw new Error(`waypoint "${w.label}" references unknown fixture "${w.fixture}"`);
+    const a = rad(fx.rotation), off = fx.size[2] / 2 + meta.approach_clearance;
+    x = fx.position[0] + Math.sin(a) * off; z = fx.position[1] + Math.cos(a) * off; f ??= fl(roomById[fx.room]);
+  } else if (w.room) {
+    const r = roomById[w.room]; if (!r) throw new Error(`waypoint "${w.label}" references unknown room "${w.room}"`);
+    x = r.origin[0] + r.size[0] / 2; z = r.origin[1] + r.size[1] / 2; f ??= fl(r);
+  } else throw new Error(`waypoint "${w.label ?? '?'}" needs position, fixture or room`);
+  if (![x, z].every(isFinite)) throw new Error(`waypoint "${w.label}" has a non-numeric position`);
+  if (w.room && !roomById[w.room]) throw new Error(`waypoint "${w.label}" references unknown room "${w.room}"`);
+  if (w.fixture && !fixById[w.fixture]) throw new Error(`waypoint "${w.label}" references unknown fixture "${w.fixture}"`);
+  f ??= fl(H.rooms.find(r => x >= r.origin[0] && x <= r.origin[0] + r.size[0] && z >= r.origin[1] && z <= r.origin[1] + r.size[1]));
+  return new THREE.Vector3(x, baseY(f), z);
+}
+
+// Robot bodies use the team palette: body | joint | accent (a "#hex" also works).
+function robotMat(p) {
+  const c = p.color ?? p.role ?? p.material ?? 'body';
+  if (M[c]) return M[c];
+  if (/^#[0-9a-f]{3,8}$/i.test(c)) return mat(c);
+  throw new Error(`primitive color "${c}" must be body, joint or accent`);
+}
+// Items (clothes, dishes, crumbs) may also use any house material, e.g. "fabric_blue" or "water".
+const itemMatCache = {};
+function itemMat(c = 'body') {
+  if (M[c]) return M[c];
+  if (H.materials?.[c]) return itemMatCache[c] ??= mat(H.materials[c], H.transparent_materials?.[c] ?? 1, FINISH[c]);
+  if (/^#[0-9a-f]{3,8}$/i.test(c)) return itemMatCache[c] ??= mat(c);
+  throw new Error(`item color "${c}" is not body/joint/accent, a house material or a #hex`);
+}
+
+// "Label: a / b / c" becomes a choice; bare options ("whites", "colours") share one choice called "Option".
+function parseOptions(list = []) {
+  const out = {};
+  for (const o of list) {
+    const i = o.indexOf(':');
+    if (i < 0) (out.Option ??= []).push(o.trim());
+    else out[o.slice(0, i).trim()] = o.slice(i + 1).split('/').map(s => s.trim());
+  }
+  return out;
+}
+
+function addRobot(def, file) {
+  for (const k of ['name', 'primitives', 'path', 'speed_mps']) if (def[k] == null) throw new Error(`missing required field "${k}"`);
+  if (!(def.speed_mps > 0)) throw new Error('speed_mps must be > 0');
+  if (!def.path.length) throw new Error('path is empty');
+  const R = { def, file, group: new THREE.Group(), fixed: new THREE.Group(), world: new THREE.Group(), parts: {}, items: {},
+              opts: {}, state: 'idle', status: 'idle', yaw: 0, label: '' };
+  R.group.rotation.order = 'YXZ';
+  // "parts" are named joints: primitives with "part" move with it, "set"/"motion" pose it smoothly.
+  const partDefs = def.parts || {};
+  const makePart = (name, chain = []) => {
+    if (R.parts[name]) return R.parts[name];
+    const d = partDefs[name];
+    if (!d) throw new Error(`undefined part "${name}"`);
+    if (chain.includes(name)) throw new Error(`part "${name}" is its own parent`);
+    const parent = d.parent ? makePart(d.parent, [...chain, name]) : null;
+    const pivot = new THREE.Group(), wob = new THREE.Group(), at = vec(d.pivot);
+    pivot.rotation.order = wob.rotation.order = 'YXZ';
+    pivot.position.copy(parent ? at.clone().sub(parent.at) : at);
+    pivot.add(wob); (parent ? parent.wob : R.group).add(pivot);
+    return (R.parts[name] = { pivot, wob, at });
+  };
+  Object.keys(partDefs).forEach(n => makePart(n));
+  def.primitives.forEach(p => {
+    const m = primitive(p, robotMat(p));
+    m.userData.pose = p.pose;
+    if (p.part) { const P = makePart(p.part); m.position.sub(P.at); P.wob.add(m); }
+    else (p.fixed ? R.fixed : R.group).add(m);
+  });
+  // "items" are things the robot carries or changes: clothes, dishes, crumbs, its detachable climber...
+  for (const [name, d] of Object.entries(def.items || {})) {
+    const root = new THREE.Group(), wob = new THREE.Group();
+    root.rotation.order = wob.rotation.order = 'YXZ';
+    root.add(wob);
+    for (const p of d.primitives || []) wob.add(primitive(p, itemMat(p.color)));
+    R.items[name] = { root, wob, def: d };
+  }
+  for (const [k, v] of Object.entries(parseOptions(def.trigger?.options))) R.opts[k] = v[0];
+  R.line = new THREE.Line(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: PAL.accent }));
+  R.line.visible = $('t-paths').checked;
+  scene.add(R.group, R.fixed, R.world, R.line);
+  robots.push(R);
+  plan(R);
+  goIdle(R, true);
+  for (const g of [R.group, R.fixed, R.world]) g.traverse(o => { o.userData.robot = R; });
+}
+
+// Build the timeline for the current options: waypoints with "only_if" are skipped unless the user picked that option.
+function plan(R) {
+  const def = R.def;
+  R.path = reactive(R) ? buildCleanPath(R) : def.path.filter(w => !w.only_if || Object.entries(w.only_if).every(([k, v]) => [].concat(v).includes(R.opts[k])));
+  R.pts = R.path.map(waypoint);
+  let pose = R.path.find(w => w.pose)?.pose ?? null;
+  R.poses = R.path.map(w => (pose = w.pose ?? pose));
+  const loop = def.loop !== false;
+  R.legs = []; let t = 0;
+  R.pts.forEach((p, i) => {
+    R.legs.push({ move: false, i, t0: t, t1: (t += R.path[i].dwell_s ?? def.dwell_s ?? 0) });
+    if (i === R.pts.length - 1 && !loop) return;
+    const n = (i + 1) % R.pts.length;
+    R.legs.push({ move: true, i, n, t0: t, t1: (t += p.distanceTo(R.pts[n]) / def.speed_mps) });
+  });
+  R.total = t;
+  R.line.geometry.setFromPoints((loop ? [...R.pts, R.pts[0]] : R.pts).map(p => p.clone().setY(p.y + 0.02)));
+  R.fixed.position.copy(R.pts[0]);
+}
+
+function resetItems(R) {
+  for (const [name, it] of Object.entries(R.items)) {
+    const d = it.def, onRobot = typeof d.at === 'string' && !d.at.startsWith('@');
+    const parent = !onRobot ? R.world : d.at === 'body' ? R.group : R.parts[d.at]?.wob;
+    if (!parent) throw new Error(`item "${name}" starts on unknown part "${d.at}"`);
+    parent.add(it.root);
+    it.root.position.copy(onRobot ? vec(d.offset) : worldAt(R, d.at ?? [0, 0, 0], d.offset));
+    it.root.rotation.set(...(d.rotation || [0, 0, 0]).map(rad));
+    it.root.scale.set(1, 1, 1);
+    it.root.visible = d.visible !== false && !(d.demo_only && reactive(R));
+    it.root.userData.hingeDeg = 0;
+  }
+}
+
+function setPose(R, pose) {
+  if (pose === R.pose) return;
+  R.pose = pose;
+  for (const g of [R.group, R.fixed]) g.traverse(o => { if (o.userData.pose) o.visible = [].concat(o.userData.pose).includes(pose); });
+}
+
+function cancel(R) {
+  const mine = x => x.R === R;
+  for (const arr of [events, motions, emitters, tweens]) for (let i = arr.length - 1; i >= 0; i--) if (mine(arr[i])) arr.splice(i, 1);
+}
+
+// Idle at the dock. reset=true also restores the "before" scene (setup) and puts items back.
+function goIdle(R, reset) {
+  R.state = 'idle';
+  R.group.position.copy(R.pts[0]);
+  R.yaw = rad(R.path[0].heading_deg ?? 0); R.group.rotation.y = R.yaw;
+  setPose(R, R.poses[0]);
+  try {
+    if (reset) { R.group.traverse(o => { if (o.userData.rest) { o.position.copy(o.userData.rest.pos); o.quaternion.copy(o.userData.rest.quat); } });
+                 Object.values(R.parts).forEach(p => p.pivot.scale.set(1, 1, 1)); resetItems(R); if (R.def.setup && !reactive(R)) runOps(R, R.def.setup, S.t, S.t, true); }
+    runOps(R, R.path[0], S.t, S.t, true);
+  } catch (err) { showError(`robots/${R.file}: ${err.message}`); }
+  R.label = 'idle at dock';
+}
+
+function startRobot(R) {
+  if (R.state === 'running') return;
+  cancel(R); plan(R); goIdle(R, true);
+  R.state = 'running'; R.start = S.t;
+  for (const l of R.legs) if (!l.move) runOps(R, R.path[l.i], R.start + l.t0, R.start + l.t1, false);
+  notify(R, `Started: ${R.def.trigger?.label ?? 'task'}`);
+}
+function stopRobot(R) {
+  if (R.state !== 'running') return;
+  cancel(R); goIdle(R, false);
+  notify(R, 'Stopped by user (back at dock)');
+}
+
+function notify(R, msg) {
+  R.status = msg;
+  const li = document.createElement('div');
+  li.innerHTML = `<span class="hint">${fmtTime(S.t)}</span> <b>${esc(R.def.display_name ?? R.def.name)}</b>: ${esc(msg)}`;
+  $('phone').prepend(li);
+  while ($('phone').children.length > 8) $('phone').lastChild.remove();
+}
+
+function updateRobot(R, dt) {
+  if (R.state !== 'running') return;
+  const rt = S.t - R.start;
+  if (rt >= R.total) {
+    R.group.position.copy(R.pts[R.legs[R.legs.length - 1].n ?? R.pts.length - 1]);
+    R.state = 'idle'; R.label = 'idle at dock';
+    notify(R, R.def.trigger?.notify_on?.includes('done') === false ? 'Finished' : 'Done');
+    return;
+  }
+  const leg = R.legs.find(l => rt <= l.t1) || R.legs[R.legs.length - 1];
+  const name = i => R.path[i].label ?? `waypoint ${i + 1}`;
+  setPose(R, R.poses[leg.i]);
+  let target = R.yaw;
+  if (leg.move) {
+    const a = R.pts[leg.i], b = R.pts[leg.n], k = leg.t1 > leg.t0 ? (rt - leg.t0) / (leg.t1 - leg.t0) : 1;
+    R.group.position.lerpVectors(a, b, k);
+    if (R.def.turn_to_path !== false && a.distanceTo(b) > 1e-6) target = Math.atan2(b.x - a.x, b.z - a.z);
+    R.label = `→ ${name(leg.n)}`;
+  } else {
+    R.group.position.copy(R.pts[leg.i]);
+    if (R.path[leg.i].heading_deg != null) target = rad(R.path[leg.i].heading_deg);
+    R.label = `${name(leg.i)}` + (R.path[leg.i].needs_user ? ' (stops and notifies the user if needed)' : '');
+  }
+  const diff = Math.atan2(Math.sin(target - R.yaw), Math.cos(target - R.yaw));
+  R.yaw += diff * Math.min(1, dt * 6 * Math.max(1, S.mult / 4));
+  R.group.rotation.y = R.yaw;
+}
+
+async function getJSON(url) {
+  const res = await fetch(url, { cache: 'no-cache' });   // always pick up teammates' latest robot files
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  try { return JSON.parse(text); } catch (e) { throw new Error(`JSON parse error: ${e.message}`); }
+}
+
+async function loadRobots() {
+  let files = [];
+  try { files = await getJSON('robots/index.json'); if (!Array.isArray(files)) throw new Error('must be a plain array of filenames'); }
+  catch (e) { showError(`robots/index.json: ${e.message}`); }
+  for (const file of files) {
+    try { addRobot(await getJSON('robots/' + file), file); }
+    catch (e) { showError(`robots/${file}: ${e.message}`); }
+  }
+  const box = $('robots');
+  box.className = robots.length ? '' : 'hint';
+  box.innerHTML = robots.length ? '' : 'No robots yet. Add a filename to robots/index.json.';
+  for (const R of robots) {
+    const row = document.createElement('div'); row.className = 'robot';
+    const name = R.def.display_name ?? R.def.name;
+    row.innerHTML = `<label><input type="checkbox" checked> <b>${esc(name)}</b> <span class="hint">${esc(R.file)}</span></label>
+      <div class="row"><button class="run on">▶ ${esc(R.def.trigger?.label ?? 'Run')}</button><button class="stop">Stop</button><button class="follow">Follow</button>
+      <span class="status hint"></span></div><div class="row opts"></div>`;
+    row.querySelector('input').onchange = e => {
+      for (const g of [R.group, R.fixed, R.world]) g.visible = e.target.checked;
+      R.line.visible = e.target.checked && $('t-paths').checked;
+    };
+    row.querySelector('.run').onclick = () => startRobot(R);
+    row.querySelector('.stop').onclick = () => stopRobot(R);
+    row.querySelector('.follow').onclick = () => setFollow(S.follow === R ? null : R);
+    for (const [k, vals] of Object.entries(parseOptions(R.def.trigger?.options))) {
+      const l = document.createElement('label');
+      l.innerHTML = `<span class="hint">${esc(k)}</span> <select>${vals.map(v => `<option>${esc(v)}</option>`).join('')}</select>`;
+      l.querySelector('select').onchange = e => {
+        R.opts[k] = e.target.value;
+        if (R.state !== 'running') { try { plan(R); goIdle(R, true); } catch (err) { showError(`robots/${R.file}: ${err.message}`); } }
+      };
+      row.querySelector('.opts').appendChild(l);
+    }
+    R.ui = { run: row.querySelector('.run'), status: row.querySelector('.status'), follow: row.querySelector('.follow') };
+    box.appendChild(row);
+  }
+}
+function syncRobotUI() {
+  for (const R of robots) {
+    if (!R.ui) continue;
+    const running = R.state === 'running';
+    const txt = running ? `running ${Math.floor(100 * (S.t - R.start) / R.total)}% · ${R.label}` : R.status;
+    if (R.ui.status.textContent !== txt) R.ui.status.textContent = txt;
+    R.ui.run.disabled = running;
+    R.ui.follow.classList.toggle('on', S.follow === R);
+  }
+}
+
+// ---------- mess + smart cleaning route ----------
+// "Make it messy" scatters dirt (crumbs, dust, spills) and obstacles (socks, toys, cords, shoes) on the floor.
+// A robot with "auto_clean" then plans its own route on a 10 cm grid: it drives to each bit of dirt, reaches
+// under furniture with its arm, steers around obstacles and reports what it skipped.
+const messGroup = new THREE.Group(); scene.add(messGroup);
+const mess = [];            // { id, kind, label, room, pos: [x, z], obj, dirt: 'vacuum' | 'mop' | undefined }
+let messSeed = 7;
+const MESS_KINDS = {
+  crumbs: { dirt: 'vacuum', label: 'crumbs', rooms: ['kitchen', 'dining', 'living', 'kitchen'], n: 7 },
+  dust:   { dirt: 'vacuum', label: 'dust bunny', rooms: ['bed2', 'bed3', 'primary', 'hallway', 'living', 'foyer'], n: 8 },
+  spill:  { dirt: 'mop', label: 'juice spill', rooms: ['kitchen', 'dining', 'foyer'], n: 3 },
+  sock:   { label: 'sock', rooms: ['bed2', 'bed3', 'primary', 'hallway'], n: 3 },
+  toy:    { label: 'toy', rooms: ['living', 'bed2', 'living'], n: 3 },
+  cord:   { label: 'charging cord', rooms: ['living'], n: 1 },
+  shoes:  { label: 'pair of shoes', rooms: ['foyer', 'hallway'], n: 1 },
+};
+function rng(seed) {
+  return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const place = (m, x, y, z) => { m.position.set(x, y, z); return m; };
+function messMesh(kind, rand) {
+  const g = new THREE.Group(), m = c => itemMat(c);
+  if (kind === 'crumbs') for (let i = 0; i < 9; i++) g.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 6), m(i % 2 ? 'wood_light' : 'paper')), (rand() - 0.5) * 0.3, 0.01, (rand() - 0.5) * 0.3));
+  else if (kind === 'dust') for (let i = 0; i < 4; i++) {
+    const s = place(new THREE.Mesh(new THREE.SphereGeometry(0.03 + rand() * 0.02, 10, 8), m('fabric_grey')), (rand() - 0.5) * 0.12, 0.022, (rand() - 0.5) * 0.12);
+    s.scale.y = 0.6; g.add(s);
+  }
+  else if (kind === 'spill') { const s = place(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.003, 24), m('orange')), 0, 0.003, 0); s.scale.z = 0.7; g.add(s); }
+  else if (kind === 'sock') g.add(place(box(0.09, 0.03, 0.24, m('terracotta')), 0, 0.015, 0));
+  else if (kind === 'toy') { g.add(place(box(0.08, 0.08, 0.08, m('apple')), 0, 0.04, 0)); g.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 10), m('fabric_blue')), 0.12, 0.06, 0.05)); }
+  else if (kind === 'cord') {
+    const c = place(new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 1.2, 6), m('black')), 0, 0.006, 0); c.rotation.z = Math.PI / 2; g.add(c);
+    g.add(place(box(0.05, 0.03, 0.04, m('white_appliance')), 0.6, 0.015, 0));
+  } else if (kind === 'shoes') { g.add(place(box(0.11, 0.1, 0.28, m('black')), -0.07, 0.05, 0)); g.add(place(box(0.11, 0.1, 0.28, m('black')), 0.08, 0.05, 0.03)); }
+  return g;
+}
+function footprint(f) {
+  const a = rad(f.rotation), c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+  const W = f.size[0] * c + f.size[2] * s, D = f.size[0] * s + f.size[2] * c;
+  return [f.position[0] - W / 2, f.position[0] + W / 2, f.position[1] - D / 2, f.position[1] + D / 2];
+}
+const inFoot = (f, x, z) => { const b = footprint(f); return x >= b[0] && x <= b[1] && z >= b[2] && z <= b[3]; };
+const rugAt = (x, z) => H.fixtures.find(f => f.type === 'rug' && !fl(roomById[f.room]) && inFoot(f, x, z));
+const roomAt = (x, z) => H.rooms.find(r => !fl(r) && x >= r.origin[0] && x <= r.origin[0] + r.size[0] && z >= r.origin[1] && z <= r.origin[1] + r.size[1]);
+
+// Walkable cells for a round robot of radius r: room interiors and door openings, minus furniture it can't drive
+// under (under_clearance below its height), open door leaves and, optionally, the clutter.
+function buildGrid(r, withObstacles, rooms, height = 0.35) {
+  const b = houseBox(), cell = 0.1, x0 = b.min.x, z0 = b.min.z;
+  const nx = Math.ceil((b.max.x - x0) / cell), nz = Math.ceil((b.max.z - z0) / cell);
+  const free = new Uint8Array(nx * nz), T = meta.wall_thickness / 2;
+  const fill = (ax, az, bx, bz, v) => {
+    for (let i = Math.max(0, Math.ceil((ax - x0) / cell - 0.5)); i <= Math.min(nx - 1, Math.floor((bx - x0) / cell - 0.5)); i++)
+      for (let j = Math.max(0, Math.ceil((az - z0) / cell - 0.5)); j <= Math.min(nz - 1, Math.floor((bz - z0) / cell - 0.5)); j++) free[j * nx + i] = v;
+  };
+  const ok = rooms || H.rooms.filter(q => !fl(q) && !q.outdoor && !q.void && q.conditioned !== false).map(q => q.id);
+  for (const id of ok) { const q = roomById[id]; if (q && !fl(q)) fill(q.origin[0] + T + r, q.origin[1] + T + r, q.origin[0] + q.size[0] - T - r, q.origin[1] + q.size[1] - T - r, 1); }
+  for (const d of H.doors) {
+    if ((d.floor || 0) || !d.between.every(id => ok.includes(id))) continue;
+    const half = d.width / 2 - r, a = T + r + 0.05, [px, pz] = d.position;
+    if (half <= 0) continue;
+    if (doorIsVertical(d)) fill(px - a, pz - half, px + a, pz + half, 1); else fill(px - half, pz - a, px + half, pz + a, 1);
+  }
+  for (const f of H.fixtures) {
+    if (f.type === 'rug' || (f.elevation || 0) > 0.05 || fl(roomById[f.room]) || (f.props?.under_clearance ?? 0) >= height) continue;
+    const [ax, bx, az, bz] = footprint(f); fill(ax - r, az - r, bx + r, bz + r, 0);
+  }
+  for (const d of H.doors) if (d.swing && d.leaf !== false && !(d.floor || 0)) {
+    const { hinge, dir, half } = leafGeom(d), ex = hinge[0] + dir[0] * 2 * half, ez = hinge[1] + dir[1] * 2 * half;
+    fill(Math.min(hinge[0], ex) - r, Math.min(hinge[1], ez) - r, Math.max(hinge[0], ex) + r, Math.max(hinge[1], ez) + r, 0);
+  }
+  if (withObstacles) for (const m of mess) if (!m.dirt && m.obj.visible) {
+    const bb = new THREE.Box3().setFromObject(m.obj); fill(bb.min.x - r, bb.min.z - r, bb.max.x + r, bb.max.z + r, 0);
+  }
+  const idx = (x, z) => { const i = Math.floor((x - x0) / cell), j = Math.floor((z - z0) / cell); return i < 0 || j < 0 || i >= nx || j >= nz ? -1 : j * nx + i; };
+  return { free, nx, nz, x0, z0, cell, idx, isFree: (x, z) => { const k = idx(x, z); return k >= 0 && free[k] === 1; },
+           center: k => [x0 + (k % nx + 0.5) * cell, z0 + (Math.floor(k / nx) + 0.5) * cell] };
+}
+function nearestFree(G, x, z, maxD) {
+  let best = null, bd = Infinity; const n = Math.ceil(maxD / G.cell), ci = Math.floor((x - G.x0) / G.cell), cj = Math.floor((z - G.z0) / G.cell);
+  for (let j = cj - n; j <= cj + n; j++) for (let i = ci - n; i <= ci + n; i++) {
+    if (i < 0 || j < 0 || i >= G.nx || j >= G.nz || !G.free[j * G.nx + i]) continue;
+    const c = G.center(j * G.nx + i), d = Math.hypot(c[0] - x, c[1] - z);
+    if (d < bd && d <= maxD) { bd = d; best = c; }
+  }
+  return best;
+}
+function lineFree(G, a, b) {
+  const n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.04);
+  for (let i = 0; i <= n; i++) if (!G.isFree(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n)) return false;
+  return true;
+}
+// A* over the grid (8-connected, no corner cutting), then string-pulled into a few straight legs.
+function findRoute(G, a, b) {
+  const s = G.idx(...a), t = G.idx(...b);
+  if (s < 0 || t < 0 || !G.free[s] || !G.free[t]) return null;
+  const N = G.nx * G.nz, g = new Float32Array(N).fill(Infinity), came = new Int32Array(N).fill(-1), shut = new Uint8Array(N);
+  const ti = t % G.nx, tj = Math.floor(t / G.nx);
+  const h = k => { const dx = Math.abs(k % G.nx - ti), dz = Math.abs(Math.floor(k / G.nx) - tj); return Math.max(dx, dz) + 0.414 * Math.min(dx, dz); };
+  const heap = [];
+  const push = (f, k) => { heap.push([f, k]); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => {
+    const top = heap[0], last = heap.pop();
+    if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i;
+      if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r;
+      if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } }
+    return top;
+  };
+  g[s] = 0; push(h(s), s);
+  while (heap.length) {
+    const [, k] = pop();
+    if (k === t) break;
+    if (shut[k]) continue; shut[k] = 1;
+    const i = k % G.nx, j = Math.floor(k / G.nx);
+    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+      if (!di && !dj) continue;
+      const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= G.nx || nj >= G.nz) continue;
+      const nk = nj * G.nx + ni;
+      if (!G.free[nk] || (di && dj && (!G.free[j * G.nx + ni] || !G.free[nj * G.nx + i]))) continue;
+      const ng = g[k] + (di && dj ? 1.414 : 1);
+      if (ng < g[nk]) { g[nk] = ng; came[nk] = k; push(ng + h(nk), nk); }
+    }
+  }
+  if (came[t] < 0 && s !== t) return null;
+  const cells = []; for (let k = t; k !== -1; k = came[k]) { cells.push(G.center(k)); if (k === s) break; }
+  cells.reverse(); cells[0] = a; cells[cells.length - 1] = b;
+  const out = [cells[0]];
+  for (let i = 0; i < cells.length - 1;) {
+    let j = cells.length - 1; while (j > i + 1 && !lineFree(G, cells[i], cells[j])) j--;
+    out.push(cells[j]); i = j;
+  }
+  return out;
+}
+
+// Which free cells can be reached from (x, z)? Used so clutter never walls a room off completely.
+function reachable(G, x, z) {
+  const seen = new Uint8Array(G.nx * G.nz), s = G.idx(x, z), q = [s];
+  if (s < 0 || !G.free[s]) return seen;
+  seen[s] = 1;
+  while (q.length) {
+    const k = q.pop(), i = k % G.nx, j = Math.floor(k / G.nx);
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const ni = i + di, nj = j + dj, nk = nj * G.nx + ni;
+      if (ni >= 0 && nj >= 0 && ni < G.nx && nj < G.nz && G.free[nk] && !seen[nk]) { seen[nk] = 1; q.push(nk); }
+    }
+  }
+  return seen;
+}
+function roomsCut(r, rooms, start) {
+  const G = buildGrid(r, true, rooms), seen = reachable(G, ...start), base = buildGrid(r, false, rooms), all = reachable(base, ...start);
+  const per = (g, mask) => { const c = {}; for (let k = 0; k < mask.length; k++) if (mask[k]) { const id = roomAt(...g.center(k))?.id; c[id] = (c[id] || 0) + 1; } return c; };
+  const a = per(G, seen), b = per(base, all);
+  return Object.keys(b).some(id => (a[id] || 0) < b[id] * 0.5);   // a room lost more than half its floor
+}
+
+function clearMess() {
+  for (const m of mess) { messGroup.remove(m.obj); m.obj.traverse(o => o.geometry?.dispose()); }
+  mess.length = 0;
+}
+function makeMess() {
+  clearMess();
+  const rand = rng(messSeed++), G = buildGrid(0.21, false);
+  const cleaner = robots.find(R => R.def.auto_clean), start = cleaner ? cleaner.def.path[0].position : [0, 3];
+  const rooms = cleaner?.def.auto_clean.rooms, r = (cleaner?.def.auto_clean.radius_m ?? 0.2);
+  let n = 0;
+  for (const [kind, k] of Object.entries(MESS_KINDS)) for (let i = 0; i < k.n; i++) {
+    const room = roomById[k.rooms[Math.floor(rand() * k.rooms.length)]]; if (!room) continue;
+    for (let tries = 0; tries < 80; tries++) {
+      const x = room.origin[0] + 0.2 + rand() * (room.size[0] - 0.4), z = room.origin[1] + 0.2 + rand() * (room.size[1] - 0.4);
+      const solid = H.fixtures.some(f => f.type !== 'rug' && !(f.elevation > 0.05) && f.room === room.id && inFoot(f, x, z) && !(f.props?.under_clearance > 0.05));
+      if (solid || mess.some(o => Math.hypot(o.pos[0] - x, o.pos[1] - z) < 0.4)) continue;
+      if (kind === 'spill' && (room.finish === 'carpet' || rugAt(x, z))) continue;
+      if (!k.dirt && (!G.isFree(x, z) || H.doors.some(d => Math.hypot(d.position[0] - x, d.position[1] - z) < 0.8))) continue;
+      const obj = messMesh(kind, rand), rug = rugAt(x, z);
+      obj.position.set(x, rug ? rug.size[1] : 0, z); obj.rotation.y = rand() * Math.PI * 2;
+      const m = { id: `m${n++}`, kind, label: k.label, room: room.id, pos: [x, z], obj, dirt: k.dirt };
+      obj.traverse(o => { o.userData.mess = m; });
+      messGroup.add(obj); mess.push(m);
+      if (!k.dirt && roomsCut(r, rooms, start)) { messGroup.remove(obj); mess.pop(); n--; continue; }   // would block a room off
+      break;
+    }
+  }
+  const dirt = mess.filter(m => m.dirt).length;
+  $('mess-status').textContent = `${dirt} messes + ${mess.length - dirt} things on the floor`;
+}
+
+const reactive = R => !!R.def.auto_clean && /react/i.test(R.opts.Route ?? 'react');
+function buildCleanPath(R) {
+  const ac = R.def.auto_clean, r = ac.radius_m ?? 0.2, P = { brush: 'brush', mop: 'mop', arm: 'arm', ...ac.parts };
+  const G = buildGrid(r, true, ac.rooms, R.def.height_m ?? 0.35);
+  const dock = R.def.path[0], last = R.def.path[R.def.path.length - 1], dockPos = dock.position;
+  const rn = p => roomAt(...p)?.name ?? '';
+  const step = (p, label, extra = {}) => ({ label, room: roomAt(...p)?.id ?? dock.room, position: p.map(v => +v.toFixed(3)), dwell_s: 0, ...extra });
+  const dirt = mess.filter(m => m.dirt && m.obj.visible && (!ac.rooms || ac.rooms.includes(m.room)));
+  const obstacles = mess.filter(m => !m.dirt && m.obj.visible);
+  const path = [{ ...dock }, { ...R.def.path[1], notify: dirt.length
+    ? `Found ${dirt.length} messes; ${obstacles.length ? `will steer around ${obstacles.length} things on the floor` : 'floor is clear of obstacles'}`
+    : 'Floors already look clean' }];
+  const warned = new Set(), skipped = [], cleaned = [];
+  const legs = (route, why) => route.slice(1, -1).forEach((p, i) => {
+    const near = obstacles.find(o => !warned.has(o) && Math.hypot(o.pos[0] - p[0], o.pos[1] - p[1]) < 0.9);
+    if (near) warned.add(near);
+    path.push(step(p, near ? `camera spots a ${near.label} (${rn(near.pos)}): steer around it` : why));
+  });
+  let cur = dockPos.slice();
+  const todo = dirt.slice();
+  while (todo.length) {
+    todo.sort((a, b) => Math.hypot(a.pos[0] - cur[0], a.pos[1] - cur[1]) - Math.hypot(b.pos[0] - cur[0], b.pos[1] - cur[1]));
+    const m = todo.shift();
+    let goal = m.pos.slice(), arm = false;
+    if (!G.isFree(...goal)) {
+      goal = nearestFree(G, ...m.pos, (ac.arm_reach_m ?? 0.4) + r);
+      if (!goal) { skipped.push([m, 'too far under furniture']); continue; }
+      arm = Math.hypot(goal[0] - m.pos[0], goal[1] - m.pos[1]) > r * 0.6;
+    }
+    const route = findRoute(G, cur, goal);
+    if (!route) { skipped.push([m, 'path blocked by clutter']); continue; }
+    legs(route, `→ ${m.label} (${rn(m.pos)})`);
+    const t = m.dirt === 'mop' ? ac.mop_s ?? 14 : ac.vacuum_s ?? 6, onRug = !!rugAt(...goal);
+    const w = step(goal, arm ? `reach under the furniture with the crevice arm: ${m.label} (${rn(m.pos)})`
+      : m.dirt === 'mop' ? `mop up the ${m.label} (${rn(m.pos)})` : `vacuum the ${m.label} (${rn(m.pos)})${onRug ? ' — on a rug, mop pad lifted' : ''}`, {
+      dwell_s: t + (arm ? 3 : 0),
+      set: { [`mess:${m.id}`]: { scale: 0.01, visible: false, over_s: t * 0.8, delay_s: arm ? 1.5 : 0 },
+             [P.mop]: { position: [0, onRug ? 0.035 : 0.01, -0.11], over_s: 1 } },
+      effects: [{ type: m.dirt === 'mop' ? 'water' : 'dust', at: arm ? P.arm : 'body', offset: arm ? [0, 0, 0.42] : [0, 0.06, 0.15], rate: m.dirt === 'mop' ? 30 : undefined }],
+      motion: [{ target: P.brush, type: 'spin', axis: 'y', period_s: 0.4 }] });
+    if (arm) {
+      w.heading_deg = Math.atan2(m.pos[0] - goal[0], m.pos[1] - goal[1]) * 180 / Math.PI;
+      w.set[P.arm] = { scale: [1, 1, 1], over_s: 1.2 };
+      path.push(w, step(goal, 'retract the arm', { dwell_s: 1.2, set: { [P.arm]: { scale: [1, 1, 0.2], over_s: 1 } } }));
+    } else path.push(w);
+    cleaned.push(m); cur = goal;
+  }
+  legs(findRoute(G, cur, dockPos) || [cur, dockPos], '→ back to the dock');
+  const counts = {}; obstacles.forEach(o => { counts[o.label] = (counts[o.label] || 0) + 1; });
+  const pick = Object.entries(counts).map(([k, v]) => v > 1 ? `${v} ${k}s` : `a ${k}`).join(', ');
+  path.push({ ...last, notify: `Cleaned ${cleaned.length} of ${dirt.length} messes.` +
+    (skipped.length ? ` Couldn't reach: ${skipped.map(([m, why]) => `${m.label} in ${rn(m.pos)} (${why})`).join(', ')}.` : '') +
+    (pick ? ` Please pick up ${pick} so it can clean under them.` : '') });
+  return path;
+}
+function showMess(m) {
+  $('info').className = '';
+  $('info').innerHTML = `<dl><dt>On the floor</dt><dd><b>${esc(m.label)}</b></dd><dt>Room</dt><dd>${esc(roomById[m.room]?.name)}</dd>
+    <dt>Robot</dt><dd>${m.dirt === 'mop' ? 'mops it up' : m.dirt ? 'vacuums it (or reaches it with the arm under furniture)' : 'treats it as an obstacle: steers around it and asks you to pick it up'}</dd></dl>`;
+}
+
+// ---------- follow camera ----------
+// Chase view: the camera keeps its offset in the robot's own frame (behind and above by default).
+// Orbit or zoom while following to change that offset.
+let followOff = null, dragging = false;
+controls.addEventListener('start', () => { dragging = true; });
+controls.addEventListener('end', () => {
+  dragging = false;
+  if (S.follow) followOff = camera.position.clone().sub(controls.target).applyAxisAngle(AXES.y, -S.follow.yaw);
+});
+function setFollow(R) {
+  S.follow = R; tween = null;
+  followOff = R ? new THREE.Vector3(0, 3.1, -1.9) : null;   // high and close, so walls rarely get between
+}
+function followTick(dt) {
+  const R = S.follow; if (!R || dragging) return;
+  const p = R.group.getWorldPosition(new THREE.Vector3()); p.y += 0.35;
+  const k = 1 - Math.exp(-dt * 4);
+  controls.target.lerp(p, k);
+  camera.position.lerp(p.clone().add(followOff.clone().applyAxisAngle(AXES.y, R.yaw)), k);
+}
+
+// ---------- selection ----------
+const usd = n => n != null ? '$' + Number(n).toLocaleString() : '—';
+function showRobot(R) {
+  const d = R.def, tr = d.trigger || {};
+  const drivers = (d.cost_drivers || []).map(c => Array.isArray(c) ? `${c[0]}: ${usd(c[1])}` : c);
+  const row = (k, v) => v == null || v === '' ? '' : `<dt>${k}</dt><dd>${v}</dd>`;
+  $('info').className = '';
+  $('info').innerHTML = `<dl>${row('Robot', `<b>${esc(d.display_name ?? d.name)}</b> <span class="hint">${esc(R.file)}</span>`)}
+    ${row('Task', esc(d.task ?? '—'))}
+    ${row('Trigger', tr.label ? `${esc(tr.type ?? '')}: “${esc(tr.label)}”` : null)}
+    ${row('Options', tr.options?.length ? list(tr.options) : null)}
+    ${row('Form factor', esc(d.form_factor ?? '—'))}
+    ${row('Size', d.footprint_m ? `${d.footprint_m.join(' × ')} m footprint${d.height_m ? `, ${d.height_m} m tall` : ''}` : null)}
+    ${row('Reach / payload', d.reach_m != null ? `${d.reach_m} m / ${d.payload_kg ?? '—'} kg` : null)}
+    ${row('BOM', usd(d.bom_usd))}
+    ${row('Cost drivers', list(drivers))}
+    ${row('Env changes', list(d.env_changes_required))}
+    ${row('Excluded', d.tasks_excluded ? list(d.tasks_excluded) : null)}
+    ${row('Cycle', d.cycle_minutes_estimate != null ? `${d.cycle_minutes_estimate} min robot vs ${d.human_minutes_equivalent ?? '—'} min human` : null)}
+    <dt>Now</dt><dd id="wp">${esc(R.label)}</dd>${row('Sim cycle', fmtTime(R.total))}</dl>`;
+}
+function showRoom(r) {
+  const area = r.size[0] * r.size[1];
+  const doors = H.doors.filter(d => d.between.includes(r.id));
+  const wins = (H.windows || []).filter(w => w.room === r.id);
+  const fx = H.fixtures.filter(f => f.room === r.id);
+  const other = d => d.between.find(x => x !== r.id);
+  $('info').className = '';
+  $('info').innerHTML = `<dl><dt>Room</dt><dd><b>${esc(r.name)}</b> <span class="hint">${esc(r.id)}</span></dd>
+    <dt>Floor</dt><dd>${fl(r)} · ${esc(r.finish ?? '—')}</dd><dt>Size</dt><dd>${r.size[0]} × ${r.size[1]} m</dd>
+    <dt>Area</dt><dd>${area.toFixed(2)} m² (${(area * 10.7639).toFixed(0)} sq ft)</dd>
+    <dt>Doors</dt><dd>${doors.length ? '<ul>' + doors.map(d => `<li>${d.width} m ${esc(d.type || '')} → ${esc(roomById[other(d)]?.name ?? other(d))}</li>`).join('') + '</ul>' : '—'}</dd>
+    <dt>Windows</dt><dd>${wins.length ? wins.map(w => `${w.width} m, sill ${w.sill} m`).join('<br>') : '—'}</dd>
+    <dt>Fixtures</dt><dd>${fx.length ? '<ul>' + fx.map(f => `<li>${esc(f.id)} <span class="hint">${esc(f.type)}</span></li>`).join('') + '</ul>' : '—'}</dd></dl>`;
+}
+function showFixture(f) {
+  const t = f.template && H.templates?.[f.template];
+  const parts = t ? t.parts.map(p => p.name).filter(Boolean) : [];
+  const props = Object.entries(f.props || {}).map(([k, v]) => `<li>${esc(k)}: ${esc(typeof v === 'object' ? JSON.stringify(v) : v)}</li>`).join('');
+  $('info').className = '';
+  $('info').innerHTML = `<dl><dt>Fixture</dt><dd><b>${esc(f.id)}</b> <span class="hint">${esc(f.type)}</span></dd>
+    <dt>Room</dt><dd>${esc(roomById[f.room]?.name ?? f.room)}</dd>
+    <dt>Position</dt><dd>[${f.position.join(', ')}] · rot ${f.rotation || 0}°${f.elevation ? ` · elev ${f.elevation} m` : ''}</dd>
+    <dt>Size</dt><dd>${f.size.join(' × ')} m</dd>
+    ${f.inside ? `<dt>Inside</dt><dd>${esc(f.inside)}</dd>` : ''}
+    <dt>Props</dt><dd>${props ? `<ul>${props}</ul>` : '—'}</dd>
+    ${parts.length ? `<dt>Parts</dt><dd><code>${parts.map(esc).join(', ')}</code></dd>` : ''}</dl>`;
+}
+
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null;
+renderer.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  ptr.set((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const visible = o => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
+  const robotHit = ray.intersectObjects(robots.flatMap(R => [R.group, R.fixed, R.world]), true).find(h => visible(h.object));
+  if (robotHit) { S.sel = robotHit.object.userData.robot; return showRobot(S.sel); }
+  const messHit = ray.intersectObject(messGroup, true)[0];
+  if (messHit) { S.sel = null; return showMess(messHit.object.userData.mess); }
+  const hit = ray.intersectObjects(clickables).find(h => visible(h.object) && !h.object.material.transparent);
+  S.sel = null;
+  if (hit?.object.userData.fixture) return showFixture(hit.object.userData.fixture);
+  if (hit?.object.userData.room) return showRoom(S.sel = hit.object.userData.room);
+  $('info').className = 'hint'; $('info').textContent = INFO_HINT;
+});
+
+// ---------- UI ----------
+$('play').onclick = () => { S.playing = !S.playing; $('play').textContent = S.playing ? 'Pause' : 'Play'; $('play').classList.toggle('on', S.playing); };
+document.querySelectorAll('[data-mult]').forEach(b => b.onclick = () => {
+  S.mult = +b.dataset.mult; document.querySelectorAll('[data-mult]').forEach(x => x.classList.toggle('on', x === b));
+});
+document.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => frame(houseBox(), CAMS[b.dataset.cam]));
+// CSS2D labels ignore parent visibility, so sync them with the label toggle and their floor's visibility.
+function syncLabels() {
+  Object.values(floors).forEach(F => F.group.traverse(o => { if (o.userData.isLabel) o.visible = $('t-labels').checked && F.group.visible; }));
+}
+$('t-labels').onchange = syncLabels;
+$('t-hq').onchange = e => { renderer.shadowMap.enabled = e.target.checked; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); };
+$('make-mess').onclick = () => { makeMess(); robots.filter(R => R.state !== 'running' && reactive(R)).forEach(R => { plan(R); goIdle(R, true); }); };
+$('clear-mess').onclick = () => { clearMess(); $('mess-status').textContent = ''; };
+$('t-paths').onchange = e => robots.forEach(R => { R.line.visible = e.target.checked && R.group.visible; });
+$('t-full').onchange = e => { S.full = e.target.checked; Object.keys(floors).forEach(f => buildWalls(+f)); };
+$('t-furnished').onchange = e => { S.furnished = e.target.checked; site.group.visible = S.furnished; syncBg(); buildHouse(); };
+$('t-upper').onchange = e => {
+  Object.entries(floors).forEach(([f, F]) => { if (+f > 0) F.group.visible = e.target.checked; });
+  syncLabels();
+};
+
+// ---------- story mode ----------
+let story = null, studio = null, theatreState = null;
+const editMode = new URLSearchParams(location.search).has('edit');
+const STORY = { file: 'story.js', world: { visible: true }, parts: {}, items: {}, group: scene };
+function storyContext() {
+  return {
+    scene, camera, controls, S, H, meta, wallSegments, floors, site, TEX, studio, theatreState,
+    ensureFurnished() { if (!S.furnished) $('t-furnished').click(); },
+    rebuildWalls: () => Object.keys(floors).forEach(f => buildWalls(+f)),
+    // one running emitter per effect type, moved and kept alive by the story each frame
+    fx(type, at, seconds, dir) {
+      let e = emitters.find(x => x.R === STORY && x.type === type);
+      if (!e) emitters.push(e = { R: STORY, type, acc: 0 });
+      Object.assign(e, { at, dir, from: S.t, to: S.t + seconds * Math.max(1, S.mult) });
+    },
+    setInteractive(on) {
+      $('panel').classList.toggle('story-mode', !on);
+      for (const R of robots) { if (!on) stopRobot(R); for (const g of [R.group, R.fixed, R.world]) g.visible = on; R.line.visible = on && $('t-paths').checked; }
+      messGroup.visible = on; S.follow = null;
+      if (on) { syncLabels(); frame(houseBox(), CAMS.threequarter); }
+    },
+    ui: {
+      show(on) { $('story').hidden = !on; },
+      caption(c, i, n) {
+        $('story').querySelector('.story-step').textContent = `Chapter ${i + 1} of ${n}`;
+        $('story').querySelector('h3').textContent = c.title;
+        $('story').querySelector('.story-body').textContent = c.body;
+        $('story').querySelector('.story-real').textContent = c.real || '';
+        $('st-next').textContent = i === n - 1 ? 'Explore the house ▶' : 'Next ▶';
+      },
+      fade() {                   // dip to black and back: a cut between story shots
+        const f = $('fade'); f.style.transition = 'none'; f.style.opacity = '0.92'; void f.offsetHeight;
+        f.style.transition = 'opacity .7s ease-out'; f.style.opacity = '0';
+      },
+      progress(p) { $('story').querySelector('.story-bar div').style.width = `${(p * 100).toFixed(1)}%`; },
+    },
+  };
+}
+$('story-start').onclick = () => story?.start();
+$('capture-view').onclick = () => story?.captureView();
+$('save-theatre').onclick = () => {           // download the Theatre project state; commit it as story-theatre.json
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(studio.createContentOfSaveFile('BASES construction story'), null, 2)], { type: 'application/json' }));
+  a.download = 'story-theatre.json'; a.click();
+};
+$('st-next').onclick = () => story?.next();
+$('st-prev').onclick = () => story?.prev();
+$('st-exit').onclick = () => story?.exit();
+
+// ---------- main ----------
+const clock = new THREE.Clock();
+let fpsAvg = 60;
+function tick() {
+  const dt = clock.getDelta(), play = S.playing ? dt : 0;
+  if ($('t-fps').checked) {
+    fpsAvg = fpsAvg * 0.95 + (dt > 0 ? 1 / dt : 0) * 0.05;
+    $('fps').hidden = false; $('fps').textContent = `${fpsAvg.toFixed(0)} fps · ${renderer.info.render.calls} draws`;
+  } else $('fps').hidden = true;
+  S.t += play * S.mult; animT += play; S.anim = animT;
+  restoreWobbled();
+  runEvents();
+  robots.forEach(R => updateRobot(R, play));
+  for (let i = tweens.length - 1; i >= 0; i--) if (stepTween(tweens[i])) tweens.splice(i, 1);
+  applyMotions();
+  stepParticles(play);
+  syncRobotUI();
+  followTick(dt);
+  story?.tick(play);
+  $('clock').textContent = fmtTime(S.t);
+  if (S.sel?.def && $('wp')) $('wp').textContent = S.sel.label;
+  if (tween) {
+    tween.k = Math.min(1, tween.k + dt / 0.6);
+    const e = 1 - Math.pow(1 - tween.k, 3);
+    camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e);
+    if (tween.k >= 1) tween = null;
+  }
+  controls.update();
+  renderer.info.reset();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+(async () => {
+  resize();
+  try { H = applyTwoStory(await getJSON('house.json')); }
+  catch (e) {
+    const hint = location.protocol === 'file:' ? ' — browsers block fetch() from file://; run "python -m http.server" or use GitHub Pages.' : '';
+    showError(`house.json: ${e.message}${hint}`); $('robots').textContent = ''; return;
+  }
+  meta = H.meta;
+  H.rooms.forEach(r => { roomById[r.id] = r; });
+  H.fixtures.forEach(f => { fixById[f.id] = f; });
+  syncBg();
+  buildSite();
+  buildHouse();
+  H.rooms.forEach(r => {
+    const b = document.createElement('button'); b.textContent = r.name;
+    b.onclick = () => { frame(roomBox(r), CAMS.room); S.sel = r; showRoom(r); };
+    $('roomcams').appendChild(b);
+  });
+  frame(houseBox(), CAMS.threequarter);
+  camera.position.copy(tween.p1); controls.target.copy(tween.t1); tween = null;
+  // Theatre.js: saved camera keyframes (optional file), and the Studio editor when the page is opened with ?edit
+  try { theatreState = await getJSON('story-theatre.json'); } catch { /* no saved keyframes yet */ }
+  if (editMode) {
+    try { const m = await import('@theatre/studio'); studio = m.default?.default ?? m.default; studio.initialize(); $('edit-box').hidden = false; document.body.classList.add('editing'); }
+    catch (e) { showError(`Theatre Studio failed to load: ${e.message}`); }
+  }
+  story = createStory(storyContext());
+  tick();
+  await loadRobots();
+})();
+</script>
+</body>
+</html>

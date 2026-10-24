@@ -1,0 +1,2971 @@
+{
+  "name": "laundrybot",
+  "display_name": "LaundryBot (mobile arm + fold board)",
+  "task": "Collects dirty clothes from hampers and the floor, runs the washer and dryer, folds simple items on a built-in flip-fold board and delivers the stacks to each room.",
+  "trigger": {
+    "type": "phone_button",
+    "label": "Do the laundry",
+    "options": [
+      "Load: darks + lights / delicates only",
+      "Deliver folded clothes: yes / leave in basket"
+    ],
+    "notify_on": [
+      "done",
+      "blocked",
+      "needs_help"
+    ]
+  },
+  "form_factor": "wheeled",
+  "footprint_m": [
+    0.55,
+    0.6
+  ],
+  "height_m": 1.38,
+  "reach_m": 0.9,
+  "payload_kg": 3,
+  "speed_mps": 0.7,
+  "battery_h": 4,
+  "bom_usd": 9400,
+  "bom_assumptions": "Quantity-1 2026 prices. Arm: 6-DOF ~0.9 m reach, 3 kg payload, off-the-shelf actuators (~$3,800). Base: differential drive, 24 V 20 Ah battery, lidar, bumpers (~$1,500). Fold board: 2 servo-driven panels (~$400). Gripper: soft pinch gripper with tactile pads (~$550). Vision: 2 RGB-D cameras + Jetson Orin NX 16GB (~$1,300). Hamper body, pod cartridge, dock, wiring (~$850). Washer/dryer are the house's existing machines.",
+  "cost_drivers": [
+    [
+      "6-DOF arm, 0.9 m reach, 3 kg payload",
+      3800
+    ],
+    [
+      "Mobile base: drive, 20 Ah battery, lidar, bumpers",
+      1500
+    ],
+    [
+      "Vision + compute: 2 RGB-D cameras, Jetson Orin NX",
+      1300
+    ]
+  ],
+  "env_changes_required": [
+    "Threshold ramp at the garage -> kitchen door (garages usually sit one step down; a 15 cm rubber ramp is ~$60).",
+    "Park the car ~25 cm further forward so there's a 0.7 m lane between the car and the garage shelving (done in house.json).",
+    "Move hampers out of closets to the floor beside them (done in house.json for Bedroom 2 and the primary bedroom).",
+    "Leave washer and dryer doors able to open fully to the left; front-load machines on 30 cm pedestals so the drums are at arm height (already true here).",
+    "Laundry closet bifold doors left open, or replaced with a curtain (~$40)."
+  ],
+  "tasks_excluded": [
+    "Ironing / steaming: heat plus loose fabric near people is high-risk and hard to do well; items needing it go in a separate 'needs ironing' stack.",
+    "Folding shirts with buttons, fitted sheets and delicates: the fold board handles T-shirts, towels, pants and flat sheets only; the rest is laid flat.",
+    "Reading care labels: tiny, often faded print; sorting uses colour + fabric from the camera, and the user picks the load type up front.",
+    "Pulling clothes out from under beds or furniture: out of reach of the arm and camera.",
+    "Stairs (two-story homes): stair-climbing bases cost more than a second robot upstairs; this house is single-story.",
+    "Starting runs on its own: on-demand only, from the phone button."
+  ],
+  "turn_to_path": true,
+  "parts": {
+    "arm": {
+      "pivot": [
+        0,
+        1.22,
+        -0.25
+      ]
+    },
+    "fore": {
+      "pivot": [
+        0,
+        1.22,
+        0.2
+      ],
+      "parent": "arm"
+    },
+    "bin_darks": {
+      "pivot": [
+        -0.167,
+        0.21,
+        -0.09
+      ]
+    },
+    "bin_lights": {
+      "pivot": [
+        0,
+        0.21,
+        -0.09
+      ]
+    },
+    "bin_delicates": {
+      "pivot": [
+        0.167,
+        0.21,
+        -0.09
+      ]
+    },
+    "fold_l": {
+      "pivot": [
+        -0.083,
+        0.735,
+        0.165
+      ]
+    },
+    "fold_r": {
+      "pivot": [
+        0.083,
+        0.735,
+        0.165
+      ]
+    }
+  },
+  "items": {
+    "armful": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.3,
+            0.14,
+            0.24
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "fabric_blue"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.2,
+            0.1,
+            0.18
+          ],
+          "position": [
+            0.05,
+            0.08,
+            0.02
+          ],
+          "color": "linen_white"
+        }
+      ]
+    },
+    "sock": {
+      "at": [
+        -6.45,
+        0.012,
+        1.95
+      ],
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.09,
+            0.03,
+            0.22
+          ],
+          "position": [
+            0,
+            0.015,
+            0
+          ],
+          "color": "terracotta"
+        }
+      ]
+    },
+    "drum_load": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.26,
+            0.18,
+            0.006
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "fabric_blue"
+        },
+        {
+          "type": "box",
+          "size": [
+            0.12,
+            0.1,
+            0.008
+          ],
+          "position": [
+            0.06,
+            0.05,
+            0
+          ],
+          "color": "linen_white"
+        }
+      ]
+    },
+    "pod": {
+      "at": [
+        0,
+        -5,
+        0
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "sphere",
+          "radius": 0.025,
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "accent"
+        }
+      ]
+    },
+    "shirt": {
+      "at": "body",
+      "offset": [
+        0,
+        0.745,
+        0.165
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.46,
+            0.008,
+            0.25
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "color": "fabric_blue"
+        }
+      ]
+    },
+    "stack_a": {
+      "at": "body",
+      "offset": [
+        -0.13,
+        0.73,
+        -0.12
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.24,
+            0.16,
+            0.18
+          ],
+          "position": [
+            0,
+            0.08,
+            0
+          ],
+          "color": "fabric_blue"
+        }
+      ]
+    },
+    "stack_b": {
+      "at": "body",
+      "offset": [
+        0.13,
+        0.73,
+        -0.12
+      ],
+      "visible": false,
+      "primitives": [
+        {
+          "type": "box",
+          "size": [
+            0.24,
+            0.16,
+            0.18
+          ],
+          "position": [
+            0,
+            0.08,
+            0
+          ],
+          "color": "fabric_beige"
+        }
+      ]
+    }
+  },
+  "setup": {
+    "set": {
+      "@bed2_hamper.clothes": {
+        "visible": true
+      },
+      "@primary_hamper.clothes": {
+        "visible": true
+      },
+      "bin_darks": {
+        "scale": [
+          1,
+          0.05,
+          1
+        ]
+      },
+      "bin_lights": {
+        "scale": [
+          1,
+          0.05,
+          1
+        ]
+      },
+      "bin_delicates": {
+        "scale": [
+          1,
+          0.05,
+          1
+        ]
+      },
+      "@washer.door_ring": {
+        "hinge": {
+          "point": [
+            -0.23,
+            0.8,
+            0.41
+          ],
+          "axis": "y",
+          "deg": 0
+        }
+      },
+      "@washer.door_glass": {
+        "hinge": {
+          "point": [
+            -0.23,
+            0.8,
+            0.41
+          ],
+          "axis": "y",
+          "deg": 0
+        }
+      },
+      "@dryer.door_ring": {
+        "hinge": {
+          "point": [
+            -0.23,
+            0.8,
+            0.41
+          ],
+          "axis": "y",
+          "deg": 0
+        }
+      },
+      "@dryer.door_glass": {
+        "hinge": {
+          "point": [
+            -0.23,
+            0.8,
+            0.41
+          ],
+          "axis": "y",
+          "deg": 0
+        }
+      }
+    }
+  },
+  "primitives": [
+    {
+      "type": "box",
+      "size": [
+        0.55,
+        0.18,
+        0.6
+      ],
+      "position": [
+        0,
+        0.12,
+        0
+      ],
+      "color": "body"
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.04,
+      "position": [
+        -0.26,
+        0.06,
+        0.2
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.04,
+      "position": [
+        0.26,
+        0.06,
+        0.2
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.04,
+      "position": [
+        -0.26,
+        0.06,
+        -0.2
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "cylinder",
+      "radius": 0.06,
+      "height": 0.04,
+      "position": [
+        0.26,
+        0.06,
+        -0.2
+      ],
+      "color": "joint",
+      "rotation": [
+        0,
+        0,
+        90
+      ]
+    },
+    {
+      "type": "box",
+      "size": [
+        0.5,
+        0.4,
+        0.02
+      ],
+      "position": [
+        0,
+        0.41,
+        0.02
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.02,
+        0.4,
+        0.22
+      ],
+      "position": [
+        -0.25,
+        0.41,
+        -0.09
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.02,
+        0.4,
+        0.22
+      ],
+      "position": [
+        0.25,
+        0.41,
+        -0.09
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.01,
+        0.4,
+        0.22
+      ],
+      "position": [
+        -0.085,
+        0.41,
+        -0.09
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.01,
+        0.4,
+        0.22
+      ],
+      "position": [
+        0.085,
+        0.41,
+        -0.09
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.15,
+        0.38,
+        0.2
+      ],
+      "position": [
+        -0.167,
+        0.4,
+        -0.09
+      ],
+      "color": "joint",
+      "part": "bin_darks"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.15,
+        0.38,
+        0.2
+      ],
+      "position": [
+        0,
+        0.4,
+        -0.09
+      ],
+      "color": "body",
+      "part": "bin_lights"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.15,
+        0.38,
+        0.2
+      ],
+      "position": [
+        0.167,
+        0.4,
+        -0.09
+      ],
+      "color": "accent",
+      "part": "bin_delicates"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.5,
+        0.5,
+        0.27
+      ],
+      "position": [
+        0,
+        0.46,
+        0.165
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.5,
+        0.02,
+        0.27
+      ],
+      "position": [
+        0,
+        0.72,
+        0.165
+      ],
+      "color": "joint"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.165,
+        0.01,
+        0.26
+      ],
+      "position": [
+        -0.166,
+        0.735,
+        0.165
+      ],
+      "color": "accent",
+      "part": "fold_l"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.165,
+        0.01,
+        0.26
+      ],
+      "position": [
+        0.166,
+        0.735,
+        0.165
+      ],
+      "color": "accent",
+      "part": "fold_r"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.1,
+        0.99,
+        0.1
+      ],
+      "position": [
+        0,
+        0.705,
+        -0.25
+      ],
+      "color": "body"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.14,
+        0.06,
+        0.08
+      ],
+      "position": [
+        0,
+        1.32,
+        -0.25
+      ],
+      "color": "accent"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.1,
+        0.12,
+        0.02
+      ],
+      "position": [
+        0.17,
+        0.4,
+        0.305
+      ],
+      "color": "accent"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.06,
+      "position": [
+        0,
+        1.22,
+        -0.25
+      ],
+      "color": "joint",
+      "part": "arm"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.06,
+        0.06,
+        0.45
+      ],
+      "position": [
+        0,
+        1.22,
+        -0.025
+      ],
+      "color": "body",
+      "part": "arm"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.045,
+      "position": [
+        0,
+        1.22,
+        0.2
+      ],
+      "color": "joint",
+      "part": "fore"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.05,
+        0.05,
+        0.4
+      ],
+      "position": [
+        0,
+        1.22,
+        0.4
+      ],
+      "color": "body",
+      "part": "fore"
+    },
+    {
+      "type": "sphere",
+      "radius": 0.035,
+      "position": [
+        0,
+        1.22,
+        0.6
+      ],
+      "color": "joint",
+      "part": "fore"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.08,
+        0.04,
+        0.06
+      ],
+      "position": [
+        0,
+        1.22,
+        0.65
+      ],
+      "color": "accent",
+      "part": "fore"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.06,
+        0.03
+      ],
+      "position": [
+        -0.025,
+        1.19,
+        0.68
+      ],
+      "color": "joint",
+      "part": "fore"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.015,
+        0.06,
+        0.03
+      ],
+      "position": [
+        0.025,
+        1.19,
+        0.68
+      ],
+      "color": "joint",
+      "part": "fore"
+    },
+    {
+      "type": "box",
+      "size": [
+        0.08,
+        0.3,
+        0.5
+      ],
+      "position": [
+        0.45,
+        0.15,
+        0
+      ],
+      "color": "joint",
+      "fixed": true
+    }
+  ],
+  "path": [
+    {
+      "label": "idle at dock in the garage: charging",
+      "room": "garage",
+      "position": [
+        10.3,
+        5.25
+      ],
+      "dwell_s": 5,
+      "heading_deg": 270,
+      "set": {
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ]
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ]
+        },
+        "fold_l": {
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        "fold_r": {
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "label": "button press: \"Do the laundry\" (phone app)",
+      "room": "garage",
+      "position": [
+        10.3,
+        5.25
+      ],
+      "dwell_s": 3
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass garage -> kitchen door (0.915 m; robot 0.55 m) over the threshold ramp",
+      "room": "kitchen",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> living opening",
+      "room": "living",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> foyer opening (3.6 m)",
+      "room": "foyer",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> hallway opening (1.07 m)",
+      "room": "hallway",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "hallway outside Bedroom 2",
+      "room": "hallway",
+      "position": [
+        -6.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass Bedroom 2 door (0.82 m)",
+      "room": "bed2",
+      "position": [
+        -6.0,
+        3.8
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "empty the kid's hamper into the darks bin (reach)",
+      "room": "bed2",
+      "fixture": "bed2_hamper",
+      "position": [
+        -6.45,
+        2.95
+      ],
+      "dwell_s": 0,
+      "heading_deg": 315,
+      "set": {
+        "arm": {
+          "rotation": [
+            35,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore": {
+          "rotation": [
+            40,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "armful": {
+          "at": "@bed2_hamper",
+          "visible": true,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 0.1,
+          "delay_s": 3
+        },
+        "@bed2_hamper.clothes": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 4
+        }
+      }
+    },
+    {
+      "label": "empty the kid's hamper into the darks bin (grab)",
+      "room": "bed2",
+      "fixture": "bed2_hamper",
+      "position": [
+        -6.45,
+        2.95
+      ],
+      "dwell_s": 0,
+      "heading_deg": 315,
+      "attach": {
+        "armful": {
+          "to": "fore",
+          "delay_s": 5
+        }
+      },
+      "set": {
+        "armful": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 5.5
+        }
+      }
+    },
+    {
+      "label": "empty the kid's hamper into the darks bin (carry)",
+      "room": "bed2",
+      "fixture": "bed2_hamper",
+      "position": [
+        -6.45,
+        2.95
+      ],
+      "dwell_s": 0,
+      "heading_deg": 315,
+      "set": {
+        "arm": {
+          "rotation": [
+            -30,
+            180,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "fore": {
+          "rotation": [
+            95,
+            0,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "armful": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 13
+        },
+        "bin_darks": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 3,
+          "delay_s": 12
+        }
+      }
+    },
+    {
+      "label": "empty the kid's hamper into the darks bin",
+      "room": "bed2",
+      "fixture": "bed2_hamper",
+      "position": [
+        -6.45,
+        2.95
+      ],
+      "dwell_s": 22,
+      "heading_deg": 315,
+      "set": {
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "pick the sock up off the rug (reach)",
+      "room": "bed2",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 0,
+      "heading_deg": 180,
+      "set": {
+        "arm": {
+          "rotation": [
+            45,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore": {
+          "rotation": [
+            55,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "sock": {
+          "at": [
+            -6.45,
+            0.03,
+            1.95
+          ],
+          "visible": true,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 0.1,
+          "delay_s": 3
+        }
+      }
+    },
+    {
+      "label": "pick the sock up off the rug (grab)",
+      "room": "bed2",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 0,
+      "heading_deg": 180,
+      "attach": {
+        "sock": {
+          "to": "fore",
+          "delay_s": 5
+        }
+      },
+      "set": {
+        "sock": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 5.5
+        }
+      }
+    },
+    {
+      "label": "pick the sock up off the rug (carry)",
+      "room": "bed2",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 0,
+      "heading_deg": 180,
+      "set": {
+        "arm": {
+          "rotation": [
+            -30,
+            180,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "fore": {
+          "rotation": [
+            95,
+            0,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "sock": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 13
+        },
+        "bin_darks": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 3,
+          "delay_s": 12
+        }
+      }
+    },
+    {
+      "label": "pick the sock up off the rug",
+      "room": "bed2",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 22,
+      "heading_deg": 180,
+      "set": {
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "pass Bedroom 2 door",
+      "room": "hallway",
+      "position": [
+        -6.0,
+        3.8
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "hallway",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass primary bedroom door (0.82 m)",
+      "room": "primary",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "empty the primary hamper into the bins (reach)",
+      "room": "primary",
+      "fixture": "primary_hamper",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 0,
+      "heading_deg": 135,
+      "set": {
+        "arm": {
+          "rotation": [
+            35,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore": {
+          "rotation": [
+            40,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "armful": {
+          "at": "@primary_hamper",
+          "visible": true,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 0.1,
+          "delay_s": 3
+        },
+        "@primary_hamper.clothes": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 4
+        }
+      }
+    },
+    {
+      "label": "empty the primary hamper into the bins (grab)",
+      "room": "primary",
+      "fixture": "primary_hamper",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 0,
+      "heading_deg": 135,
+      "attach": {
+        "armful": {
+          "to": "fore",
+          "delay_s": 5
+        }
+      },
+      "set": {
+        "armful": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 5.5
+        }
+      }
+    },
+    {
+      "label": "empty the primary hamper into the bins (carry)",
+      "room": "primary",
+      "fixture": "primary_hamper",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 0,
+      "heading_deg": 135,
+      "set": {
+        "arm": {
+          "rotation": [
+            -30,
+            180,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "fore": {
+          "rotation": [
+            95,
+            0,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 8
+        },
+        "armful": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 13
+        },
+        "bin_lights": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 3,
+          "delay_s": 12
+        }
+      }
+    },
+    {
+      "label": "empty the primary hamper into the bins",
+      "room": "primary",
+      "fixture": "primary_hamper",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 22,
+      "heading_deg": 135,
+      "set": {
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 16,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "pass primary bedroom door",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "load the washer and add a detergent pod (open washer)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "@washer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@washer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "arm": {
+          "rotation": [
+            -30,
+            180,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "fore": {
+          "rotation": [
+            95,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (grab clothes from the bins)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "attach": {
+        "armful": {
+          "to": "fore",
+          "delay_s": 4
+        }
+      },
+      "set": {
+        "armful": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "visible": true,
+          "over_s": 0.5,
+          "delay_s": 4.2
+        },
+        "bin_darks": {
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 3,
+          "delay_s": 4
+        },
+        "bin_lights": {
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 3,
+          "delay_s": 4
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (into the drum)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "arm": {
+          "rotation": [
+            20,
+            -25,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        },
+        "fore": {
+          "rotation": [
+            15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 6
+        }
+      },
+      "detach": {
+        "armful": {
+          "delay_s": 10
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (drop)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "armful": {
+          "at": [
+            -4.19,
+            0.8,
+            5.137
+          ],
+          "over_s": 1.5,
+          "delay_s": 10.2
+        },
+        "drum_load": {
+          "at": [
+            -4.19,
+            0.8,
+            5.137
+          ],
+          "visible": true,
+          "over_s": 0.1,
+          "delay_s": 11.5
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (hide armful)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "armful": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 11.6
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (detergent pod)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "attach": {
+        "pod": {
+          "to": "fore",
+          "delay_s": 13
+        }
+      },
+      "set": {
+        "pod": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "visible": true,
+          "over_s": 0.5,
+          "delay_s": 13.2
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod (pod in)",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "detach": {
+        "pod": {
+          "delay_s": 16
+        }
+      },
+      "set": {
+        "pod": {
+          "at": [
+            -4.19,
+            0.75,
+            5.35
+          ],
+          "over_s": 1,
+          "delay_s": 16.2
+        }
+      }
+    },
+    {
+      "label": "load the washer and add a detergent pod",
+      "room": "hallway",
+      "fixture": "washer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 24,
+      "heading_deg": 0,
+      "set": {
+        "pod": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 17.5
+        },
+        "@washer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 18
+        },
+        "@washer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 18
+        },
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 18,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 18,
+          "over_s": 3
+        }
+      },
+      "notify": "Washer started: darks + lights, Normal, ~55 min",
+      "notify_delay_s": 21
+    },
+    {
+      "label": "pass hallway -> foyer opening",
+      "room": "foyer",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> living opening",
+      "room": "living",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> kitchen opening",
+      "room": "kitchen",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> garage door",
+      "room": "garage",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "charge at the dock while the washer runs (~55 min)",
+      "room": "garage",
+      "position": [
+        10.3,
+        5.25
+      ],
+      "dwell_s": 3300,
+      "heading_deg": 270,
+      "motion": [
+        {
+          "target": "drum_load",
+          "type": "spin",
+          "axis": "z",
+          "period_s": 0.7
+        }
+      ],
+      "effects": [
+        {
+          "type": "bubbles",
+          "at": "drum_load",
+          "offset": [
+            0,
+            0.05,
+            -0.1
+          ],
+          "rate": 30
+        }
+      ]
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass garage -> kitchen door (0.915 m; robot 0.55 m) over the threshold ramp",
+      "room": "kitchen",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> living opening",
+      "room": "living",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> foyer opening (3.6 m)",
+      "room": "foyer",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> hallway opening (1.07 m)",
+      "room": "hallway",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "move the load from the washer to the dryer (open both doors)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "@washer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@washer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@dryer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 1
+        },
+        "@dryer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 1
+        },
+        "arm": {
+          "rotation": [
+            20,
+            -25,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "fore": {
+          "rotation": [
+            15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        }
+      }
+    },
+    {
+      "label": "move the load from the washer to the dryer (grab the wet load)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "attach": {
+        "drum_load": {
+          "to": "fore",
+          "delay_s": 5
+        }
+      },
+      "set": {
+        "drum_load": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 5.2
+        }
+      }
+    },
+    {
+      "label": "move the load from the washer to the dryer (swing to the dryer)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "arm": {
+          "rotation": [
+            20,
+            25,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 7
+        },
+        "fore": {
+          "rotation": [
+            15,
+            0,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 7
+        }
+      },
+      "detach": {
+        "drum_load": {
+          "delay_s": 11.5
+        }
+      }
+    },
+    {
+      "label": "move the load from the washer to the dryer (into the dryer)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "drum_load": {
+          "at": [
+            -3.49,
+            0.8,
+            5.137
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 1.5,
+          "delay_s": 11.7
+        }
+      }
+    },
+    {
+      "label": "move the load from the washer to the dryer",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 24,
+      "heading_deg": 0,
+      "set": {
+        "@washer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 14
+        },
+        "@washer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 14
+        },
+        "@dryer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 15
+        },
+        "@dryer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 15
+        },
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 17,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 17,
+          "over_s": 3
+        }
+      },
+      "notify": "Dryer started, ~50 min",
+      "notify_delay_s": 18
+    },
+    {
+      "label": "pass hallway -> foyer opening",
+      "room": "foyer",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> living opening",
+      "room": "living",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> kitchen opening",
+      "room": "kitchen",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> garage door",
+      "room": "garage",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "charge at the dock while the dryer runs (~50 min)",
+      "room": "garage",
+      "position": [
+        10.3,
+        5.25
+      ],
+      "dwell_s": 3000,
+      "heading_deg": 270,
+      "motion": [
+        {
+          "target": "drum_load",
+          "type": "spin",
+          "axis": "z",
+          "period_s": 0.9
+        }
+      ],
+      "effects": [
+        {
+          "type": "steam",
+          "at": [
+            -3.49,
+            1.35,
+            5.45
+          ],
+          "rate": 12
+        }
+      ]
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass garage -> kitchen door (0.915 m; robot 0.55 m) over the threshold ramp",
+      "room": "kitchen",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> living opening",
+      "room": "living",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> foyer opening (3.6 m)",
+      "room": "foyer",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> hallway opening (1.07 m)",
+      "room": "hallway",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "unload the dryer into the bins (open dryer)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "@dryer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "@dryer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": -100
+          },
+          "over_s": 2,
+          "delay_s": 0
+        },
+        "arm": {
+          "rotation": [
+            20,
+            25,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        },
+        "fore": {
+          "rotation": [
+            15,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 1
+        }
+      }
+    },
+    {
+      "label": "unload the dryer into the bins (grab the dry load)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "attach": {
+        "drum_load": {
+          "to": "fore",
+          "delay_s": 5
+        }
+      },
+      "set": {
+        "drum_load": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 5.2
+        }
+      }
+    },
+    {
+      "label": "unload the dryer into the bins (into the bins)",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 0,
+      "heading_deg": 0,
+      "set": {
+        "arm": {
+          "rotation": [
+            -30,
+            180,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 7
+        },
+        "fore": {
+          "rotation": [
+            95,
+            0,
+            0
+          ],
+          "over_s": 4,
+          "delay_s": 7
+        },
+        "drum_load": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 11.5
+        },
+        "bin_darks": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 2,
+          "delay_s": 11.5
+        },
+        "bin_lights": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 2,
+          "delay_s": 11.5
+        }
+      },
+      "detach": {
+        "drum_load": {
+          "delay_s": 11.4
+        }
+      }
+    },
+    {
+      "label": "unload the dryer into the bins",
+      "room": "hallway",
+      "fixture": "dryer",
+      "position": [
+        -3.85,
+        4.3
+      ],
+      "dwell_s": 20,
+      "heading_deg": 0,
+      "set": {
+        "@dryer.door_ring": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 14
+        },
+        "@dryer.door_glass": {
+          "hinge": {
+            "point": [
+              -0.23,
+              0.8,
+              0.41
+            ],
+            "axis": "y",
+            "deg": 0
+          },
+          "over_s": 2,
+          "delay_s": 14
+        },
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 15,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 15,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "pass primary bedroom door",
+      "room": "primary",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "fold on the flip-fold board: arm lays each item flat, the panels fold it (set up the fold board)",
+      "room": "primary",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 0,
+      "heading_deg": 135,
+      "set": {
+        "fold_l": {
+          "rotation": [
+            0,
+            0,
+            -90
+          ],
+          "over_s": 1
+        },
+        "fold_r": {
+          "rotation": [
+            0,
+            0,
+            90
+          ],
+          "over_s": 1
+        },
+        "shirt": {
+          "visible": true,
+          "over_s": 0.1
+        },
+        "stack_a": {
+          "visible": true,
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 0.1
+        },
+        "stack_b": {
+          "visible": true,
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 0.1
+        }
+      }
+    },
+    {
+      "label": "fold on the flip-fold board: arm lays each item flat, the panels fold it (fold)",
+      "room": "primary",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 0,
+      "heading_deg": 135,
+      "set": {
+        "stack_a": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 540,
+          "delay_s": 2
+        },
+        "stack_b": {
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "over_s": 540,
+          "delay_s": 2
+        },
+        "bin_darks": {
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 540,
+          "delay_s": 2
+        },
+        "bin_lights": {
+          "scale": [
+            1,
+            0.05,
+            1
+          ],
+          "over_s": 540,
+          "delay_s": 2
+        },
+        "shirt": {
+          "visible": false,
+          "over_s": 0.1,
+          "delay_s": 544
+        }
+      },
+      "motion": [
+        {
+          "target": "fold_l",
+          "type": "rotate",
+          "axis": "z",
+          "amount": 90,
+          "period_s": 2.4,
+          "for_s": 540
+        },
+        {
+          "target": "fold_r",
+          "type": "rotate",
+          "axis": "z",
+          "amount": 90,
+          "period_s": 2.4,
+          "phase": 0.5,
+          "for_s": 540
+        },
+        {
+          "target": "shirt",
+          "type": "scale",
+          "axis": "x",
+          "amount": 0.35,
+          "period_s": 1.2,
+          "for_s": 540
+        },
+        {
+          "target": "arm",
+          "type": "rotate",
+          "axis": "y",
+          "amount": 12,
+          "period_s": 2.4,
+          "for_s": 540
+        }
+      ]
+    },
+    {
+      "label": "fold on the flip-fold board: arm lays each item flat, the panels fold it",
+      "room": "primary",
+      "position": [
+        -5.4,
+        5.85
+      ],
+      "dwell_s": 548,
+      "heading_deg": 135,
+      "set": {
+        "fold_l": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2,
+          "delay_s": 543
+        },
+        "fold_r": {
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2,
+          "delay_s": 543
+        }
+      }
+    },
+    {
+      "label": "drive to the dresser",
+      "room": "primary",
+      "position": [
+        -7.9,
+        6.2
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "put the parents' folded stack on the dresser (reach)",
+      "room": "primary",
+      "fixture": "primary_dresser",
+      "position": [
+        -7.9,
+        6.2
+      ],
+      "dwell_s": 0,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "set": {
+        "arm": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore": {
+          "rotation": [
+            30,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "put the parents' folded stack on the dresser (lift stack)",
+      "room": "primary",
+      "fixture": "primary_dresser",
+      "position": [
+        -7.9,
+        6.2
+      ],
+      "dwell_s": 0,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "attach": {
+        "stack_b": {
+          "to": "fore",
+          "delay_s": 3
+        }
+      },
+      "set": {
+        "stack_b": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 3.2
+        }
+      }
+    },
+    {
+      "label": "put the parents' folded stack on the dresser",
+      "room": "primary",
+      "fixture": "primary_dresser",
+      "position": [
+        -7.9,
+        6.2
+      ],
+      "dwell_s": 12,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "detach": {
+        "stack_b": {
+          "delay_s": 6
+        }
+      },
+      "set": {
+        "stack_b": {
+          "at": "@primary_dresser",
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2,
+          "delay_s": 6.2
+        },
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 9,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 9,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "back toward the door",
+      "room": "primary",
+      "position": [
+        -5.5,
+        5.6
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "pass primary bedroom door",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "hallway outside Bedroom 2",
+      "room": "hallway",
+      "position": [
+        -6.0,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "pass Bedroom 2 door",
+      "room": "bed2",
+      "position": [
+        -6.0,
+        3.8
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "put the kid's folded stack on the bed (reach)",
+      "room": "bed2",
+      "fixture": "bed2_bed",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 0,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "set": {
+        "arm": {
+          "rotation": [
+            25,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        },
+        "fore": {
+          "rotation": [
+            30,
+            0,
+            0
+          ],
+          "over_s": 3,
+          "delay_s": 0
+        }
+      }
+    },
+    {
+      "label": "put the kid's folded stack on the bed (lift stack)",
+      "room": "bed2",
+      "fixture": "bed2_bed",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 0,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "attach": {
+        "stack_a": {
+          "to": "fore",
+          "delay_s": 3
+        }
+      },
+      "set": {
+        "stack_a": {
+          "position": [
+            0,
+            -0.04,
+            0.47
+          ],
+          "over_s": 1.5,
+          "delay_s": 3.2
+        }
+      }
+    },
+    {
+      "label": "put the kid's folded stack on the bed",
+      "room": "bed2",
+      "fixture": "bed2_bed",
+      "position": [
+        -6.45,
+        2.6
+      ],
+      "dwell_s": 12,
+      "heading_deg": 270,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      },
+      "detach": {
+        "stack_a": {
+          "delay_s": 6
+        }
+      },
+      "set": {
+        "stack_a": {
+          "at": [
+            -7.45,
+            0.6,
+            2.0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "over_s": 2,
+          "delay_s": 6.2
+        },
+        "arm": {
+          "rotation": [
+            75,
+            0,
+            0
+          ],
+          "delay_s": 9,
+          "over_s": 3
+        },
+        "fore": {
+          "rotation": [
+            -150,
+            0,
+            0
+          ],
+          "delay_s": 9,
+          "over_s": 3
+        }
+      }
+    },
+    {
+      "label": "pass Bedroom 2 door",
+      "room": "hallway",
+      "position": [
+        -6.0,
+        3.8
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "yes"
+      }
+    },
+    {
+      "label": "pass primary bedroom door",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.87
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "leave in basket"
+      }
+    },
+    {
+      "label": "hallway",
+      "room": "hallway",
+      "position": [
+        -5.5,
+        4.335
+      ],
+      "dwell_s": 0,
+      "only_if": {
+        "Deliver folded clothes": "leave in basket"
+      }
+    },
+    {
+      "label": "pass hallway -> foyer opening",
+      "room": "foyer",
+      "position": [
+        -1.0,
+        4.335
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass foyer -> living opening",
+      "room": "living",
+      "position": [
+        1.0,
+        4.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass living -> kitchen opening",
+      "room": "kitchen",
+      "position": [
+        4.6,
+        5.2
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "pass kitchen -> garage door",
+      "room": "garage",
+      "position": [
+        6.8,
+        5.9
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "lane between the car and the shelving",
+      "room": "garage",
+      "position": [
+        9.3,
+        5.75
+      ],
+      "dwell_s": 0
+    },
+    {
+      "label": "back at the dock",
+      "room": "garage",
+      "position": [
+        10.3,
+        5.25
+      ],
+      "dwell_s": 5,
+      "heading_deg": 270,
+      "notify": "Laundry done: washed, dried and folded"
+    }
+  ],
+  "cycle_minutes_estimate": 135,
+  "human_minutes_equivalent": 35
+}

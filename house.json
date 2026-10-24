@@ -1,0 +1,1242 @@
+{
+  "meta": {
+    "name": "Average Bay Area single-story home",
+    "units": "m",
+    "floor_area_m2": 158.0,
+    "ceiling_height": 2.44,
+    "hallway_width": 1.07,
+    "two_story": false,
+    "wall_thickness": 0.1,
+    "dollhouse_wall_height": 1.2,
+    "door_height": 2.04,
+    "floor_thickness": 0.05,
+    "floor_to_floor": 2.74,
+    "approach_clearance": 0.35,
+    "notes": "Origin = front-door threshold on the floor. +Y up, +Z into the house, +X toward the garage side (on your LEFT when standing outside facing the front door, since Three.js is right-handed). Room rectangles are wall-centreline dimensions; floor_area_m2 counts conditioned rooms only.",
+    "style_basis": "Typical 1950s-60s Bay Area single-story ranch (3 bed / 2 bath, ~1,700 sq ft) furnished for a family of four. Furniture uses standard US catalogue dimensions; kitchen follows NKBA clearances; 3-cart curbside waste (landfill/recycling/compost) and an EV in the garage."
+  },
+  "materials": {
+    "wall": "#F2F2F0",
+    "floor_default": "#D9D4C7",
+    "hardwood": "#B48C62",
+    "carpet": "#CFC7B8",
+    "tile": "#E4E1DA",
+    "concrete": "#A9A7A2",
+    "pavers": "#BCA88F",
+    "wood_light": "#C9A57D",
+    "wood_dark": "#6E4D35",
+    "white_cabinet": "#F5F4F0",
+    "quartz": "#E9E7E2",
+    "fabric_grey": "#8F9295",
+    "fabric_blue": "#506E90",
+    "fabric_beige": "#CDBFA8",
+    "linen_white": "#EFEBE3",
+    "terracotta": "#B5683F",
+    "ceramic": "#E6E2DA",
+    "porcelain": "#FAFAF8",
+    "metal": "#A3A8AD",
+    "steel": "#C7CACD",
+    "white_appliance": "#F3F3F1",
+    "black": "#2B2B2B",
+    "screen": "#0E1116",
+    "glass": "#A9C8D8",
+    "mirror": "#D3E0E6",
+    "water": "#BFD9E6",
+    "towel": "#FFFFFF",
+    "wicker": "#B89A6A",
+    "paper": "#ECE6D6",
+    "apple": "#C0392B",
+    "orange": "#E67E22",
+    "plant": "#4E7D4A",
+    "book_blue": "#35517A",
+    "book_red": "#8E3B32",
+    "book_green": "#4C6B44",
+    "rug_living": "#A35A40",
+    "rug_neutral": "#BDB29E",
+    "rug_kid": "#6FA3C7",
+    "rug_bath": "#DADFE3",
+    "rug_kitchen": "#5D6B78",
+    "rug_coir": "#9C7F55",
+    "bin_blue": "#2F5FA8",
+    "bin_black": "#3A3A3A",
+    "bin_green": "#3D7A3D",
+    "bin_clear": "#D5DCE0",
+    "cardboard": "#B98E5A",
+    "car_body": "#DADDE0",
+    "car_glass": "#2E3640",
+    "door_leaf": "#E8E4DC",
+    "door_front": "#3A5A78",
+    "accent": "#3A7BD5",
+    "joint": "#2B2B2B",
+    "body": "#F2F2F0"
+  },
+  "transparent_materials": {
+    "glass": 0.35,
+    "water": 0.6
+  },
+  "rooms": [
+    {"id": "foyer", "name": "Foyer / Entry", "floor": 0, "origin": [-1.0, 0.0], "size": [2.0, 5.2], "fixtures": ["front_door", "foyer_console", "key_bowl", "shoe_bench", "coat_hooks", "doormat", "foyer_runner"], "finish": "tile"},
+    {"id": "living", "name": "Living Room", "floor": 0, "origin": [1.0, 0.0], "size": [5.8, 5.2], "fixtures": ["sofa", "media_console", "tv", "coffee_table", "tv_remote", "magazines", "armchair_west", "armchair_east", "side_table", "living_table_lamp", "floor_lamp", "bookshelf", "living_plant", "living_rug", "toy_ball"], "finish": "hardwood"},
+    {"id": "dining", "name": "Dining", "floor": 0, "origin": [-1.0, 5.2], "size": [3.4, 4.8], "fixtures": ["dining_table", "dining_chair_0", "dining_chair_1", "dining_chair_2", "dining_chair_3", "dining_chair_4", "dining_chair_5", "sideboard", "dining_pendant", "fruit_bowl", "dining_rug"], "finish": "hardwood"},
+    {"id": "kitchen", "name": "Kitchen", "floor": 0, "origin": [2.4, 5.2], "size": [4.4, 4.8], "fixtures": ["counter_west", "dishwasher", "kitchen_counter", "oven", "counter_east", "fridge", "upper_cabinet_west", "microwave", "upper_cabinet_east", "upper_cabinet_fridge", "coffee_maker", "toaster", "island", "bar_stool_0", "bar_stool_1", "bar_stool_2", "kitchen_trash", "kitchen_recycling", "kitchen_runner"], "finish": "tile"},
+    {"id": "hallway", "name": "Bedroom Hallway", "floor": 0, "origin": [-9.0, 3.8], "size": [8.0, 1.07], "fixtures": [], "finish": "hardwood"},
+    {"id": "bed2", "name": "Bedroom 2", "floor": 0, "origin": [-9.0, 0.0], "size": [4.0, 3.8], "fixtures": ["bed2_bed", "bed2_nightstand", "bed2_lamp", "bed2_dresser", "bed2_closet", "bed2_hamper", "bed2_desk", "bed2_desk_chair", "bed2_laptop", "bed2_toy_bin", "bed2_rug", "toy_block_0", "toy_block_1", "toy_block_2", "stuffed_animal"], "finish": "carpet"},
+    {"id": "bed3", "name": "Bedroom 3", "floor": 0, "origin": [-5.0, 0.0], "size": [4.0, 3.8], "fixtures": ["bed3_bed", "bed3_nightstand", "bed3_lamp", "bed3_dresser", "bed3_closet", "bed3_hamper", "bed3_desk", "bed3_desk_chair", "bed3_rug"], "finish": "carpet"},
+    {"id": "primary", "name": "Primary Bedroom", "floor": 0, "origin": [-9.0, 4.87], "size": [4.4, 5.13], "fixtures": ["primary_bed", "primary_nightstand", "primary_nightstand_2", "primary_lamp", "primary_lamp_2", "primary_dresser", "primary_bench", "primary_armchair", "primary_rug", "primary_hamper"], "finish": "carpet"},
+    {"id": "wic", "name": "Primary Walk-in Closet", "floor": 0, "origin": [-4.6, 6.0], "size": [2.0, 1.0], "fixtures": ["wic_closet"], "finish": "carpet"},
+    {"id": "primary_bath", "name": "Primary Bath", "floor": 0, "origin": [-4.6, 7.0], "size": [3.6, 3.0], "fixtures": ["pbath_toilet", "pbath_vanity", "pbath_trash", "pbath_mirror", "pbath_shower", "pbath_towel_bar", "pbath_mat"], "finish": "tile"},
+    {"id": "laundry", "name": "Laundry Closet", "floor": 0, "origin": [-4.6, 4.87], "size": [2.0, 1.13], "fixtures": ["washer", "dryer", "folding_bench", "laundry_shelf", "laundry_basket", "detergent"], "finish": "tile"},
+    {"id": "bath2", "name": "Hall Bath", "floor": 0, "origin": [-2.6, 4.87], "size": [1.6, 2.13], "fixtures": ["bath2_vanity", "bath2_toilet", "bath2_trash", "bath2_mirror", "bath2_shower", "bath2_towel_bar", "bath2_mat"], "finish": "tile"},
+    {"id": "garage", "name": "Garage (2-car)", "floor": 0, "origin": [6.8, 0.5], "size": [6.1, 6.1], "fixtures": ["car", "ev_charger", "garage_shelving", "garage_recycling", "garage_trash", "garage_compost", "workbench", "water_heater"], "conditioned": false, "finish": "concrete"},
+    {"id": "patio", "name": "Back Patio", "floor": 0, "origin": [-1.0, 10.0], "size": [5.4, 3.0], "fixtures": ["patio_table", "patio_chair_0", "patio_chair_1", "patio_chair_2", "patio_chair_3", "grill", "planter_0", "planter_1"], "outdoor": true, "conditioned": false, "finish": "pavers"}
+  ],
+  "doors": [
+    {"id": "front_entry", "between": ["foyer", "outside"], "position": [0.0, 0.0], "width": 0.915, "type": "exterior", "leaf": false},
+    {"id": "patio_door", "between": ["dining", "patio"], "position": [0.9, 10.0], "width": 1.83, "type": "slider", "note": "6 ft sliding glass door; the 'start' half is the fixed pane"},
+    {"id": "garage_kitchen", "between": ["garage", "kitchen"], "position": [6.8, 5.9], "width": 0.915, "type": "exterior", "swing": {"into": "kitchen", "hinge": "start", "open_deg": 90}},
+    {"id": "garage_vehicle", "between": ["garage", "outside"], "position": [9.85, 0.5], "width": 4.88, "type": "garage", "height": 2.13},
+    {"id": "hall_bed2", "between": ["hallway", "bed2"], "position": [-6.0, 3.8], "width": 0.82, "type": "interior", "swing": {"into": "bed2", "hinge": "end", "open_deg": 90}},
+    {"id": "hall_bed3", "between": ["hallway", "bed3"], "position": [-2.0, 3.8], "width": 0.82, "type": "interior", "swing": {"into": "bed3", "hinge": "start", "open_deg": 90}},
+    {"id": "hall_primary", "between": ["hallway", "primary"], "position": [-5.5, 4.87], "width": 0.82, "type": "interior", "swing": {"into": "primary", "hinge": "start", "open_deg": 90}},
+    {"id": "hall_bath2", "between": ["hallway", "bath2"], "position": [-1.8, 4.87], "width": 0.82, "type": "interior", "swing": {"into": "bath2", "hinge": "end", "open_deg": 90}},
+    {"id": "hall_laundry", "between": ["hallway", "laundry"], "position": [-3.6, 4.87], "width": 1.52, "type": "bifold"},
+    {"id": "primary_bath_door", "between": ["primary", "primary_bath"], "position": [-4.6, 8.5], "width": 0.82, "type": "interior", "swing": {"into": "primary_bath", "hinge": "start", "open_deg": 90}},
+    {"id": "primary_wic_door", "between": ["primary", "wic"], "position": [-4.6, 6.5], "width": 0.82, "type": "interior", "swing": {"into": "wic", "hinge": "start", "open_deg": 90}},
+    {"id": "hall_foyer", "between": ["hallway", "foyer"], "position": [-1.0, 4.335], "width": 1.07, "type": "opening"},
+    {"id": "foyer_living", "between": ["foyer", "living"], "position": [1.0, 2.8], "width": 3.6, "type": "opening"},
+    {"id": "foyer_dining", "between": ["foyer", "dining"], "position": [0.0, 5.2], "width": 2.0, "type": "opening"},
+    {"id": "living_dining", "between": ["living", "dining"], "position": [1.7, 5.2], "width": 1.4, "type": "opening"},
+    {"id": "living_kitchen", "between": ["living", "kitchen"], "position": [4.6, 5.2], "width": 4.4, "type": "opening"},
+    {"id": "dining_kitchen", "between": ["dining", "kitchen"], "position": [2.4, 7.6], "width": 4.8, "type": "opening"}
+  ],
+  "windows": [
+    {"id": "w_living_1", "room": "living", "position": [2.0, 0.0], "width": 1.5, "sill": 0.9, "height": 1.2},
+    {"id": "w_living_2", "room": "living", "position": [5.8, 0.0], "width": 1.5, "sill": 0.9, "height": 1.2},
+    {"id": "w_bed2", "room": "bed2", "position": [-6.9, 0.0], "width": 1.2, "sill": 0.9, "height": 1.2},
+    {"id": "w_bed3", "room": "bed3", "position": [-3.4, 0.0], "width": 1.2, "sill": 0.9, "height": 1.2},
+    {"id": "w_primary", "room": "primary", "position": [-9.0, 7.4], "width": 1.5, "sill": 0.9, "height": 1.2},
+    {"id": "w_pbath", "room": "primary_bath", "position": [-3.0, 10.0], "width": 0.6, "sill": 1.5, "height": 0.6},
+    {"id": "w_kitchen_sink", "room": "kitchen", "position": [3.87, 10.0], "width": 0.8, "sill": 1.07, "height": 0.9},
+    {"id": "w_kitchen_east", "room": "kitchen", "position": [6.8, 7.6], "width": 1.0, "sill": 1.07, "height": 0.9},
+    {"id": "w_garage", "room": "garage", "position": [12.9, 2.0], "width": 0.9, "sill": 1.2, "height": 0.9}
+  ],
+  "fixtures": [
+    {"id": "front_door", "type": "front_door", "room": "foyer", "position": [-0.435, 0.458], "size": [0.915, 2.04, 0.045], "rotation": 90, "material": "door_front", "props": {"state": "open", "hinge": "left", "lever_height": 0.95, "lock": "deadbolt + smart lock"}},
+    {"id": "foyer_console", "type": "console_table", "room": "foyer", "template": "console_table", "position": [-0.765, 2.2], "size": [1.0, 0.8, 0.35], "rotation": 90, "props": {"surface_height": 0.8}},
+    {"id": "key_bowl", "type": "key_bowl", "room": "foyer", "template": "key_bowl", "position": [-0.765, 2.2], "size": [0.2, 0.05, 0.2], "rotation": 90, "elevation": 0.8, "props": {"movable": true, "graspable": true}},
+    {"id": "shoe_bench", "type": "shoe_bench", "room": "foyer", "template": "shoe_bench", "position": [0.765, 0.52], "size": [0.9, 0.45, 0.35], "rotation": 270, "props": {"seat_height": 0.45}},
+    {"id": "coat_hooks", "type": "coat_hooks", "room": "foyer", "template": "coat_hooks", "position": [0.9, 0.52], "size": [0.8, 0.12, 0.08], "rotation": 270, "elevation": 1.6, "props": {"hook_height": 1.64}},
+    {"id": "doormat", "type": "rug", "room": "foyer", "position": [0.15, 0.55], "size": [0.9, 0.012, 0.6], "rotation": 0, "material": "rug_coir", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "foyer_runner", "type": "rug", "room": "foyer", "position": [0.0, 3.0], "size": [0.8, 0.012, 2.6], "rotation": 0, "material": "rug_neutral", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "sofa", "type": "sofa", "room": "living", "template": "sofa", "position": [3.9, 3.6], "size": [2.2, 0.85, 0.95], "rotation": 180, "props": {"seat_height": 0.42, "under_clearance": 0.1, "cushions_removable": true}},
+    {"id": "media_console", "type": "media_console", "room": "living", "template": "media_console", "position": [3.9, 0.285], "size": [1.8, 0.55, 0.45], "rotation": 0, "props": {"surface_height": 0.55}},
+    {"id": "tv", "type": "tv_65in", "room": "living", "template": "tv_65in", "position": [3.9, 0.3], "size": [1.45, 0.9, 0.25], "rotation": 0, "elevation": 0.55, "props": {"diagonal_in": 65}},
+    {"id": "coffee_table", "type": "coffee_table", "room": "living", "template": "coffee_table", "position": [3.9, 2.4], "size": [1.2, 0.45, 0.6], "rotation": 0, "props": {"surface_height": 0.45, "under_clearance": 0.1}},
+    {"id": "tv_remote", "type": "tv_remote", "room": "living", "template": "tv_remote", "position": [3.6, 2.35], "size": [0.05, 0.02, 0.18], "rotation": 20, "elevation": 0.45, "props": {"movable": true, "graspable": true}},
+    {"id": "magazines", "type": "magazine_stack", "room": "living", "template": "magazine_stack", "position": [4.25, 2.45], "size": [0.28, 0.04, 0.22], "rotation": -10, "elevation": 0.45, "props": {"movable": true, "graspable": true}},
+    {"id": "armchair_west", "type": "armchair", "room": "living", "template": "armchair", "position": [2.0, 2.4], "size": [0.85, 0.85, 0.85], "rotation": 90, "props": {"seat_height": 0.42, "under_clearance": 0.1}},
+    {"id": "armchair_east", "type": "armchair", "room": "living", "template": "armchair", "position": [5.8, 2.4], "size": [0.85, 0.85, 0.85], "rotation": 270, "props": {"seat_height": 0.42, "under_clearance": 0.1}},
+    {"id": "side_table", "type": "side_table", "room": "living", "template": "side_table", "position": [2.45, 3.6], "size": [0.5, 0.55, 0.5], "rotation": 0, "props": {"surface_height": 0.55}},
+    {"id": "living_table_lamp", "type": "table_lamp", "room": "living", "template": "table_lamp", "position": [2.45, 3.6], "size": [0.28, 0.45, 0.28], "rotation": 0, "elevation": 0.55},
+    {"id": "floor_lamp", "type": "floor_lamp", "room": "living", "template": "floor_lamp", "position": [5.35, 3.85], "size": [0.36, 1.6, 0.36], "rotation": 0},
+    {"id": "bookshelf", "type": "bookshelf", "room": "living", "template": "bookshelf", "position": [6.59, 3.9], "size": [0.8, 1.8, 0.3], "rotation": 270, "props": {"shelf_heights": [0.03, 0.45, 0.88, 1.31, 1.78]}},
+    {"id": "living_plant", "type": "plant_floor", "room": "living", "template": "plant_floor", "position": [6.4, 0.45], "size": [0.5, 1.3, 0.5], "rotation": 0},
+    {"id": "living_rug", "type": "rug", "room": "living", "position": [3.9, 2.5], "size": [3.0, 0.012, 2.4], "rotation": 0, "material": "rug_living", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "toy_ball", "type": "toy_ball", "room": "living", "template": "toy_ball", "position": [3.0, 1.6], "size": [0.16, 0.16, 0.16], "rotation": 0, "props": {"movable": true, "graspable": true}},
+    {"id": "dining_table", "type": "dining_table", "room": "dining", "template": "dining_table", "position": [0.9, 7.6], "size": [1.8, 0.75, 0.95], "rotation": 90, "props": {"seats": 6, "surface_height": 0.75, "under_clearance": 0.71}},
+    {"id": "dining_chair_0", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [0.2, 7.15], "size": [0.45, 0.9, 0.5], "rotation": 90, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "dining_chair_1", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [0.2, 8.05], "size": [0.45, 0.9, 0.5], "rotation": 90, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "dining_chair_2", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [1.6, 7.15], "size": [0.45, 0.9, 0.5], "rotation": 270, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "dining_chair_3", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [1.6, 8.05], "size": [0.45, 0.9, 0.5], "rotation": 270, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "dining_chair_4", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [0.9, 6.55], "size": [0.45, 0.9, 0.5], "rotation": 0, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "dining_chair_5", "type": "dining_chair", "room": "dining", "template": "dining_chair", "position": [0.9, 8.65], "size": [0.45, 0.9, 0.5], "rotation": 180, "props": {"seat_height": 0.45, "movable": true, "tucks_under": "dining_table"}},
+    {"id": "sideboard", "type": "sideboard", "room": "dining", "template": "sideboard", "position": [-0.715, 7.6], "size": [1.6, 0.85, 0.45], "rotation": 90, "props": {"surface_height": 0.85}},
+    {"id": "dining_pendant", "type": "pendant_light", "room": "dining", "template": "pendant_light", "position": [0.9, 7.6], "size": [0.45, 0.84, 0.45], "rotation": 0, "elevation": 1.6},
+    {"id": "fruit_bowl", "type": "fruit_bowl", "room": "dining", "template": "fruit_bowl", "position": [0.9, 7.6], "size": [0.3, 0.12, 0.3], "rotation": 0, "elevation": 0.75, "props": {"movable": true, "graspable": true}},
+    {"id": "dining_rug", "type": "rug", "room": "dining", "position": [0.9, 7.6], "size": [2.4, 0.012, 3.2], "rotation": 0, "material": "rug_neutral", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "counter_west", "type": "kitchen_counter", "room": "kitchen", "template": "base_cabinet", "position": [2.665, 9.62], "size": [0.41, 0.91, 0.64], "rotation": 180, "props": {"surface_height": 0.91}},
+    {"id": "dishwasher", "type": "dishwasher", "room": "kitchen", "template": "dishwasher", "position": [3.17, 9.62], "size": [0.6, 0.91, 0.64], "rotation": 180, "props": {"door": "drop-down", "racks": 2, "door_open_reach": 0.6}},
+    {"id": "kitchen_counter", "type": "kitchen_counter", "room": "kitchen", "template": "sink_cabinet", "position": [3.87, 9.62], "size": [0.8, 0.91, 0.64], "rotation": 180, "props": {"surface_height": 0.91, "sink": true, "sink_depth": 0.23}},
+    {"id": "oven", "type": "oven", "room": "kitchen", "template": "range", "position": [4.65, 9.62], "size": [0.76, 0.91, 0.64], "rotation": 180, "props": {"cooktop": true, "burners": 4, "oven_door": "drop-down"}},
+    {"id": "counter_east", "type": "kitchen_counter", "room": "kitchen", "template": "base_cabinet", "position": [5.425, 9.62], "size": [0.79, 0.91, 0.64], "rotation": 180, "props": {"surface_height": 0.91}},
+    {"id": "fridge", "type": "fridge", "room": "kitchen", "template": "fridge", "position": [6.28, 9.56], "size": [0.91, 1.78, 0.76], "rotation": 180, "props": {"doors": "french", "freezer": "bottom drawer", "door_open_reach": 0.5}},
+    {"id": "upper_cabinet_west", "type": "upper_cabinet", "room": "kitchen", "template": "upper_cabinet", "position": [2.94, 9.775], "size": [0.96, 0.76, 0.33], "rotation": 180, "elevation": 1.37},
+    {"id": "microwave", "type": "microwave_hood", "room": "kitchen", "template": "microwave_hood", "position": [4.65, 9.75], "size": [0.76, 0.42, 0.38], "rotation": 180, "elevation": 1.45, "props": {"door": "side-hinged"}},
+    {"id": "upper_cabinet_east", "type": "upper_cabinet", "room": "kitchen", "template": "upper_cabinet", "position": [5.425, 9.775], "size": [0.79, 0.76, 0.33], "rotation": 180, "elevation": 1.37},
+    {"id": "upper_cabinet_fridge", "type": "upper_cabinet", "room": "kitchen", "template": "upper_cabinet", "position": [6.28, 9.64], "size": [0.91, 0.38, 0.6], "rotation": 180, "elevation": 1.9},
+    {"id": "coffee_maker", "type": "coffee_maker", "room": "kitchen", "template": "coffee_maker", "position": [5.2, 9.72], "size": [0.25, 0.38, 0.3], "rotation": 180, "elevation": 0.91, "props": {"movable": true, "graspable": true}},
+    {"id": "toaster", "type": "toaster", "room": "kitchen", "template": "toaster", "position": [5.62, 9.75], "size": [0.28, 0.2, 0.18], "rotation": 180, "elevation": 0.91, "props": {"movable": true, "graspable": true}},
+    {"id": "island", "type": "island", "room": "kitchen", "template": "island", "position": [4.5, 7.6], "size": [2.0, 0.91, 1.0], "rotation": 0, "props": {"surface_height": 0.91, "overhang_side": "south", "overhang": 0.3}},
+    {"id": "bar_stool_0", "type": "bar_stool", "room": "kitchen", "template": "bar_stool", "position": [3.9, 6.85], "size": [0.4, 0.75, 0.4], "rotation": 0, "props": {"seat_height": 0.75, "movable": true}},
+    {"id": "bar_stool_1", "type": "bar_stool", "room": "kitchen", "template": "bar_stool", "position": [4.5, 6.85], "size": [0.4, 0.75, 0.4], "rotation": 0, "props": {"seat_height": 0.75, "movable": true}},
+    {"id": "bar_stool_2", "type": "bar_stool", "room": "kitchen", "template": "bar_stool", "position": [5.1, 6.85], "size": [0.4, 0.75, 0.4], "rotation": 0, "props": {"seat_height": 0.75, "movable": true}},
+    {"id": "kitchen_trash", "type": "trash", "room": "kitchen", "template": "trash_can", "position": [6.54, 8.5], "size": [0.3, 0.7, 0.4], "rotation": 270, "props": {"volume_l": 50, "stream": "landfill", "lid": "pedal"}},
+    {"id": "kitchen_recycling", "type": "trash", "room": "kitchen", "template": "recycling_can", "position": [6.54, 8.05], "size": [0.3, 0.7, 0.4], "rotation": 270, "props": {"volume_l": 50, "stream": "recycling"}},
+    {"id": "kitchen_runner", "type": "rug", "room": "kitchen", "position": [3.9, 9.0], "size": [1.5, 0.012, 0.6], "rotation": 0, "material": "rug_kitchen", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "bed2_bed", "type": "bed", "room": "bed2", "template": "bed_full", "position": [-7.965, 1.9], "size": [1.37, 1.0, 1.95], "rotation": 90, "props": {"mattress": "full", "mattress_top": 0.55, "under_clearance": 0.15}},
+    {"id": "bed2_nightstand", "type": "nightstand", "room": "bed2", "template": "nightstand", "position": [-8.74, 0.85], "size": [0.5, 0.6, 0.4], "rotation": 90, "props": {"surface_height": 0.6}},
+    {"id": "bed2_lamp", "type": "table_lamp", "room": "bed2", "template": "table_lamp", "position": [-8.74, 0.85], "size": [0.28, 0.45, 0.28], "rotation": 90, "elevation": 0.6},
+    {"id": "bed2_dresser", "type": "dresser", "room": "bed2", "template": "dresser", "position": [-5.31, 1.5], "size": [1.5, 0.8, 0.5], "rotation": 270, "props": {"drawers": 6, "surface_height": 0.8}},
+    {"id": "bed2_closet", "type": "closet", "room": "bed2", "template": "reach_in_closet", "position": [-8.0, 3.44], "size": [1.8, 2.1, 0.6], "rotation": 180, "props": {"doors": "bypass sliding", "rod_height": 1.65}},
+    {"id": "bed2_hamper", "type": "hamper", "room": "bed2", "template": "hamper", "position": [-6.85, 3.45], "size": [0.45, 0.65, 0.35], "rotation": 180, "props": {"location": "beside the closet, by the door (moved out of the closet so the laundry robot can reach it)", "movable": true}},
+    {"id": "bed2_desk", "type": "desk", "room": "bed2", "template": "desk", "position": [-6.3, 0.36], "size": [1.2, 0.75, 0.6], "rotation": 0, "props": {"surface_height": 0.75}},
+    {"id": "bed2_desk_chair", "type": "desk_chair", "room": "bed2", "template": "desk_chair", "position": [-6.3, 1.0], "size": [0.6, 1.0, 0.6], "rotation": 180, "props": {"movable": true, "casters": true}},
+    {"id": "bed2_laptop", "type": "laptop", "room": "bed2", "template": "laptop", "position": [-6.4, 0.38], "size": [0.33, 0.23, 0.23], "rotation": 0, "elevation": 0.75, "props": {"movable": true, "graspable": true}},
+    {"id": "bed2_toy_bin", "type": "toy_bin", "room": "bed2", "template": "toy_bin", "position": [-5.35, 2.9], "size": [0.5, 0.4, 0.35], "rotation": 270, "props": {"open_top": true, "movable": true}},
+    {"id": "bed2_rug", "type": "rug", "room": "bed2", "position": [-7.0, 1.9], "size": [2.0, 0.012, 2.6], "rotation": 0, "material": "rug_kid", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "toy_block_0", "type": "toy_block", "room": "bed2", "template": "toy_block", "position": [-5.85, 3.2], "size": [0.08, 0.08, 0.08], "rotation": 0, "props": {"movable": true, "graspable": true}},
+    {"id": "toy_block_1", "type": "toy_block", "room": "bed2", "template": "toy_block", "position": [-5.7, 3.38], "size": [0.08, 0.08, 0.08], "rotation": 25, "props": {"movable": true, "graspable": true}},
+    {"id": "toy_block_2", "type": "toy_block", "room": "bed2", "template": "toy_block", "position": [-6.0, 3.42], "size": [0.08, 0.08, 0.08], "rotation": 50, "props": {"movable": true, "graspable": true}},
+    {"id": "stuffed_animal", "type": "stuffed_animal", "room": "bed2", "template": "stuffed_animal", "position": [-6.0, 2.9], "size": [0.2, 0.25, 0.15], "rotation": 200, "props": {"movable": true, "graspable": true}},
+    {"id": "bed3_bed", "type": "bed", "room": "bed3", "template": "bed_full", "position": [-2.035, 1.8], "size": [1.37, 1.0, 1.95], "rotation": 270, "props": {"mattress": "full", "mattress_top": 0.55, "under_clearance": 0.15}},
+    {"id": "bed3_nightstand", "type": "nightstand", "room": "bed3", "template": "nightstand", "position": [-1.26, 0.75], "size": [0.5, 0.6, 0.4], "rotation": 270, "props": {"surface_height": 0.6}},
+    {"id": "bed3_lamp", "type": "table_lamp", "room": "bed3", "template": "table_lamp", "position": [-1.26, 0.75], "size": [0.28, 0.45, 0.28], "rotation": 270, "elevation": 0.6},
+    {"id": "bed3_dresser", "type": "dresser", "room": "bed3", "template": "dresser", "position": [-4.69, 1.6], "size": [1.5, 0.8, 0.5], "rotation": 90, "props": {"drawers": 6, "surface_height": 0.8}},
+    {"id": "bed3_closet", "type": "closet", "room": "bed3", "template": "reach_in_closet", "position": [-3.9, 3.44], "size": [1.8, 2.1, 0.6], "rotation": 180, "props": {"doors": "bypass sliding", "rod_height": 1.65}},
+    {"id": "bed3_hamper", "type": "hamper", "room": "bed3", "template": "hamper", "position": [-4.35, 3.42], "size": [0.45, 0.65, 0.35], "rotation": 180, "props": {"location": "reach-in closet (open half)", "movable": true}, "inside": "bed3_closet"},
+    {"id": "bed3_desk", "type": "desk", "room": "bed3", "template": "desk", "position": [-3.4, 0.36], "size": [1.2, 0.75, 0.6], "rotation": 0, "props": {"surface_height": 0.75}},
+    {"id": "bed3_desk_chair", "type": "desk_chair", "room": "bed3", "template": "desk_chair", "position": [-3.4, 1.0], "size": [0.6, 1.0, 0.6], "rotation": 180, "props": {"movable": true, "casters": true}},
+    {"id": "bed3_rug", "type": "rug", "room": "bed3", "position": [-3.0, 1.8], "size": [2.0, 0.012, 2.6], "rotation": 0, "material": "rug_neutral", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "primary_bed", "type": "bed", "room": "primary", "template": "bed_king", "position": [-7.2, 8.9], "size": [1.93, 1.0, 2.08], "rotation": 180, "props": {"mattress": "king", "mattress_top": 0.55, "under_clearance": 0.15}},
+    {"id": "primary_nightstand", "type": "nightstand", "room": "primary", "template": "nightstand", "position": [-8.47, 9.74], "size": [0.5, 0.6, 0.4], "rotation": 180, "props": {"surface_height": 0.6}},
+    {"id": "primary_nightstand_2", "type": "nightstand", "room": "primary", "template": "nightstand", "position": [-5.93, 9.74], "size": [0.5, 0.6, 0.4], "rotation": 180, "props": {"surface_height": 0.6}},
+    {"id": "primary_lamp", "type": "table_lamp", "room": "primary", "template": "table_lamp", "position": [-8.47, 9.74], "size": [0.28, 0.45, 0.28], "rotation": 180, "elevation": 0.6},
+    {"id": "primary_lamp_2", "type": "table_lamp", "room": "primary", "template": "table_lamp", "position": [-5.93, 9.74], "size": [0.28, 0.45, 0.28], "rotation": 180, "elevation": 0.6},
+    {"id": "primary_dresser", "type": "dresser", "room": "primary", "template": "dresser", "position": [-8.69, 6.2], "size": [1.5, 0.8, 0.5], "rotation": 90, "props": {"drawers": 6, "surface_height": 0.8}},
+    {"id": "primary_bench", "type": "bed_bench", "room": "primary", "template": "bed_bench", "position": [-7.2, 7.55], "size": [1.4, 0.45, 0.45], "rotation": 180, "props": {"seat_height": 0.45}},
+    {"id": "primary_armchair", "type": "armchair", "room": "primary", "template": "armchair", "position": [-5.2, 7.0], "size": [0.85, 0.85, 0.85], "rotation": 270, "props": {"seat_height": 0.42, "under_clearance": 0.1}},
+    {"id": "primary_rug", "type": "rug", "room": "primary", "position": [-7.2, 8.15], "size": [2.8, 0.012, 3.4], "rotation": 0, "material": "rug_neutral", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "wic_closet", "type": "closet", "room": "wic", "template": "closet_system", "position": [-3.89, 6.64], "size": [1.3, 2.1, 0.6], "rotation": 180, "props": {"rod_height": 1.65}},
+    {"id": "primary_hamper", "type": "hamper", "room": "primary", "template": "hamper", "position": [-4.85, 5.3], "size": [0.45, 0.65, 0.35], "rotation": 270, "props": {"location": "primary bedroom by the closet wall (moved out of the walk-in closet so the laundry robot can reach it)", "movable": true}},
+    {"id": "pbath_toilet", "type": "toilet", "room": "primary_bath", "template": "toilet", "position": [-3.0, 9.59], "size": [0.45, 0.78, 0.7], "rotation": 180, "props": {"seat_height": 0.41, "lid": "closed"}},
+    {"id": "pbath_vanity", "type": "vanity_sink", "room": "primary_bath", "template": "vanity_double", "position": [-2.8, 7.34], "size": [1.5, 0.86, 0.56], "rotation": 0, "props": {"sinks": 2, "surface_height": 0.86}},
+    {"id": "pbath_trash", "type": "trash", "room": "primary_bath", "template": "bath_trash", "position": [-2.3, 7.62], "size": [0.25, 0.3, 0.2], "rotation": 0, "props": {"location": "under sink, cabinet door open", "movable": true}, "inside": "pbath_vanity"},
+    {"id": "pbath_mirror", "type": "mirror", "room": "primary_bath", "position": [-2.8, 7.07], "size": [1.5, 0.9, 0.02], "rotation": 0, "elevation": 1.05, "material": "mirror"},
+    {"id": "pbath_shower", "type": "shower", "room": "primary_bath", "template": "shower_stall", "position": [-1.66, 9.49], "size": [1.2, 2.0, 0.9], "rotation": 180, "props": {"curb_height": 0.05, "door": "glass swing"}},
+    {"id": "pbath_towel_bar", "type": "towel_bar", "room": "primary_bath", "template": "towel_bar", "position": [-1.1, 8.4], "size": [0.6, 0.1, 0.08], "rotation": 270, "elevation": 1.15},
+    {"id": "pbath_mat", "type": "rug", "room": "primary_bath", "position": [-2.8, 8.0], "size": [0.8, 0.012, 0.5], "rotation": 0, "material": "rug_bath", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "bath2_vanity", "type": "vanity_sink", "room": "bath2", "template": "vanity_single", "position": [-2.29, 5.3], "size": [0.6, 0.86, 0.5], "rotation": 90, "props": {"sinks": 1, "surface_height": 0.86}},
+    {"id": "bath2_toilet", "type": "toilet", "room": "bath2", "template": "toilet", "position": [-2.19, 5.95], "size": [0.45, 0.78, 0.7], "rotation": 90, "props": {"seat_height": 0.41, "lid": "closed"}},
+    {"id": "bath2_trash", "type": "trash", "room": "bath2", "template": "bath_trash", "position": [-2.04, 5.3], "size": [0.25, 0.3, 0.2], "rotation": 90, "props": {"location": "under sink, cabinet door open", "movable": true}, "inside": "bath2_vanity"},
+    {"id": "bath2_mirror", "type": "mirror", "room": "bath2", "position": [-2.53, 5.3], "size": [0.6, 0.8, 0.02], "rotation": 90, "elevation": 1.05, "material": "mirror"},
+    {"id": "bath2_shower", "type": "shower", "room": "bath2", "template": "tub_shower", "position": [-1.8, 6.56], "size": [1.48, 2.0, 0.76], "rotation": 180, "props": {"tub": true, "rim_height": 0.5, "curtain": true}},
+    {"id": "bath2_towel_bar", "type": "towel_bar", "room": "bath2", "template": "towel_bar", "position": [-1.1, 5.6], "size": [0.6, 0.1, 0.08], "rotation": 270, "elevation": 1.15},
+    {"id": "bath2_mat", "type": "rug", "room": "bath2", "position": [-1.75, 5.9], "size": [0.45, 0.012, 0.7], "rotation": 0, "material": "rug_bath", "props": {"edge_height": 0.012, "movable": true}},
+    {"id": "washer", "type": "washer", "room": "laundry", "template": "washer_front_load", "position": [-4.19, 5.54], "size": [0.69, 1.29, 0.8], "rotation": 180, "props": {"loading": "front", "drum_center_height": 0.8, "pedestal_height": 0.3, "door_diameter": 0.36, "door_hinge": "left"}},
+    {"id": "dryer", "type": "dryer", "room": "laundry", "template": "dryer_front_load", "position": [-3.49, 5.54], "size": [0.69, 1.29, 0.8], "rotation": 180, "props": {"loading": "front", "drum_center_height": 0.8, "pedestal_height": 0.3, "door_diameter": 0.36, "door_hinge": "left"}},
+    {"id": "folding_bench", "type": "folding_bench", "room": "laundry", "template": "folding_counter", "position": [-2.89, 5.64], "size": [0.46, 0.91, 0.6], "rotation": 180, "props": {"surface_height": 0.91}},
+    {"id": "laundry_shelf", "type": "wall_shelf", "room": "laundry", "template": "wall_shelf", "position": [-3.84, 5.79], "size": [1.38, 0.03, 0.3], "rotation": 180, "elevation": 1.55, "props": {"surface_height": 1.58}},
+    {"id": "laundry_basket", "type": "laundry_basket", "room": "laundry", "template": "laundry_basket", "position": [-2.89, 5.64], "size": [0.42, 0.28, 0.32], "rotation": 180, "elevation": 0.91, "props": {"movable": true, "graspable": true, "handles": true}},
+    {"id": "detergent", "type": "detergent", "room": "laundry", "template": "detergent", "position": [-4.2, 5.79], "size": [0.16, 0.28, 0.11], "rotation": 180, "elevation": 1.58, "props": {"movable": true, "graspable": true}},
+    {"id": "car", "type": "car", "room": "garage", "template": "sedan_ev", "position": [8.8, 3.0], "size": [1.85, 1.45, 4.7], "rotation": 0, "props": {"parked": true, "charge_port": "rear left"}},
+    {"id": "ev_charger", "type": "ev_charger", "room": "garage", "template": "ev_charger", "position": [8.0, 6.48], "size": [0.2, 0.35, 0.12], "rotation": 180, "elevation": 1.2, "props": {"level": 2, "cable_length_m": 7.3}},
+    {"id": "garage_shelving", "type": "garage_shelving", "room": "garage", "template": "garage_shelving", "position": [10.0, 6.315], "size": [1.2, 1.8, 0.45], "rotation": 180, "props": {"shelf_heights": [0.1, 0.55, 1.0, 1.45, 1.78]}},
+    {"id": "garage_recycling", "type": "garage_bin", "room": "garage", "template": "cart_recycling", "position": [11.35, 6.17], "size": [0.6, 1.07, 0.74], "rotation": 180, "props": {"stream": "recycling", "volume_l": 240}},
+    {"id": "garage_trash", "type": "garage_bin", "room": "garage", "template": "cart_landfill", "position": [12.0, 6.17], "size": [0.6, 1.07, 0.74], "rotation": 180, "props": {"stream": "landfill", "volume_l": 240}},
+    {"id": "garage_compost", "type": "garage_bin", "room": "garage", "template": "cart_compost", "position": [12.47, 5.35], "size": [0.6, 1.07, 0.74], "rotation": 270, "props": {"stream": "compost", "volume_l": 120}},
+    {"id": "workbench", "type": "workbench", "room": "garage", "template": "workbench", "position": [12.54, 3.4], "size": [1.8, 0.9, 0.6], "rotation": 270, "props": {"surface_height": 0.9}},
+    {"id": "water_heater", "type": "water_heater", "room": "garage", "template": "water_heater", "position": [12.5, 1.0], "size": [0.6, 1.6, 0.6], "rotation": 270},
+    {"id": "patio_table", "type": "patio_table", "room": "patio", "template": "patio_table", "position": [2.2, 11.6], "size": [1.1, 0.74, 1.1], "rotation": 0, "props": {"surface_height": 0.74}},
+    {"id": "patio_chair_0", "type": "outdoor_chair", "room": "patio", "template": "outdoor_chair", "position": [1.4, 11.6], "size": [0.45, 0.9, 0.5], "rotation": 90, "props": {"movable": true}},
+    {"id": "patio_chair_1", "type": "outdoor_chair", "room": "patio", "template": "outdoor_chair", "position": [3.0, 11.6], "size": [0.45, 0.9, 0.5], "rotation": 270, "props": {"movable": true}},
+    {"id": "patio_chair_2", "type": "outdoor_chair", "room": "patio", "template": "outdoor_chair", "position": [2.2, 10.8], "size": [0.45, 0.9, 0.5], "rotation": 0, "props": {"movable": true}},
+    {"id": "patio_chair_3", "type": "outdoor_chair", "room": "patio", "template": "outdoor_chair", "position": [2.2, 12.4], "size": [0.45, 0.9, 0.5], "rotation": 180, "props": {"movable": true}},
+    {"id": "grill", "type": "grill", "room": "patio", "template": "grill", "position": [3.7, 12.6], "size": [1.2, 1.15, 0.6], "rotation": 180, "props": {"fuel": "propane"}},
+    {"id": "planter_0", "type": "planter", "room": "patio", "template": "planter", "position": [-0.6, 12.6], "size": [0.5, 0.9, 0.5], "rotation": 0},
+    {"id": "planter_1", "type": "planter", "room": "patio", "template": "planter", "position": [-0.6, 10.5], "size": [0.5, 0.9, 0.5], "rotation": 0}
+  ],
+  "templates": {
+    "sofa": { "size": [2.2, 0.85, 0.95], "parts": [
+      {"name": "leg_0", "type": "box", "size": [0.05, 0.1, 0.05], "position": [-1.025, 0.05, -0.4], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.05, 0.1, 0.05], "position": [1.025, 0.05, -0.4], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.05, 0.1, 0.05], "position": [-1.025, 0.05, 0.4], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.05, 0.1, 0.05], "position": [1.025, 0.05, 0.4], "material": "wood_dark"},
+      {"name": "base", "type": "box", "size": [2.2, 0.25, 0.9], "position": [0, 0.225, 0.0], "material": "fabric_grey"},
+      {"name": "back", "type": "box", "size": [2.2, 0.5, 0.22], "position": [0, 0.6, -0.365], "material": "fabric_grey"},
+      {"name": "arm_left", "type": "box", "size": [0.2, 0.3, 0.95], "position": [-1.0, 0.5, 0], "material": "fabric_grey"},
+      {"name": "arm_right", "type": "box", "size": [0.2, 0.3, 0.95], "position": [1.0, 0.5, 0], "material": "fabric_grey"},
+      {"name": "seat_cushion_0", "type": "box", "size": [0.58, 0.14, 0.65], "position": [-0.6, 0.42, 0.08], "material": "fabric_grey"},
+      {"name": "back_cushion_0", "type": "box", "size": [0.56, 0.38, 0.14], "position": [-0.6, 0.66, -0.185], "material": "fabric_grey"},
+      {"name": "seat_cushion_1", "type": "box", "size": [0.58, 0.14, 0.65], "position": [0.0, 0.42, 0.08], "material": "fabric_grey"},
+      {"name": "back_cushion_1", "type": "box", "size": [0.56, 0.38, 0.14], "position": [0.0, 0.66, -0.185], "material": "fabric_grey"},
+      {"name": "seat_cushion_2", "type": "box", "size": [0.58, 0.14, 0.65], "position": [0.6, 0.42, 0.08], "material": "fabric_grey"},
+      {"name": "back_cushion_2", "type": "box", "size": [0.56, 0.38, 0.14], "position": [0.6, 0.66, -0.185], "material": "fabric_grey"},
+      {"name": "throw_pillow_0", "type": "box", "size": [0.4, 0.35, 0.12], "position": [-0.7, 0.66, -0.12], "material": "fabric_blue", "rotation": [-12, 15, 0]},
+      {"name": "throw_pillow_1", "type": "box", "size": [0.4, 0.35, 0.12], "position": [0.7, 0.66, -0.12], "material": "terracotta", "rotation": [-12, -15, 0]}
+    ]},
+    "armchair": { "size": [0.85, 0.85, 0.85], "parts": [
+      {"name": "leg_0", "type": "box", "size": [0.05, 0.1, 0.05], "position": [-0.35, 0.05, -0.35], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.05, 0.1, 0.05], "position": [0.35, 0.05, -0.35], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.05, 0.1, 0.05], "position": [-0.35, 0.05, 0.35], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.05, 0.1, 0.05], "position": [0.35, 0.05, 0.35], "material": "wood_dark"},
+      {"name": "base", "type": "box", "size": [0.85, 0.25, 0.8], "position": [0, 0.225, 0.0], "material": "fabric_blue"},
+      {"name": "back", "type": "box", "size": [0.85, 0.5, 0.22], "position": [0, 0.6, -0.315], "material": "fabric_blue"},
+      {"name": "arm_left", "type": "box", "size": [0.2, 0.3, 0.85], "position": [-0.325, 0.5, 0], "material": "fabric_blue"},
+      {"name": "arm_right", "type": "box", "size": [0.2, 0.3, 0.85], "position": [0.325, 0.5, 0], "material": "fabric_blue"},
+      {"name": "seat_cushion_0", "type": "box", "size": [0.43, 0.14, 0.55], "position": [0.0, 0.42, 0.08], "material": "fabric_blue"},
+      {"name": "back_cushion_0", "type": "box", "size": [0.41, 0.38, 0.14], "position": [0.0, 0.66, -0.135], "material": "fabric_blue"}
+    ]},
+    "coffee_table": { "size": [1.2, 0.45, 0.6], "parts": [
+      {"name": "top", "type": "box", "size": [1.2, 0.04, 0.6], "position": [0, 0.43, 0], "material": "wood_light"},
+      {"name": "shelf", "type": "box", "size": [1.08, 0.02, 0.5], "position": [0, 0.12, 0], "material": "wood_light"},
+      {"name": "leg_0", "type": "box", "size": [0.05, 0.41, 0.05], "position": [-0.545, 0.205, -0.245], "material": "wood_light"},
+      {"name": "leg_1", "type": "box", "size": [0.05, 0.41, 0.05], "position": [0.545, 0.205, -0.245], "material": "wood_light"},
+      {"name": "leg_2", "type": "box", "size": [0.05, 0.41, 0.05], "position": [-0.545, 0.205, 0.245], "material": "wood_light"},
+      {"name": "leg_3", "type": "box", "size": [0.05, 0.41, 0.05], "position": [0.545, 0.205, 0.245], "material": "wood_light"}
+    ]},
+    "media_console": { "size": [1.8, 0.55, 0.45], "parts": [
+      {"name": "body", "type": "box", "size": [1.8, 0.45, 0.45], "position": [0, 0.325, 0], "material": "wood_light"},
+      {"name": "door_left", "type": "box", "size": [0.58, 0.38, 0.01], "position": [-0.6, 0.325, 0.23], "material": "wood_dark"},
+      {"name": "door_mid", "type": "box", "size": [0.58, 0.38, 0.01], "position": [0, 0.325, 0.23], "material": "wood_dark"},
+      {"name": "door_right", "type": "box", "size": [0.58, 0.38, 0.01], "position": [0.6, 0.325, 0.23], "material": "wood_dark"},
+      {"name": "leg_0", "type": "box", "size": [0.04, 0.1, 0.04], "position": [-0.82, 0.05, -0.145], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.04, 0.1, 0.04], "position": [0.82, 0.05, -0.145], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.04, 0.1, 0.04], "position": [-0.82, 0.05, 0.145], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.04, 0.1, 0.04], "position": [0.82, 0.05, 0.145], "material": "wood_dark"}
+    ]},
+    "tv_65in": { "size": [1.45, 0.9, 0.25], "parts": [
+      {"name": "stand", "type": "box", "size": [0.45, 0.02, 0.25], "position": [0, 0.01, 0], "material": "black"},
+      {"name": "neck", "type": "box", "size": [0.08, 0.06, 0.04], "position": [0, 0.05, -0.02], "material": "black"},
+      {"name": "bezel", "type": "box", "size": [1.45, 0.84, 0.05], "position": [0, 0.48, -0.02], "material": "black"},
+      {"name": "screen", "type": "box", "size": [1.42, 0.81, 0.005], "position": [0, 0.48, 0.006], "material": "screen"}
+    ]},
+    "side_table": { "size": [0.5, 0.55, 0.5], "parts": [
+      {"name": "top", "type": "box", "size": [0.5, 0.03, 0.5], "position": [0, 0.535, 0], "material": "wood_dark"},
+      {"name": "leg_0", "type": "box", "size": [0.035, 0.52, 0.035], "position": [-0.2025, 0.26, -0.2025], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.035, 0.52, 0.035], "position": [0.2025, 0.26, -0.2025], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.035, 0.52, 0.035], "position": [-0.2025, 0.26, 0.2025], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.035, 0.52, 0.035], "position": [0.2025, 0.26, 0.2025], "material": "wood_dark"}
+    ]},
+    "floor_lamp": { "size": [0.36, 1.6, 0.36], "parts": [
+      {"name": "base", "type": "cylinder", "radius": 0.15, "height": 0.03, "position": [0, 0.015, 0], "material": "black"},
+      {"name": "pole", "type": "cylinder", "radius": 0.012, "height": 1.35, "position": [0, 0.705, 0], "material": "black"},
+      {"name": "shade", "type": "cylinder", "radius": 0.18, "height": 0.3, "position": [0, 1.45, 0], "material": "linen_white", "radius_top": 0.13}
+    ]},
+    "table_lamp": { "size": [0.28, 0.45, 0.28], "parts": [
+      {"name": "base", "type": "cylinder", "radius": 0.07, "height": 0.2, "position": [0, 0.1, 0], "material": "ceramic"},
+      {"name": "shade", "type": "cylinder", "radius": 0.14, "height": 0.22, "position": [0, 0.32, 0], "material": "linen_white", "radius_top": 0.11}
+    ]},
+    "bookshelf": { "size": [0.8, 1.8, 0.3], "parts": [
+      {"name": "side_left", "type": "box", "size": [0.02, 1.8, 0.3], "position": [-0.39, 0.9, 0], "material": "white_cabinet"},
+      {"name": "side_right", "type": "box", "size": [0.02, 1.8, 0.3], "position": [0.39, 0.9, 0], "material": "white_cabinet"},
+      {"name": "back", "type": "box", "size": [0.8, 1.8, 0.01], "position": [0, 0.9, -0.145], "material": "white_cabinet"},
+      {"name": "shelf_0", "type": "box", "size": [0.76, 0.02, 0.29], "position": [0, 0.03, 0], "material": "white_cabinet"},
+      {"name": "shelf_1", "type": "box", "size": [0.76, 0.02, 0.29], "position": [0, 0.45, 0], "material": "white_cabinet"},
+      {"name": "shelf_2", "type": "box", "size": [0.76, 0.02, 0.29], "position": [0, 0.88, 0], "material": "white_cabinet"},
+      {"name": "shelf_3", "type": "box", "size": [0.76, 0.02, 0.29], "position": [0, 1.31, 0], "material": "white_cabinet"},
+      {"name": "shelf_4", "type": "box", "size": [0.76, 0.02, 0.29], "position": [0, 1.78, 0], "material": "white_cabinet"},
+      {"name": "books_0", "type": "box", "size": [0.6, 0.22, 0.2], "position": [-0.0, 0.15, 0.0], "material": "book_blue"},
+      {"name": "books_1", "type": "box", "size": [0.45, 0.22, 0.2], "position": [-0.05, 0.57, 0.0], "material": "book_red"},
+      {"name": "books_2", "type": "box", "size": [0.55, 0.22, 0.2], "position": [-0.0, 1.0, 0.0], "material": "book_green"},
+      {"name": "books_3", "type": "box", "size": [0.3, 0.22, 0.2], "position": [-0.05, 1.43, 0.0], "material": "book_blue"}
+    ]},
+    "plant_floor": { "size": [0.5, 1.3, 0.5], "parts": [
+      {"name": "pot", "type": "cylinder", "radius": 0.2, "height": 0.38, "position": [0, 0.19, 0], "material": "terracotta", "radius_top": 0.22},
+      {"name": "foliage_low", "type": "sphere", "radius": 0.3, "position": [0, 0.75, 0], "material": "plant"},
+      {"name": "foliage_high", "type": "sphere", "radius": 0.22, "position": [0.05, 1.05, -0.03], "material": "plant"}
+    ]},
+    "tv_remote": { "size": [0.05, 0.02, 0.18], "parts": [
+      {"name": "body", "type": "box", "size": [0.05, 0.02, 0.18], "position": [0, 0.01, 0], "material": "black"}
+    ]},
+    "magazine_stack": { "size": [0.28, 0.04, 0.22], "parts": [
+      {"name": "stack", "type": "box", "size": [0.28, 0.04, 0.22], "position": [0, 0.02, 0], "material": "paper"}
+    ]},
+    "dining_table": { "size": [1.8, 0.75, 0.95], "parts": [
+      {"name": "top", "type": "box", "size": [1.8, 0.04, 0.95], "position": [0, 0.73, 0], "material": "wood_light"},
+      {"name": "leg_0", "type": "box", "size": [0.07, 0.71, 0.07], "position": [-0.805, 0.355, -0.38], "material": "wood_light"},
+      {"name": "leg_1", "type": "box", "size": [0.07, 0.71, 0.07], "position": [0.805, 0.355, -0.38], "material": "wood_light"},
+      {"name": "leg_2", "type": "box", "size": [0.07, 0.71, 0.07], "position": [-0.805, 0.355, 0.38], "material": "wood_light"},
+      {"name": "leg_3", "type": "box", "size": [0.07, 0.71, 0.07], "position": [0.805, 0.355, 0.38], "material": "wood_light"}
+    ]},
+    "dining_chair": { "size": [0.45, 0.9, 0.5], "parts": [
+      {"name": "seat", "type": "box", "size": [0.45, 0.05, 0.45], "position": [0, 0.45, 0.02], "material": "fabric_beige"},
+      {"name": "leg_0", "type": "box", "size": [0.035, 0.43, 0.035], "position": [-0.1875, 0.215, -0.1875], "material": "wood_light"},
+      {"name": "leg_1", "type": "box", "size": [0.035, 0.43, 0.035], "position": [0.1875, 0.215, -0.1875], "material": "wood_light"},
+      {"name": "leg_2", "type": "box", "size": [0.035, 0.43, 0.035], "position": [-0.1875, 0.215, 0.1875], "material": "wood_light"},
+      {"name": "leg_3", "type": "box", "size": [0.035, 0.43, 0.035], "position": [0.1875, 0.215, 0.1875], "material": "wood_light"},
+      {"name": "back_post_left", "type": "box", "size": [0.035, 0.45, 0.035], "position": [-0.2, 0.675, -0.2], "material": "wood_light"},
+      {"name": "back_post_right", "type": "box", "size": [0.035, 0.45, 0.035], "position": [0.2, 0.675, -0.2], "material": "wood_light"},
+      {"name": "back_rail", "type": "box", "size": [0.45, 0.2, 0.025], "position": [0, 0.78, -0.21], "material": "wood_light"}
+    ]},
+    "outdoor_chair": { "size": [0.45, 0.9, 0.5], "parts": [
+      {"name": "seat", "type": "box", "size": [0.45, 0.05, 0.45], "position": [0, 0.45, 0.02], "material": "black"},
+      {"name": "leg_0", "type": "box", "size": [0.035, 0.43, 0.035], "position": [-0.1875, 0.215, -0.1875], "material": "black"},
+      {"name": "leg_1", "type": "box", "size": [0.035, 0.43, 0.035], "position": [0.1875, 0.215, -0.1875], "material": "black"},
+      {"name": "leg_2", "type": "box", "size": [0.035, 0.43, 0.035], "position": [-0.1875, 0.215, 0.1875], "material": "black"},
+      {"name": "leg_3", "type": "box", "size": [0.035, 0.43, 0.035], "position": [0.1875, 0.215, 0.1875], "material": "black"},
+      {"name": "back_post_left", "type": "box", "size": [0.035, 0.45, 0.035], "position": [-0.2, 0.675, -0.2], "material": "black"},
+      {"name": "back_post_right", "type": "box", "size": [0.035, 0.45, 0.035], "position": [0.2, 0.675, -0.2], "material": "black"},
+      {"name": "back_rail", "type": "box", "size": [0.45, 0.2, 0.025], "position": [0, 0.78, -0.21], "material": "black"}
+    ]},
+    "sideboard": { "size": [1.6, 0.85, 0.45], "parts": [
+      {"name": "body", "type": "box", "size": [1.6, 0.75, 0.45], "position": [0, 0.475, 0], "material": "wood_dark"},
+      {"name": "door_left", "type": "box", "size": [0.78, 0.68, 0.01], "position": [-0.4, 0.475, 0.23], "material": "wood_light"},
+      {"name": "door_right", "type": "box", "size": [0.78, 0.68, 0.01], "position": [0.4, 0.475, 0.23], "material": "wood_light"},
+      {"name": "leg_0", "type": "box", "size": [0.04, 0.1, 0.04], "position": [-0.73, 0.05, -0.155], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.04, 0.1, 0.04], "position": [0.73, 0.05, -0.155], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.04, 0.1, 0.04], "position": [-0.73, 0.05, 0.155], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.04, 0.1, 0.04], "position": [0.73, 0.05, 0.155], "material": "wood_dark"}
+    ]},
+    "pendant_light": { "size": [0.45, 0.84, 0.45], "parts": [
+      {"name": "shade", "type": "cylinder", "radius": 0.22, "height": 0.25, "position": [0, 0.125, 0], "material": "black", "radius_top": 0.07},
+      {"name": "cord", "type": "cylinder", "radius": 0.005, "height": 0.59, "position": [0, 0.545, 0], "material": "black"}
+    ]},
+    "fruit_bowl": { "size": [0.3, 0.12, 0.3], "parts": [
+      {"name": "bowl", "type": "cylinder", "radius": 0.15, "height": 0.08, "position": [0, 0.04, 0], "material": "ceramic", "radius_top": 0.15},
+      {"name": "apple_0", "type": "sphere", "radius": 0.04, "position": [-0.05, 0.1, 0], "material": "apple"},
+      {"name": "apple_1", "type": "sphere", "radius": 0.04, "position": [0.05, 0.1, 0.02], "material": "apple"},
+      {"name": "orange", "type": "sphere", "radius": 0.045, "position": [0, 0.11, -0.05], "material": "orange"}
+    ]},
+    "base_cabinet": { "size": [0.8, 0.91, 0.64], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [0.8, 0.1, 0.56], "position": [0, 0.05, -0.04], "material": "black"},
+      {"name": "cabinet", "type": "box", "size": [0.8, 0.77, 0.6], "position": [0, 0.485, -0.02], "material": "white_cabinet"},
+      {"name": "countertop", "type": "box", "size": [0.8, 0.04, 0.64], "position": [0, 0.89, 0], "material": "quartz"},
+      {"name": "drawer_front", "type": "box", "size": [0.76, 0.16, 0.01], "position": [0, 0.76, 0.285], "material": "white_cabinet"},
+      {"name": "drawer_handle", "type": "box", "size": [0.3, 0.015, 0.02], "position": [0, 0.78, 0.3], "material": "metal"},
+      {"name": "door_handle", "type": "box", "size": [0.3, 0.015, 0.02], "position": [0, 0.62, 0.3], "material": "metal"}
+    ]},
+    "sink_cabinet": { "size": [0.8, 0.91, 0.64], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [0.8, 0.1, 0.56], "position": [0, 0.05, -0.04], "material": "black"},
+      {"name": "cabinet", "type": "box", "size": [0.8, 0.77, 0.6], "position": [0, 0.485, -0.02], "material": "white_cabinet"},
+      {"name": "countertop", "type": "box", "size": [0.8, 0.04, 0.64], "position": [0, 0.89, 0], "material": "quartz"},
+      {"name": "drawer_front", "type": "box", "size": [0.76, 0.16, 0.01], "position": [0, 0.76, 0.285], "material": "white_cabinet"},
+      {"name": "drawer_handle", "type": "box", "size": [0.3, 0.015, 0.02], "position": [0, 0.78, 0.3], "material": "metal"},
+      {"name": "door_handle", "type": "box", "size": [0.3, 0.015, 0.02], "position": [0, 0.62, 0.3], "material": "metal"},
+      {"name": "sink_basin", "type": "box", "size": [0.6, 0.012, 0.42], "position": [0, 0.906, 0.02], "material": "steel"},
+      {"name": "faucet_body", "type": "cylinder", "radius": 0.015, "height": 0.3, "position": [0, 1.06, -0.23], "material": "metal"},
+      {"name": "faucet_spout", "type": "box", "size": [0.025, 0.025, 0.2], "position": [0, 1.2, -0.14], "material": "metal"}
+    ]},
+    "upper_cabinet": { "size": [0.9, 0.76, 0.33], "parts": [
+      {"name": "box", "type": "box", "size": [0.9, 0.76, 0.33], "position": [0, 0.38, 0], "material": "white_cabinet"},
+      {"name": "door_seam", "type": "box", "size": [0.005, 0.74, 0.005], "position": [0, 0.38, 0.167], "material": "black"},
+      {"name": "handle_left", "type": "box", "size": [0.015, 0.12, 0.02], "position": [-0.05, 0.1, 0.175], "material": "metal"},
+      {"name": "handle_right", "type": "box", "size": [0.015, 0.12, 0.02], "position": [0.05, 0.1, 0.175], "material": "metal"}
+    ]},
+    "dishwasher": { "size": [0.6, 0.91, 0.64], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [0.6, 0.1, 0.56], "position": [0, 0.05, -0.04], "material": "black"},
+      {"name": "body", "type": "box", "size": [0.6, 0.77, 0.58], "position": [0, 0.485, -0.03], "material": "steel"},
+      {"name": "door", "type": "box", "size": [0.58, 0.7, 0.02], "position": [0, 0.48, 0.27], "material": "steel"},
+      {"name": "control_strip", "type": "box", "size": [0.58, 0.06, 0.01], "position": [0, 0.83, 0.285], "material": "black"},
+      {"name": "handle", "type": "box", "size": [0.48, 0.02, 0.03], "position": [0, 0.77, 0.295], "material": "metal"},
+      {"name": "countertop", "type": "box", "size": [0.6, 0.04, 0.64], "position": [0, 0.89, 0], "material": "quartz"}
+    ]},
+    "range": { "size": [0.76, 0.91, 0.64], "parts": [
+      {"name": "body", "type": "box", "size": [0.76, 0.9, 0.62], "position": [0, 0.45, -0.01], "material": "steel"},
+      {"name": "oven_window", "type": "box", "size": [0.5, 0.28, 0.01], "position": [0, 0.42, 0.305], "material": "black"},
+      {"name": "oven_handle", "type": "box", "size": [0.6, 0.02, 0.03], "position": [0, 0.72, 0.32], "material": "metal"},
+      {"name": "cooktop", "type": "box", "size": [0.76, 0.02, 0.62], "position": [0, 0.91, -0.01], "material": "black"},
+      {"name": "backguard", "type": "box", "size": [0.76, 0.12, 0.04], "position": [0, 0.98, -0.3], "material": "steel"},
+      {"name": "burner_0", "type": "cylinder", "radius": 0.08, "height": 0.012, "position": [-0.18, 0.926, -0.15], "material": "metal"},
+      {"name": "burner_1", "type": "cylinder", "radius": 0.08, "height": 0.012, "position": [0.18, 0.926, -0.15], "material": "metal"},
+      {"name": "burner_2", "type": "cylinder", "radius": 0.08, "height": 0.012, "position": [-0.18, 0.926, 0.13], "material": "metal"},
+      {"name": "burner_3", "type": "cylinder", "radius": 0.08, "height": 0.012, "position": [0.18, 0.926, 0.13], "material": "metal"},
+      {"name": "knob_0", "type": "cylinder", "radius": 0.02, "height": 0.03, "position": [-0.27, 0.8, 0.32], "material": "black", "rotation": [90, 0, 0]},
+      {"name": "knob_1", "type": "cylinder", "radius": 0.02, "height": 0.03, "position": [-0.15, 0.8, 0.32], "material": "black", "rotation": [90, 0, 0]},
+      {"name": "knob_2", "type": "cylinder", "radius": 0.02, "height": 0.03, "position": [0.15, 0.8, 0.32], "material": "black", "rotation": [90, 0, 0]},
+      {"name": "knob_3", "type": "cylinder", "radius": 0.02, "height": 0.03, "position": [0.27, 0.8, 0.32], "material": "black", "rotation": [90, 0, 0]}
+    ]},
+    "microwave_hood": { "size": [0.76, 0.42, 0.38], "parts": [
+      {"name": "body", "type": "box", "size": [0.76, 0.42, 0.38], "position": [0, 0.21, 0], "material": "steel"},
+      {"name": "door_window", "type": "box", "size": [0.48, 0.28, 0.01], "position": [-0.08, 0.22, 0.19], "material": "black"},
+      {"name": "keypad", "type": "box", "size": [0.14, 0.3, 0.01], "position": [0.28, 0.22, 0.19], "material": "black"}
+    ]},
+    "fridge": { "size": [0.91, 1.78, 0.76], "parts": [
+      {"name": "body", "type": "box", "size": [0.91, 1.78, 0.72], "position": [0, 0.89, -0.02], "material": "steel"},
+      {"name": "door_left", "type": "box", "size": [0.45, 1.05, 0.03], "position": [-0.228, 1.235, 0.355], "material": "steel"},
+      {"name": "door_right", "type": "box", "size": [0.45, 1.05, 0.03], "position": [0.228, 1.235, 0.355], "material": "steel"},
+      {"name": "freezer_drawer", "type": "box", "size": [0.91, 0.66, 0.03], "position": [0, 0.36, 0.355], "material": "steel"},
+      {"name": "handle_left", "type": "box", "size": [0.025, 0.65, 0.04], "position": [-0.05, 1.2, 0.39], "material": "metal"},
+      {"name": "handle_right", "type": "box", "size": [0.025, 0.65, 0.04], "position": [0.05, 1.2, 0.39], "material": "metal"},
+      {"name": "freezer_handle", "type": "box", "size": [0.6, 0.025, 0.04], "position": [0, 0.6, 0.39], "material": "metal"},
+      {"name": "ice_dispenser", "type": "box", "size": [0.18, 0.28, 0.01], "position": [-0.24, 1.25, 0.372], "material": "black"}
+    ]},
+    "island": { "size": [2.0, 0.91, 1.0], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [1.96, 0.1, 0.62], "position": [0, 0.05, 0.15], "material": "black"},
+      {"name": "cabinet", "type": "box", "size": [2.0, 0.77, 0.68], "position": [0, 0.485, 0.15], "material": "wood_dark"},
+      {"name": "countertop", "type": "box", "size": [2.0, 0.04, 1.0], "position": [0, 0.89, 0], "material": "quartz"},
+      {"name": "drawer_handle_0", "type": "box", "size": [0.25, 0.015, 0.02], "position": [-0.66, 0.78, 0.5], "material": "metal"},
+      {"name": "drawer_handle_1", "type": "box", "size": [0.25, 0.015, 0.02], "position": [0, 0.78, 0.5], "material": "metal"},
+      {"name": "drawer_handle_2", "type": "box", "size": [0.25, 0.015, 0.02], "position": [0.66, 0.78, 0.5], "material": "metal"}
+    ]},
+    "bar_stool": { "size": [0.4, 0.75, 0.4], "parts": [
+      {"name": "seat", "type": "cylinder", "radius": 0.2, "height": 0.05, "position": [0, 0.725, 0], "material": "wood_light"},
+      {"name": "post", "type": "cylinder", "radius": 0.03, "height": 0.68, "position": [0, 0.36, 0], "material": "metal"},
+      {"name": "base", "type": "cylinder", "radius": 0.2, "height": 0.02, "position": [0, 0.01, 0], "material": "metal"},
+      {"name": "footrest", "type": "cylinder", "radius": 0.17, "height": 0.015, "position": [0, 0.3, 0], "material": "metal"}
+    ]},
+    "trash_can": { "size": [0.3, 0.7, 0.4], "parts": [
+      {"name": "body", "type": "box", "size": [0.3, 0.66, 0.4], "position": [0, 0.33, 0], "material": "steel"},
+      {"name": "lid", "type": "box", "size": [0.3, 0.04, 0.4], "position": [0, 0.68, 0], "material": "black"},
+      {"name": "pedal", "type": "box", "size": [0.14, 0.02, 0.05], "position": [0, 0.03, 0.22], "material": "black"}
+    ]},
+    "recycling_can": { "size": [0.3, 0.7, 0.4], "parts": [
+      {"name": "body", "type": "box", "size": [0.3, 0.66, 0.4], "position": [0, 0.33, 0], "material": "bin_blue"},
+      {"name": "lid", "type": "box", "size": [0.3, 0.04, 0.4], "position": [0, 0.68, 0], "material": "black"}
+    ]},
+    "coffee_maker": { "size": [0.25, 0.38, 0.3], "parts": [
+      {"name": "body", "type": "box", "size": [0.25, 0.38, 0.2], "position": [0, 0.19, -0.05], "material": "black"},
+      {"name": "carafe", "type": "cylinder", "radius": 0.07, "height": 0.15, "position": [0, 0.09, 0.07], "material": "glass"}
+    ]},
+    "toaster": { "size": [0.28, 0.2, 0.18], "parts": [
+      {"name": "body", "type": "box", "size": [0.28, 0.2, 0.18], "position": [0, 0.1, 0], "material": "steel"},
+      {"name": "slot", "type": "box", "size": [0.2, 0.005, 0.03], "position": [0, 0.201, 0], "material": "black"}
+    ]},
+    "bed_full": { "size": [1.37, 1.0, 1.95], "parts": [
+      {"name": "leg_0", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.605, 0.075, -0.895], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.605, 0.075, -0.895], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.605, 0.075, 0.895], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.605, 0.075, 0.895], "material": "wood_dark"},
+      {"name": "frame", "type": "box", "size": [1.37, 0.15, 1.95], "position": [0, 0.225, 0], "material": "wood_dark"},
+      {"name": "mattress", "type": "box", "size": [1.33, 0.25, 1.85], "position": [0, 0.425, 0.03], "material": "linen_white"},
+      {"name": "duvet", "type": "box", "size": [1.39, 0.06, 1.326], "position": [0, 0.565, 0.2925], "material": "fabric_blue"},
+      {"name": "pillow_left", "type": "box", "size": [0.548, 0.12, 0.35], "position": [-0.3288, 0.6, -0.675], "material": "linen_white"},
+      {"name": "pillow_right", "type": "box", "size": [0.548, 0.12, 0.35], "position": [0.3288, 0.6, -0.675], "material": "linen_white"},
+      {"name": "headboard", "type": "box", "size": [1.37, 1.0, 0.08], "position": [0, 0.5, -0.935], "material": "fabric_grey"}
+    ]},
+    "bed_queen": { "size": [1.52, 1.0, 2.08], "parts": [
+      {"name": "leg_0", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.68, 0.075, -0.96], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.68, 0.075, -0.96], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.68, 0.075, 0.96], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.68, 0.075, 0.96], "material": "wood_dark"},
+      {"name": "frame", "type": "box", "size": [1.52, 0.15, 2.08], "position": [0, 0.225, 0], "material": "wood_dark"},
+      {"name": "mattress", "type": "box", "size": [1.48, 0.25, 1.98], "position": [0, 0.425, 0.03], "material": "linen_white"},
+      {"name": "duvet", "type": "box", "size": [1.54, 0.06, 1.4144], "position": [0, 0.565, 0.312], "material": "fabric_beige"},
+      {"name": "pillow_left", "type": "box", "size": [0.608, 0.12, 0.35], "position": [-0.3648, 0.6, -0.74], "material": "linen_white"},
+      {"name": "pillow_right", "type": "box", "size": [0.608, 0.12, 0.35], "position": [0.3648, 0.6, -0.74], "material": "linen_white"},
+      {"name": "headboard", "type": "box", "size": [1.52, 1.0, 0.08], "position": [0, 0.5, -1.0], "material": "fabric_grey"}
+    ]},
+    "bed_king": { "size": [1.93, 1.0, 2.08], "parts": [
+      {"name": "leg_0", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.885, 0.075, -0.96], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.885, 0.075, -0.96], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.06, 0.15, 0.06], "position": [-0.885, 0.075, 0.96], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.06, 0.15, 0.06], "position": [0.885, 0.075, 0.96], "material": "wood_dark"},
+      {"name": "frame", "type": "box", "size": [1.93, 0.15, 2.08], "position": [0, 0.225, 0], "material": "wood_dark"},
+      {"name": "mattress", "type": "box", "size": [1.89, 0.25, 1.98], "position": [0, 0.425, 0.03], "material": "linen_white"},
+      {"name": "duvet", "type": "box", "size": [1.95, 0.06, 1.4144], "position": [0, 0.565, 0.312], "material": "fabric_beige"},
+      {"name": "pillow_left", "type": "box", "size": [0.772, 0.12, 0.35], "position": [-0.4632, 0.6, -0.74], "material": "linen_white"},
+      {"name": "pillow_right", "type": "box", "size": [0.772, 0.12, 0.35], "position": [0.4632, 0.6, -0.74], "material": "linen_white"},
+      {"name": "headboard", "type": "box", "size": [1.93, 1.0, 0.08], "position": [0, 0.5, -1.0], "material": "fabric_grey"}
+    ]},
+    "nightstand": { "size": [0.5, 0.6, 0.4], "parts": [
+      {"name": "body", "type": "box", "size": [0.5, 0.5, 0.4], "position": [0, 0.35, 0], "material": "wood_light"},
+      {"name": "drawer_top", "type": "box", "size": [0.46, 0.2, 0.01], "position": [0, 0.47, 0.2], "material": "wood_dark"},
+      {"name": "drawer_bottom", "type": "box", "size": [0.46, 0.2, 0.01], "position": [0, 0.24, 0.2], "material": "wood_dark"},
+      {"name": "knob_top", "type": "cylinder", "radius": 0.015, "height": 0.02, "position": [0, 0.47, 0.215], "material": "metal", "rotation": [90, 0, 0]},
+      {"name": "knob_bottom", "type": "cylinder", "radius": 0.015, "height": 0.02, "position": [0, 0.24, 0.215], "material": "metal", "rotation": [90, 0, 0]},
+      {"name": "leg_0", "type": "box", "size": [0.03, 0.1, 0.03], "position": [-0.215, 0.05, -0.165], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.03, 0.1, 0.03], "position": [0.215, 0.05, -0.165], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.03, 0.1, 0.03], "position": [-0.215, 0.05, 0.165], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.03, 0.1, 0.03], "position": [0.215, 0.05, 0.165], "material": "wood_dark"}
+    ]},
+    "dresser": { "size": [1.5, 0.8, 0.5], "parts": [
+      {"name": "body", "type": "box", "size": [1.5, 0.72, 0.5], "position": [0, 0.44, 0], "material": "wood_light"},
+      {"name": "leg_0", "type": "box", "size": [0.04, 0.08, 0.04], "position": [-0.7, 0.04, -0.2], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.04, 0.08, 0.04], "position": [0.7, 0.04, -0.2], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.04, 0.08, 0.04], "position": [-0.7, 0.04, 0.2], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.04, 0.08, 0.04], "position": [0.7, 0.04, 0.2], "material": "wood_dark"},
+      {"name": "drawer_0_0", "type": "box", "size": [0.72, 0.2, 0.01], "position": [-0.37, 0.2, 0.25], "material": "wood_dark"},
+      {"name": "drawer_0_0_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [-0.37, 0.24, 0.265], "material": "metal"},
+      {"name": "drawer_0_1", "type": "box", "size": [0.72, 0.2, 0.01], "position": [0.37, 0.2, 0.25], "material": "wood_dark"},
+      {"name": "drawer_0_1_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [0.37, 0.24, 0.265], "material": "metal"},
+      {"name": "drawer_1_0", "type": "box", "size": [0.72, 0.2, 0.01], "position": [-0.37, 0.43, 0.25], "material": "wood_dark"},
+      {"name": "drawer_1_0_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [-0.37, 0.47, 0.265], "material": "metal"},
+      {"name": "drawer_1_1", "type": "box", "size": [0.72, 0.2, 0.01], "position": [0.37, 0.43, 0.25], "material": "wood_dark"},
+      {"name": "drawer_1_1_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [0.37, 0.47, 0.265], "material": "metal"},
+      {"name": "drawer_2_0", "type": "box", "size": [0.72, 0.2, 0.01], "position": [-0.37, 0.66, 0.25], "material": "wood_dark"},
+      {"name": "drawer_2_0_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [-0.37, 0.7, 0.265], "material": "metal"},
+      {"name": "drawer_2_1", "type": "box", "size": [0.72, 0.2, 0.01], "position": [0.37, 0.66, 0.25], "material": "wood_dark"},
+      {"name": "drawer_2_1_handle", "type": "box", "size": [0.16, 0.015, 0.02], "position": [0.37, 0.7, 0.265], "material": "metal"}
+    ]},
+    "hamper": { "size": [0.45, 0.65, 0.35], "parts": [
+      {"name": "basket", "type": "box", "size": [0.45, 0.6, 0.35], "position": [0, 0.3, 0], "material": "wicker"},
+      {"name": "clothes", "type": "box", "size": [0.38, 0.1, 0.28], "position": [0, 0.6, 0], "material": "fabric_blue"}
+    ]},
+    "reach_in_closet": { "size": [1.8, 2.1, 0.6], "parts": [
+      {"name": "back", "type": "box", "size": [1.8, 2.1, 0.02], "position": [0, 1.05, -0.29], "material": "white_cabinet"},
+      {"name": "side_left", "type": "box", "size": [0.02, 2.1, 0.6], "position": [-0.89, 1.05, 0], "material": "white_cabinet"},
+      {"name": "side_right", "type": "box", "size": [0.02, 2.1, 0.6], "position": [0.89, 1.05, 0], "material": "white_cabinet"},
+      {"name": "top", "type": "box", "size": [1.8, 0.02, 0.6], "position": [0, 2.09, 0], "material": "white_cabinet"},
+      {"name": "shelf", "type": "box", "size": [1.76, 0.02, 0.35], "position": [0, 1.75, -0.1], "material": "white_cabinet"},
+      {"name": "rod", "type": "cylinder", "radius": 0.015, "height": 1.76, "position": [0, 1.65, 0], "material": "metal", "rotation": [0, 0, 90]},
+      {"name": "sliding_door", "type": "box", "size": [0.9, 2.03, 0.02], "position": [-0.45, 1.035, 0.28], "material": "white_cabinet"},
+      {"name": "garment_0", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.75, 1.2, 0], "material": "fabric_blue"},
+      {"name": "garment_1", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.6429, 1.2, 0], "material": "linen_white"},
+      {"name": "garment_2", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.5357, 1.2, 0], "material": "fabric_grey"},
+      {"name": "garment_3", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.4286, 1.2, 0], "material": "terracotta"},
+      {"name": "garment_4", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.3214, 1.2, 0], "material": "fabric_beige"},
+      {"name": "garment_5", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.2143, 1.2, 0], "material": "fabric_blue"},
+      {"name": "garment_6", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.1071, 1.2, 0], "material": "linen_white"},
+      {"name": "garment_7", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.0, 1.2, 0], "material": "fabric_grey"},
+      {"name": "garment_8", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.1071, 1.2, 0], "material": "terracotta"},
+      {"name": "garment_9", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.2143, 1.2, 0], "material": "fabric_beige"},
+      {"name": "garment_10", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.3214, 1.2, 0], "material": "fabric_blue"},
+      {"name": "garment_11", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.4286, 1.2, 0], "material": "linen_white"},
+      {"name": "garment_12", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.5357, 1.2, 0], "material": "fabric_grey"},
+      {"name": "garment_13", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.6429, 1.2, 0], "material": "terracotta"},
+      {"name": "garment_14", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.75, 1.2, 0], "material": "fabric_beige"}
+    ]},
+    "closet_system": { "size": [1.3, 2.1, 0.6], "parts": [
+      {"name": "back", "type": "box", "size": [1.3, 2.1, 0.02], "position": [0, 1.05, -0.29], "material": "white_cabinet"},
+      {"name": "side_left", "type": "box", "size": [0.02, 2.1, 0.6], "position": [-0.64, 1.05, 0], "material": "white_cabinet"},
+      {"name": "side_right", "type": "box", "size": [0.02, 2.1, 0.6], "position": [0.64, 1.05, 0], "material": "white_cabinet"},
+      {"name": "top", "type": "box", "size": [1.3, 0.02, 0.6], "position": [0, 2.09, 0], "material": "white_cabinet"},
+      {"name": "shelf", "type": "box", "size": [1.26, 0.02, 0.35], "position": [0, 1.75, -0.1], "material": "white_cabinet"},
+      {"name": "rod", "type": "cylinder", "radius": 0.015, "height": 1.26, "position": [0, 1.65, 0], "material": "metal", "rotation": [0, 0, 90]},
+      {"name": "garment_0", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.5, 1.2, 0], "material": "fabric_blue"},
+      {"name": "garment_1", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.3889, 1.2, 0], "material": "linen_white"},
+      {"name": "garment_2", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.2778, 1.2, 0], "material": "fabric_grey"},
+      {"name": "garment_3", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.1667, 1.2, 0], "material": "terracotta"},
+      {"name": "garment_4", "type": "box", "size": [0.05, 0.85, 0.45], "position": [-0.0556, 1.2, 0], "material": "fabric_beige"},
+      {"name": "garment_5", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.0556, 1.2, 0], "material": "fabric_blue"},
+      {"name": "garment_6", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.1667, 1.2, 0], "material": "linen_white"},
+      {"name": "garment_7", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.2778, 1.2, 0], "material": "fabric_grey"},
+      {"name": "garment_8", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.3889, 1.2, 0], "material": "terracotta"},
+      {"name": "garment_9", "type": "box", "size": [0.05, 0.85, 0.45], "position": [0.5, 1.2, 0], "material": "fabric_beige"}
+    ]},
+    "desk": { "size": [1.2, 0.75, 0.6], "parts": [
+      {"name": "top", "type": "box", "size": [1.2, 0.03, 0.6], "position": [0, 0.735, 0], "material": "wood_light"},
+      {"name": "drawer", "type": "box", "size": [0.4, 0.12, 0.55], "position": [0.35, 0.66, 0], "material": "white_cabinet"},
+      {"name": "leg_0", "type": "box", "size": [0.04, 0.72, 0.04], "position": [-0.55, 0.36, -0.25], "material": "metal"},
+      {"name": "leg_1", "type": "box", "size": [0.04, 0.72, 0.04], "position": [0.55, 0.36, -0.25], "material": "metal"},
+      {"name": "leg_2", "type": "box", "size": [0.04, 0.72, 0.04], "position": [-0.55, 0.36, 0.25], "material": "metal"},
+      {"name": "leg_3", "type": "box", "size": [0.04, 0.72, 0.04], "position": [0.55, 0.36, 0.25], "material": "metal"}
+    ]},
+    "desk_chair": { "size": [0.6, 1.0, 0.6], "parts": [
+      {"name": "base", "type": "cylinder", "radius": 0.3, "height": 0.04, "position": [0, 0.06, 0], "material": "black"},
+      {"name": "gas_lift", "type": "cylinder", "radius": 0.025, "height": 0.35, "position": [0, 0.27, 0], "material": "metal"},
+      {"name": "seat", "type": "box", "size": [0.48, 0.08, 0.46], "position": [0, 0.48, 0.02], "material": "fabric_grey"},
+      {"name": "back", "type": "box", "size": [0.46, 0.5, 0.05], "position": [0, 0.8, -0.21], "material": "fabric_grey"},
+      {"name": "caster_0", "type": "cylinder", "radius": 0.025, "height": 0.03, "position": [0.27, 0.025, 0], "material": "black"},
+      {"name": "caster_1", "type": "cylinder", "radius": 0.025, "height": 0.03, "position": [-0.27, 0.025, 0], "material": "black"},
+      {"name": "caster_2", "type": "cylinder", "radius": 0.025, "height": 0.03, "position": [0, 0.025, 0.27], "material": "black"},
+      {"name": "caster_3", "type": "cylinder", "radius": 0.025, "height": 0.03, "position": [0, 0.025, -0.27], "material": "black"}
+    ]},
+    "laptop": { "size": [0.33, 0.23, 0.23], "parts": [
+      {"name": "base", "type": "box", "size": [0.33, 0.015, 0.23], "position": [0, 0.0075, 0], "material": "metal"},
+      {"name": "screen", "type": "box", "size": [0.33, 0.22, 0.008], "position": [0, 0.115, -0.13], "material": "metal", "rotation": [-15, 0, 0]}
+    ]},
+    "bed_bench": { "size": [1.4, 0.45, 0.45], "parts": [
+      {"name": "cushion", "type": "box", "size": [1.4, 0.12, 0.45], "position": [0, 0.39, 0], "material": "fabric_beige"},
+      {"name": "frame", "type": "box", "size": [1.4, 0.05, 0.45], "position": [0, 0.305, 0], "material": "wood_dark"},
+      {"name": "leg_0", "type": "box", "size": [0.04, 0.28, 0.04], "position": [-0.65, 0.14, -0.175], "material": "wood_dark"},
+      {"name": "leg_1", "type": "box", "size": [0.04, 0.28, 0.04], "position": [0.65, 0.14, -0.175], "material": "wood_dark"},
+      {"name": "leg_2", "type": "box", "size": [0.04, 0.28, 0.04], "position": [-0.65, 0.14, 0.175], "material": "wood_dark"},
+      {"name": "leg_3", "type": "box", "size": [0.04, 0.28, 0.04], "position": [0.65, 0.14, 0.175], "material": "wood_dark"}
+    ]},
+    "toy_bin": { "size": [0.5, 0.4, 0.35], "parts": [
+      {"name": "bin", "type": "box", "size": [0.5, 0.4, 0.35], "position": [0, 0.2, 0], "material": "bin_blue"}
+    ]},
+    "toy_block": { "size": [0.08, 0.08, 0.08], "parts": [
+      {"name": "block", "type": "box", "size": [0.08, 0.08, 0.08], "position": [0, 0.04, 0], "material": "terracotta"}
+    ]},
+    "toy_ball": { "size": [0.16, 0.16, 0.16], "parts": [
+      {"name": "ball", "type": "sphere", "radius": 0.08, "position": [0, 0.08, 0], "material": "apple"}
+    ]},
+    "stuffed_animal": { "size": [0.2, 0.25, 0.15], "parts": [
+      {"name": "body", "type": "sphere", "radius": 0.08, "position": [0, 0.08, 0], "material": "fabric_beige"},
+      {"name": "head", "type": "sphere", "radius": 0.06, "position": [0, 0.19, 0.01], "material": "fabric_beige"}
+    ]},
+    "toilet": { "size": [0.45, 0.78, 0.7], "parts": [
+      {"name": "tank", "type": "box", "size": [0.45, 0.38, 0.2], "position": [0, 0.59, -0.25], "material": "porcelain"},
+      {"name": "tank_lid", "type": "box", "size": [0.47, 0.03, 0.22], "position": [0, 0.795, -0.25], "material": "porcelain"},
+      {"name": "bowl", "type": "cylinder", "radius": 0.19, "height": 0.38, "position": [0, 0.19, 0.08], "material": "porcelain", "radius_top": 0.2},
+      {"name": "seat", "type": "box", "size": [0.38, 0.03, 0.46], "position": [0, 0.4, 0.08], "material": "porcelain"},
+      {"name": "flush_lever", "type": "box", "size": [0.06, 0.015, 0.02], "position": [-0.16, 0.7, -0.14], "material": "metal"}
+    ]},
+    "vanity_single": { "size": [0.6, 0.86, 0.5], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [0.6, 0.1, 0.48], "position": [0, 0.05, -0.02], "material": "black"},
+      {"name": "cabinet", "type": "box", "size": [0.6, 0.72, 0.5], "position": [0, 0.46, -0.03], "material": "wood_dark"},
+      {"name": "countertop", "type": "box", "size": [0.6, 0.04, 0.56], "position": [0, 0.84, 0], "material": "quartz"},
+      {"name": "sink_basin_0", "type": "box", "size": [0.42, 0.01, 0.32], "position": [0, 0.861, 0.03], "material": "porcelain"},
+      {"name": "faucet_0", "type": "cylinder", "radius": 0.012, "height": 0.18, "position": [0, 0.95, -0.2], "material": "metal"},
+      {"name": "spout_0", "type": "box", "size": [0.02, 0.02, 0.1], "position": [0, 1.03, -0.15], "material": "metal"},
+      {"name": "cabinet_door_0", "type": "box", "size": [0.56, 0.6, 0.01], "position": [0, 0.44, 0.225], "material": "wood_light"}
+    ]},
+    "vanity_double": { "size": [1.5, 0.86, 0.56], "parts": [
+      {"name": "toe_kick", "type": "box", "size": [1.5, 0.1, 0.48], "position": [0, 0.05, -0.02], "material": "black"},
+      {"name": "cabinet", "type": "box", "size": [1.5, 0.72, 0.5], "position": [0, 0.46, -0.03], "material": "wood_dark"},
+      {"name": "countertop", "type": "box", "size": [1.5, 0.04, 0.56], "position": [0, 0.84, 0], "material": "quartz"},
+      {"name": "sink_basin_0", "type": "box", "size": [0.42, 0.01, 0.32], "position": [-0.375, 0.861, 0.03], "material": "porcelain"},
+      {"name": "faucet_0", "type": "cylinder", "radius": 0.012, "height": 0.18, "position": [-0.375, 0.95, -0.2], "material": "metal"},
+      {"name": "spout_0", "type": "box", "size": [0.02, 0.02, 0.1], "position": [-0.375, 1.03, -0.15], "material": "metal"},
+      {"name": "cabinet_door_0", "type": "box", "size": [0.71, 0.6, 0.01], "position": [-0.375, 0.44, 0.225], "material": "wood_light"},
+      {"name": "sink_basin_1", "type": "box", "size": [0.42, 0.01, 0.32], "position": [0.375, 0.861, 0.03], "material": "porcelain"},
+      {"name": "faucet_1", "type": "cylinder", "radius": 0.012, "height": 0.18, "position": [0.375, 0.95, -0.2], "material": "metal"},
+      {"name": "spout_1", "type": "box", "size": [0.02, 0.02, 0.1], "position": [0.375, 1.03, -0.15], "material": "metal"},
+      {"name": "cabinet_door_1", "type": "box", "size": [0.71, 0.6, 0.01], "position": [0.375, 0.44, 0.225], "material": "wood_light"}
+    ]},
+    "shower_stall": { "size": [1.2, 2.0, 0.9], "parts": [
+      {"name": "tray", "type": "box", "size": [1.2, 0.05, 0.9], "position": [0, 0.025, 0], "material": "porcelain"},
+      {"name": "glass_front", "type": "box", "size": [1.2, 1.9, 0.01], "position": [0, 1.0, 0.445], "material": "glass"},
+      {"name": "glass_side", "type": "box", "size": [0.01, 1.9, 0.9], "position": [0.595, 1.0, 0], "material": "glass"},
+      {"name": "door_handle", "type": "box", "size": [0.02, 0.3, 0.03], "position": [-0.1, 1.05, 0.46], "material": "metal"},
+      {"name": "shower_head", "type": "cylinder", "radius": 0.08, "height": 0.03, "position": [0, 1.95, -0.35], "material": "metal"},
+      {"name": "drain", "type": "cylinder", "radius": 0.04, "height": 0.005, "position": [0, 0.053, 0], "material": "metal"}
+    ]},
+    "tub_shower": { "size": [1.48, 2.0, 0.76], "parts": [
+      {"name": "tub", "type": "box", "size": [1.48, 0.5, 0.76], "position": [0, 0.25, 0], "material": "porcelain"},
+      {"name": "tub_interior", "type": "box", "size": [1.36, 0.01, 0.62], "position": [0, 0.505, 0], "material": "water"},
+      {"name": "curtain_rod", "type": "cylinder", "radius": 0.012, "height": 1.48, "position": [0, 1.95, 0.36], "material": "metal", "rotation": [0, 0, 90]},
+      {"name": "curtain", "type": "box", "size": [0.7, 1.45, 0.01], "position": [-0.37, 1.22, 0.37], "material": "fabric_blue"},
+      {"name": "shower_head", "type": "cylinder", "radius": 0.06, "height": 0.03, "position": [0.55, 1.9, -0.3], "material": "metal"},
+      {"name": "faucet", "type": "cylinder", "radius": 0.02, "height": 0.15, "position": [0.65, 0.65, -0.3], "material": "metal", "rotation": [90, 0, 0]}
+    ]},
+    "bath_trash": { "size": [0.25, 0.3, 0.2], "parts": [
+      {"name": "body", "type": "box", "size": [0.25, 0.28, 0.2], "position": [0, 0.14, 0], "material": "steel"},
+      {"name": "lid", "type": "box", "size": [0.25, 0.02, 0.2], "position": [0, 0.29, 0], "material": "black"}
+    ]},
+    "towel_bar": { "size": [0.6, 0.1, 0.08], "parts": [
+      {"name": "bar", "type": "cylinder", "radius": 0.012, "height": 0.6, "position": [0, 0.05, 0], "material": "metal", "rotation": [0, 0, 90]},
+      {"name": "towel", "type": "box", "size": [0.5, 0.55, 0.03], "position": [0, -0.22, 0.01], "material": "towel"}
+    ]},
+    "washer_front_load": { "size": [0.69, 1.29, 0.8], "parts": [
+      {"name": "pedestal", "type": "box", "size": [0.69, 0.3, 0.8], "position": [0, 0.15, 0], "material": "white_appliance"},
+      {"name": "pedestal_drawer_handle", "type": "box", "size": [0.3, 0.02, 0.02], "position": [0, 0.22, 0.41], "material": "metal"},
+      {"name": "cabinet", "type": "box", "size": [0.69, 0.99, 0.8], "position": [0, 0.795, 0], "material": "white_appliance"},
+      {"name": "door_ring", "type": "cylinder", "radius": 0.23, "height": 0.04, "position": [0, 0.8, 0.41], "material": "metal", "rotation": [90, 0, 0]},
+      {"name": "door_glass", "type": "cylinder", "radius": 0.18, "height": 0.045, "position": [0, 0.8, 0.415], "material": "glass", "rotation": [90, 0, 0]},
+      {"name": "control_panel", "type": "box", "size": [0.69, 0.12, 0.02], "position": [0, 1.2, 0.405], "material": "black"},
+      {"name": "dial", "type": "cylinder", "radius": 0.035, "height": 0.02, "position": [0.2, 1.2, 0.42], "material": "metal", "rotation": [90, 0, 0]}
+    ]},
+    "dryer_front_load": { "size": [0.69, 1.29, 0.8], "parts": [
+      {"name": "pedestal", "type": "box", "size": [0.69, 0.3, 0.8], "position": [0, 0.15, 0], "material": "white_appliance"},
+      {"name": "pedestal_drawer_handle", "type": "box", "size": [0.3, 0.02, 0.02], "position": [0, 0.22, 0.41], "material": "metal"},
+      {"name": "cabinet", "type": "box", "size": [0.69, 0.99, 0.8], "position": [0, 0.795, 0], "material": "white_appliance"},
+      {"name": "door_ring", "type": "cylinder", "radius": 0.23, "height": 0.04, "position": [0, 0.8, 0.41], "material": "metal", "rotation": [90, 0, 0]},
+      {"name": "door_glass", "type": "cylinder", "radius": 0.18, "height": 0.045, "position": [0, 0.8, 0.415], "material": "black", "rotation": [90, 0, 0]},
+      {"name": "control_panel", "type": "box", "size": [0.69, 0.12, 0.02], "position": [0, 1.2, 0.405], "material": "black"},
+      {"name": "dial", "type": "cylinder", "radius": 0.035, "height": 0.02, "position": [0.2, 1.2, 0.42], "material": "metal", "rotation": [90, 0, 0]}
+    ]},
+    "folding_counter": { "size": [0.46, 0.91, 0.6], "parts": [
+      {"name": "cabinet", "type": "box", "size": [0.46, 0.87, 0.58], "position": [0, 0.435, -0.01], "material": "white_cabinet"},
+      {"name": "top", "type": "box", "size": [0.46, 0.04, 0.6], "position": [0, 0.89, 0], "material": "quartz"}
+    ]},
+    "wall_shelf": { "size": [1.38, 0.03, 0.3], "parts": [
+      {"name": "board", "type": "box", "size": [1.38, 0.03, 0.3], "position": [0, 0.015, 0], "material": "white_cabinet"},
+      {"name": "bracket_left", "type": "box", "size": [0.02, 0.15, 0.2], "position": [-0.6, -0.075, -0.05], "material": "metal"},
+      {"name": "bracket_right", "type": "box", "size": [0.02, 0.15, 0.2], "position": [0.6, -0.075, -0.05], "material": "metal"}
+    ]},
+    "laundry_basket": { "size": [0.42, 0.28, 0.32], "parts": [
+      {"name": "basket", "type": "box", "size": [0.42, 0.26, 0.32], "position": [0, 0.13, 0], "material": "white_appliance"},
+      {"name": "clothes", "type": "box", "size": [0.36, 0.06, 0.26], "position": [0, 0.27, 0], "material": "linen_white"}
+    ]},
+    "detergent": { "size": [0.16, 0.28, 0.11], "parts": [
+      {"name": "jug", "type": "box", "size": [0.16, 0.25, 0.11], "position": [0, 0.125, 0], "material": "bin_blue"},
+      {"name": "cap", "type": "cylinder", "radius": 0.025, "height": 0.03, "position": [0.04, 0.265, 0], "material": "white_appliance"}
+    ]},
+    "console_table": { "size": [1.0, 0.8, 0.35], "parts": [
+      {"name": "top", "type": "box", "size": [1.0, 0.03, 0.35], "position": [0, 0.785, 0], "material": "wood_dark"},
+      {"name": "shelf", "type": "box", "size": [0.92, 0.02, 0.3], "position": [0, 0.2, 0], "material": "wood_dark"},
+      {"name": "leg_0", "type": "box", "size": [0.03, 0.77, 0.03], "position": [-0.465, 0.385, -0.14], "material": "black"},
+      {"name": "leg_1", "type": "box", "size": [0.03, 0.77, 0.03], "position": [0.465, 0.385, -0.14], "material": "black"},
+      {"name": "leg_2", "type": "box", "size": [0.03, 0.77, 0.03], "position": [-0.465, 0.385, 0.14], "material": "black"},
+      {"name": "leg_3", "type": "box", "size": [0.03, 0.77, 0.03], "position": [0.465, 0.385, 0.14], "material": "black"}
+    ]},
+    "key_bowl": { "size": [0.2, 0.05, 0.2], "parts": [
+      {"name": "bowl", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [0, 0.025, 0], "material": "ceramic", "radius_top": 0.1}
+    ]},
+    "shoe_bench": { "size": [0.9, 0.45, 0.35], "parts": [
+      {"name": "seat", "type": "box", "size": [0.9, 0.04, 0.35], "position": [0, 0.43, 0], "material": "wood_light"},
+      {"name": "shelf", "type": "box", "size": [0.86, 0.02, 0.33], "position": [0, 0.18, 0], "material": "wood_light"},
+      {"name": "side_left", "type": "box", "size": [0.03, 0.41, 0.35], "position": [-0.435, 0.205, 0], "material": "wood_light"},
+      {"name": "side_right", "type": "box", "size": [0.03, 0.41, 0.35], "position": [0.435, 0.205, 0], "material": "wood_light"},
+      {"name": "shoe_pair_0", "type": "box", "size": [0.2, 0.1, 0.28], "position": [-0.25, 0.24, 0], "material": "black"},
+      {"name": "shoe_pair_1", "type": "box", "size": [0.2, 0.1, 0.28], "position": [0.05, 0.24, 0], "material": "terracotta"},
+      {"name": "shoe_pair_2", "type": "box", "size": [0.2, 0.1, 0.28], "position": [-0.2, 0.05, 0], "material": "linen_white"}
+    ]},
+    "coat_hooks": { "size": [0.8, 0.12, 0.08], "parts": [
+      {"name": "rail", "type": "box", "size": [0.8, 0.12, 0.02], "position": [0, 0.06, -0.03], "material": "wood_dark"},
+      {"name": "hook_0", "type": "box", "size": [0.02, 0.02, 0.07], "position": [-0.3, 0.04, 0.0], "material": "metal"},
+      {"name": "hook_1", "type": "box", "size": [0.02, 0.02, 0.07], "position": [-0.1, 0.04, 0.0], "material": "metal"},
+      {"name": "hook_2", "type": "box", "size": [0.02, 0.02, 0.07], "position": [0.1, 0.04, 0.0], "material": "metal"},
+      {"name": "hook_3", "type": "box", "size": [0.02, 0.02, 0.07], "position": [0.3, 0.04, 0.0], "material": "metal"},
+      {"name": "coat", "type": "box", "size": [0.45, 0.85, 0.12], "position": [-0.2, -0.4, 0.04], "material": "fabric_blue"},
+      {"name": "bag", "type": "box", "size": [0.3, 0.35, 0.1], "position": [0.2, -0.15, 0.04], "material": "terracotta"}
+    ]},
+    "sedan_ev": { "size": [1.85, 1.45, 4.7], "parts": [
+      {"name": "body", "type": "box", "size": [1.85, 0.6, 4.6], "position": [0, 0.5, 0], "material": "car_body"},
+      {"name": "cabin", "type": "box", "size": [1.6, 0.5, 2.5], "position": [0, 1.05, -0.25], "material": "car_glass"},
+      {"name": "roof", "type": "box", "size": [1.5, 0.05, 2.0], "position": [0, 1.32, -0.3], "material": "car_body"},
+      {"name": "headlight_left", "type": "box", "size": [0.35, 0.08, 0.02], "position": [-0.6, 0.6, 2.3], "material": "linen_white"},
+      {"name": "headlight_right", "type": "box", "size": [0.35, 0.08, 0.02], "position": [0.6, 0.6, 2.3], "material": "linen_white"},
+      {"name": "charge_port", "type": "box", "size": [0.08, 0.1, 0.02], "position": [-0.93, 0.75, -1.9], "material": "black", "rotation": [0, 90, 0]},
+      {"name": "wheel_0", "type": "cylinder", "radius": 0.33, "height": 0.24, "position": [-0.82, 0.33, 1.45], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_1", "type": "cylinder", "radius": 0.33, "height": 0.24, "position": [0.82, 0.33, 1.45], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_2", "type": "cylinder", "radius": 0.33, "height": 0.24, "position": [-0.82, 0.33, -1.45], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_3", "type": "cylinder", "radius": 0.33, "height": 0.24, "position": [0.82, 0.33, -1.45], "material": "black", "rotation": [0, 0, 90]}
+    ]},
+    "ev_charger": { "size": [0.2, 0.35, 0.12], "parts": [
+      {"name": "unit", "type": "box", "size": [0.2, 0.35, 0.1], "position": [0, 0.175, 0], "material": "white_appliance"},
+      {"name": "cable_coil", "type": "cylinder", "radius": 0.12, "height": 0.05, "position": [0, -0.15, 0.06], "material": "black", "rotation": [90, 0, 0]}
+    ]},
+    "water_heater": { "size": [0.6, 1.6, 0.6], "parts": [
+      {"name": "tank", "type": "cylinder", "radius": 0.3, "height": 1.5, "position": [0, 0.75, 0], "material": "white_appliance"},
+      {"name": "flue", "type": "cylinder", "radius": 0.05, "height": 0.4, "position": [0, 1.7, 0], "material": "metal"}
+    ]},
+    "workbench": { "size": [1.8, 0.9, 0.6], "parts": [
+      {"name": "top", "type": "box", "size": [1.8, 0.05, 0.6], "position": [0, 0.875, 0], "material": "wood_light"},
+      {"name": "shelf", "type": "box", "size": [1.7, 0.03, 0.55], "position": [0, 0.2, 0], "material": "wood_light"},
+      {"name": "pegboard", "type": "box", "size": [1.8, 0.8, 0.02], "position": [0, 1.4, -0.29], "material": "wood_light"},
+      {"name": "toolbox", "type": "box", "size": [0.5, 0.25, 0.25], "position": [0.5, 1.025, 0.05], "material": "apple"},
+      {"name": "drill", "type": "box", "size": [0.08, 0.2, 0.22], "position": [-0.4, 0.995, 0.1], "material": "black"},
+      {"name": "leg_0", "type": "box", "size": [0.06, 0.85, 0.06], "position": [-0.84, 0.425, -0.24], "material": "wood_light"},
+      {"name": "leg_1", "type": "box", "size": [0.06, 0.85, 0.06], "position": [0.84, 0.425, -0.24], "material": "wood_light"},
+      {"name": "leg_2", "type": "box", "size": [0.06, 0.85, 0.06], "position": [-0.84, 0.425, 0.24], "material": "wood_light"},
+      {"name": "leg_3", "type": "box", "size": [0.06, 0.85, 0.06], "position": [0.84, 0.425, 0.24], "material": "wood_light"}
+    ]},
+    "garage_shelving": { "size": [1.2, 1.8, 0.45], "parts": [
+      {"name": "post_0", "type": "box", "size": [0.03, 1.8, 0.03], "position": [-0.58, 0.9, -0.21], "material": "metal"},
+      {"name": "post_1", "type": "box", "size": [0.03, 1.8, 0.03], "position": [0.58, 0.9, -0.21], "material": "metal"},
+      {"name": "post_2", "type": "box", "size": [0.03, 1.8, 0.03], "position": [-0.58, 0.9, 0.21], "material": "metal"},
+      {"name": "post_3", "type": "box", "size": [0.03, 1.8, 0.03], "position": [0.58, 0.9, 0.21], "material": "metal"},
+      {"name": "shelf_0", "type": "box", "size": [1.2, 0.02, 0.45], "position": [0, 0.1, 0], "material": "metal"},
+      {"name": "shelf_1", "type": "box", "size": [1.2, 0.02, 0.45], "position": [0, 0.55, 0], "material": "metal"},
+      {"name": "shelf_2", "type": "box", "size": [1.2, 0.02, 0.45], "position": [0, 1.0, 0], "material": "metal"},
+      {"name": "shelf_3", "type": "box", "size": [1.2, 0.02, 0.45], "position": [0, 1.45, 0], "material": "metal"},
+      {"name": "shelf_4", "type": "box", "size": [1.2, 0.02, 0.45], "position": [0, 1.78, 0], "material": "metal"},
+      {"name": "storage_box_0", "type": "box", "size": [0.5, 0.35, 0.4], "position": [-0.3, 0.295, 0], "material": "bin_clear"},
+      {"name": "storage_box_1", "type": "box", "size": [0.5, 0.35, 0.4], "position": [0.3, 0.295, 0], "material": "bin_clear"},
+      {"name": "storage_box_2", "type": "box", "size": [0.5, 0.35, 0.4], "position": [0, 0.745, 0], "material": "cardboard"},
+      {"name": "storage_box_3", "type": "box", "size": [0.5, 0.35, 0.4], "position": [-0.3, 1.195, 0], "material": "cardboard"},
+      {"name": "storage_box_4", "type": "box", "size": [0.5, 0.35, 0.4], "position": [0.25, 1.645, 0], "material": "bin_clear"}
+    ]},
+    "cart_landfill": { "size": [0.6, 1.07, 0.74], "parts": [
+      {"name": "body", "type": "box", "size": [0.6, 0.98, 0.74], "position": [0, 0.55, 0], "material": "bin_black"},
+      {"name": "lid", "type": "box", "size": [0.62, 0.05, 0.76], "position": [0, 1.065, 0.01], "material": "bin_black"},
+      {"name": "handle", "type": "box", "size": [0.5, 0.04, 0.04], "position": [0, 1.0, -0.38], "material": "black"},
+      {"name": "wheel_left", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [-0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_right", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]}
+    ]},
+    "cart_recycling": { "size": [0.6, 1.07, 0.74], "parts": [
+      {"name": "body", "type": "box", "size": [0.6, 0.98, 0.74], "position": [0, 0.55, 0], "material": "bin_blue"},
+      {"name": "lid", "type": "box", "size": [0.62, 0.05, 0.76], "position": [0, 1.065, 0.01], "material": "bin_blue"},
+      {"name": "handle", "type": "box", "size": [0.5, 0.04, 0.04], "position": [0, 1.0, -0.38], "material": "black"},
+      {"name": "wheel_left", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [-0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_right", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]}
+    ]},
+    "cart_compost": { "size": [0.6, 1.07, 0.74], "parts": [
+      {"name": "body", "type": "box", "size": [0.6, 0.98, 0.74], "position": [0, 0.55, 0], "material": "bin_green"},
+      {"name": "lid", "type": "box", "size": [0.62, 0.05, 0.76], "position": [0, 1.065, 0.01], "material": "bin_green"},
+      {"name": "handle", "type": "box", "size": [0.5, 0.04, 0.04], "position": [0, 1.0, -0.38], "material": "black"},
+      {"name": "wheel_left", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [-0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]},
+      {"name": "wheel_right", "type": "cylinder", "radius": 0.1, "height": 0.05, "position": [0.25, 0.1, -0.33], "material": "black", "rotation": [0, 0, 90]}
+    ]},
+    "patio_table": { "size": [1.1, 0.74, 1.1], "parts": [
+      {"name": "top", "type": "cylinder", "radius": 0.55, "height": 0.03, "position": [0, 0.725, 0], "material": "black"},
+      {"name": "pedestal", "type": "cylinder", "radius": 0.04, "height": 0.7, "position": [0, 0.36, 0], "material": "black"},
+      {"name": "foot", "type": "cylinder", "radius": 0.3, "height": 0.02, "position": [0, 0.01, 0], "material": "black"},
+      {"name": "umbrella_pole", "type": "cylinder", "radius": 0.02, "height": 1.6, "position": [0, 1.5, 0], "material": "metal"},
+      {"name": "umbrella", "type": "cylinder", "radius": 1.2, "height": 0.35, "position": [0, 2.2, 0], "material": "linen_white", "radius_top": 0.02}
+    ]},
+    "grill": { "size": [1.2, 1.15, 0.6], "parts": [
+      {"name": "cart", "type": "box", "size": [0.7, 0.75, 0.55], "position": [0, 0.42, 0], "material": "black"},
+      {"name": "firebox", "type": "box", "size": [0.7, 0.25, 0.55], "position": [0, 0.92, 0], "material": "steel"},
+      {"name": "lid", "type": "box", "size": [0.7, 0.18, 0.5], "position": [0, 1.1, -0.02], "material": "steel"},
+      {"name": "shelf_left", "type": "box", "size": [0.25, 0.03, 0.45], "position": [-0.48, 0.9, 0], "material": "black"},
+      {"name": "shelf_right", "type": "box", "size": [0.25, 0.03, 0.45], "position": [0.48, 0.9, 0], "material": "black"},
+      {"name": "handle", "type": "box", "size": [0.5, 0.025, 0.03], "position": [0, 1.12, 0.26], "material": "metal"},
+      {"name": "propane_tank", "type": "cylinder", "radius": 0.15, "height": 0.45, "position": [0.15, 0.27, 0], "material": "linen_white"}
+    ]},
+    "planter": { "size": [0.5, 0.9, 0.5], "parts": [
+      {"name": "pot", "type": "cylinder", "radius": 0.22, "height": 0.45, "position": [0, 0.225, 0], "material": "ceramic", "radius_top": 0.25},
+      {"name": "plant", "type": "sphere", "radius": 0.25, "position": [0, 0.62, 0], "material": "plant"}
+    ]}
+  },
+  "stairs": null,
+  "two_story_variant": {
+    "notes": "Applied by index.html when meta.two_story is true. Items replace same-id entries or are added. Bedrooms 2 and 3 and the hall bath move to floor 1; the vacated ground rooms become a den (with the stair), an office and a storage closet.",
+    "meta": {
+      "floor_area_m2": 196.2
+    },
+    "rooms": [
+      {
+        "id": "den",
+        "name": "Den (stair)",
+        "floor": 0,
+        "origin": [
+          -9.0,
+          0.0
+        ],
+        "size": [
+          4.0,
+          3.8
+        ],
+        "fixtures": [],
+        "finish": "hardwood"
+      },
+      {
+        "id": "office",
+        "name": "Office",
+        "floor": 0,
+        "origin": [
+          -5.0,
+          0.0
+        ],
+        "size": [
+          4.0,
+          3.8
+        ],
+        "fixtures": [],
+        "finish": "hardwood"
+      },
+      {
+        "id": "storage",
+        "name": "Storage",
+        "floor": 0,
+        "origin": [
+          -2.6,
+          4.87
+        ],
+        "size": [
+          1.6,
+          2.13
+        ],
+        "fixtures": [],
+        "finish": "tile"
+      },
+      {
+        "id": "stair_well",
+        "name": "Stairwell",
+        "floor": 1,
+        "origin": [
+          -9.0,
+          0.0
+        ],
+        "size": [
+          1.1,
+          3.8
+        ],
+        "fixtures": [],
+        "void": true,
+        "finish": "hardwood"
+      },
+      {
+        "id": "bed2",
+        "name": "Bedroom 2",
+        "floor": 1,
+        "origin": [
+          -7.9,
+          0.0
+        ],
+        "size": [
+          2.9,
+          3.8
+        ],
+        "fixtures": [
+          "bed2_bed",
+          "bed2_nightstand",
+          "bed2_lamp",
+          "bed2_dresser",
+          "bed2_closet",
+          "bed2_hamper",
+          "bed2_desk",
+          "bed2_desk_chair",
+          "bed2_laptop",
+          "bed2_toy_bin",
+          "bed2_rug",
+          "toy_block_0",
+          "toy_block_1",
+          "toy_block_2",
+          "stuffed_animal"
+        ],
+        "finish": "carpet"
+      },
+      {
+        "id": "bed3",
+        "name": "Bedroom 3",
+        "floor": 1,
+        "origin": [
+          -5.0,
+          0.0
+        ],
+        "size": [
+          4.0,
+          3.8
+        ],
+        "fixtures": [
+          "bed3_bed",
+          "bed3_nightstand",
+          "bed3_lamp",
+          "bed3_dresser",
+          "bed3_closet",
+          "bed3_hamper",
+          "bed3_desk",
+          "bed3_desk_chair",
+          "bed3_rug"
+        ],
+        "finish": "carpet"
+      },
+      {
+        "id": "hallway_up",
+        "name": "Upstairs Hallway",
+        "floor": 1,
+        "origin": [
+          -9.0,
+          3.8
+        ],
+        "size": [
+          8.0,
+          1.07
+        ],
+        "fixtures": [],
+        "finish": "carpet"
+      },
+      {
+        "id": "bath2",
+        "name": "Hall Bath",
+        "floor": 1,
+        "origin": [
+          -2.6,
+          4.87
+        ],
+        "size": [
+          1.6,
+          2.13
+        ],
+        "fixtures": [
+          "bath2_vanity",
+          "bath2_toilet",
+          "bath2_trash",
+          "bath2_mirror",
+          "bath2_shower",
+          "bath2_towel_bar",
+          "bath2_mat"
+        ],
+        "finish": "tile"
+      }
+    ],
+    "doors": [
+      {
+        "id": "hall_bed2",
+        "between": [
+          "hallway",
+          "den"
+        ],
+        "position": [
+          -6.0,
+          3.8
+        ],
+        "width": 0.82,
+        "type": "interior"
+      },
+      {
+        "id": "hall_bed3",
+        "between": [
+          "hallway",
+          "office"
+        ],
+        "position": [
+          -2.0,
+          3.8
+        ],
+        "width": 0.82,
+        "type": "interior"
+      },
+      {
+        "id": "hall_bath2",
+        "between": [
+          "hallway",
+          "storage"
+        ],
+        "position": [
+          -1.8,
+          4.87
+        ],
+        "width": 0.82,
+        "type": "interior"
+      },
+      {
+        "id": "up_stair",
+        "between": [
+          "hallway_up",
+          "stair_well"
+        ],
+        "position": [
+          -8.44,
+          3.8
+        ],
+        "width": 1.0,
+        "type": "opening",
+        "floor": 1
+      },
+      {
+        "id": "up_bed2",
+        "between": [
+          "hallway_up",
+          "bed2"
+        ],
+        "position": [
+          -6.0,
+          3.8
+        ],
+        "width": 0.82,
+        "type": "interior",
+        "floor": 1
+      },
+      {
+        "id": "up_bed3",
+        "between": [
+          "hallway_up",
+          "bed3"
+        ],
+        "position": [
+          -2.0,
+          3.8
+        ],
+        "width": 0.82,
+        "type": "interior",
+        "floor": 1
+      },
+      {
+        "id": "up_bath2",
+        "between": [
+          "hallway_up",
+          "bath2"
+        ],
+        "position": [
+          -1.8,
+          4.87
+        ],
+        "width": 0.82,
+        "type": "interior",
+        "floor": 1
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "bed2_bed",
+        "type": "bed",
+        "room": "bed2",
+        "template": "bed_full",
+        "position": [
+          -6.865,
+          2.1
+        ],
+        "size": [
+          1.37,
+          1.0,
+          1.95
+        ],
+        "rotation": 90,
+        "props": {
+          "mattress": "full",
+          "mattress_top": 0.55,
+          "under_clearance": 0.15
+        }
+      },
+      {
+        "id": "bed2_nightstand",
+        "type": "nightstand",
+        "room": "bed2",
+        "template": "nightstand",
+        "position": [
+          -7.64,
+          0.85
+        ],
+        "size": [
+          0.5,
+          0.6,
+          0.4
+        ],
+        "rotation": 90,
+        "props": {
+          "surface_height": 0.6
+        }
+      },
+      {
+        "id": "bed2_lamp",
+        "type": "table_lamp",
+        "room": "bed2",
+        "template": "table_lamp",
+        "position": [
+          -7.64,
+          0.85
+        ],
+        "size": [
+          0.28,
+          0.45,
+          0.28
+        ],
+        "rotation": 90,
+        "elevation": 0.6
+      },
+      {
+        "id": "bed2_closet",
+        "type": "closet",
+        "room": "bed2",
+        "template": "reach_in_closet",
+        "position": [
+          -7.24,
+          3.44
+        ],
+        "size": [
+          1.2,
+          2.1,
+          0.6
+        ],
+        "rotation": 180,
+        "props": {
+          "doors": "bypass sliding",
+          "rod_height": 1.65
+        }
+      },
+      {
+        "id": "bed2_rug",
+        "type": "rug",
+        "room": "bed2",
+        "position": [
+          -6.5,
+          2.1
+        ],
+        "size": [
+          2.0,
+          0.012,
+          2.6
+        ],
+        "rotation": 0,
+        "material": "rug_kid",
+        "props": {
+          "edge_height": 0.012,
+          "movable": true
+        }
+      },
+      {
+        "id": "bed2_hamper",
+        "type": "hamper",
+        "room": "bed2",
+        "template": "hamper",
+        "position": [
+          -6.35,
+          3.45
+        ],
+        "size": [
+          0.45,
+          0.65,
+          0.35
+        ],
+        "rotation": 180,
+        "props": {
+          "location": "beside the closet, by the door (moved out of the closet so the laundry robot can reach it)",
+          "movable": true
+        }
+      }
+    ],
+    "stairs": {
+      "id": "main_stair",
+      "from_floor": 0,
+      "to_floor": 1,
+      "room": "den",
+      "start": [
+        -8.44,
+        0.16
+      ],
+      "direction": [
+        0,
+        1
+      ],
+      "width": 1.0,
+      "length": 3.64,
+      "steps": 15
+    }
+  }
+}

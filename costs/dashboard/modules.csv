@@ -1,0 +1,101 @@
+robot,module,year,usd
+BedMaker,"Actuators (joints, grippers, drives)",2026,6900
+BedMaker,"Actuators (joints, grippers, drives)",2030,1669
+BedMaker,"Actuators (joints, grippers, drives)",2035,1114
+BedMaker,"Actuators (joints, grippers, drives)",2040,890
+BedMaker,Sensors & vision,2026,1215
+BedMaker,Sensors & vision,2030,515
+BedMaker,Sensors & vision,2035,279
+BedMaker,Sensors & vision,2040,187
+BedMaker,Compute & electronics,2026,900
+BedMaker,Compute & electronics,2030,259
+BedMaker,Compute & electronics,2035,135
+BedMaker,Compute & electronics,2040,90
+BedMaker,Structure & housings,2026,1635
+BedMaker,Structure & housings,2030,612
+BedMaker,Structure & housings,2035,327
+BedMaker,Structure & housings,2040,218
+BedMaker,Battery & power,2026,150
+BedMaker,Battery & power,2030,71
+BedMaker,Battery & power,2035,45
+BedMaker,Battery & power,2040,38
+ChefRail,"Actuators (joints, grippers, drives)",2026,12100
+ChefRail,"Actuators (joints, grippers, drives)",2030,2927
+ChefRail,"Actuators (joints, grippers, drives)",2035,1952
+ChefRail,"Actuators (joints, grippers, drives)",2040,1560
+ChefRail,Sensors & vision,2026,900
+ChefRail,Sensors & vision,2030,381
+ChefRail,Sensors & vision,2035,207
+ChefRail,Sensors & vision,2040,139
+ChefRail,Compute & electronics,2026,2000
+ChefRail,Compute & electronics,2030,575
+ChefRail,Compute & electronics,2035,300
+ChefRail,Compute & electronics,2040,200
+ChefRail,Structure & housings,2026,3000
+ChefRail,Structure & housings,2030,1125
+ChefRail,Structure & housings,2035,600
+ChefRail,Structure & housings,2040,400
+ChefRail,Battery & power,2026,100
+ChefRail,Battery & power,2030,48
+ChefRail,Battery & power,2035,30
+ChefRail,Battery & power,2040,25
+CleanSweep,"Actuators (joints, grippers, drives)",2026,800
+CleanSweep,"Actuators (joints, grippers, drives)",2030,194
+CleanSweep,"Actuators (joints, grippers, drives)",2035,128
+CleanSweep,"Actuators (joints, grippers, drives)",2040,102
+CleanSweep,Sensors & vision,2026,370
+CleanSweep,Sensors & vision,2030,156
+CleanSweep,Sensors & vision,2035,86
+CleanSweep,Sensors & vision,2040,56
+CleanSweep,Compute & electronics,2026,290
+CleanSweep,Compute & electronics,2030,84
+CleanSweep,Compute & electronics,2035,44
+CleanSweep,Compute & electronics,2040,29
+CleanSweep,Structure & housings,2026,570
+CleanSweep,Structure & housings,2030,214
+CleanSweep,Structure & housings,2035,114
+CleanSweep,Structure & housings,2040,76
+CleanSweep,Battery & power,2026,170
+CleanSweep,Battery & power,2030,80
+CleanSweep,Battery & power,2035,51
+CleanSweep,Battery & power,2040,43
+LaundryBot,"Actuators (joints, grippers, drives)",2026,4260
+LaundryBot,"Actuators (joints, grippers, drives)",2030,1032
+LaundryBot,"Actuators (joints, grippers, drives)",2035,686
+LaundryBot,"Actuators (joints, grippers, drives)",2040,550
+LaundryBot,Sensors & vision,2026,1000
+LaundryBot,Sensors & vision,2030,423
+LaundryBot,Sensors & vision,2035,230
+LaundryBot,Sensors & vision,2040,154
+LaundryBot,Compute & electronics,2026,900
+LaundryBot,Compute & electronics,2030,259
+LaundryBot,Compute & electronics,2035,135
+LaundryBot,Compute & electronics,2040,90
+LaundryBot,Structure & housings,2026,2560
+LaundryBot,Structure & housings,2030,959
+LaundryBot,Structure & housings,2035,512
+LaundryBot,Structure & housings,2040,341
+LaundryBot,Battery & power,2026,680
+LaundryBot,Battery & power,2030,323
+LaundryBot,Battery & power,2035,204
+LaundryBot,Battery & power,2040,170
+TrashBot,"Actuators (joints, grippers, drives)",2026,405
+TrashBot,"Actuators (joints, grippers, drives)",2030,98
+TrashBot,"Actuators (joints, grippers, drives)",2035,65
+TrashBot,"Actuators (joints, grippers, drives)",2040,51
+TrashBot,Sensors & vision,2026,275
+TrashBot,Sensors & vision,2030,115
+TrashBot,Sensors & vision,2035,63
+TrashBot,Sensors & vision,2040,42
+TrashBot,Compute & electronics,2026,150
+TrashBot,Compute & electronics,2030,43
+TrashBot,Compute & electronics,2035,22
+TrashBot,Compute & electronics,2040,15
+TrashBot,Structure & housings,2026,220
+TrashBot,Structure & housings,2030,83
+TrashBot,Structure & housings,2035,44
+TrashBot,Structure & housings,2040,29
+TrashBot,Battery & power,2026,100
+TrashBot,Battery & power,2030,47
+TrashBot,Battery & power,2035,30
+TrashBot,Battery & power,2040,25

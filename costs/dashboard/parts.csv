@@ -1,0 +1,86 @@
+part_id,robot,group,part,module,usd_2026,usd_2030,usd_2035,usd_2040,note
+BE01,BedMaker,Arms (2 x 6-DOF),Shoulder/elbow QDD actuators (4 x $700),"Actuators (joints, grippers, drives)",2800,677,452,361,2 per arm
+BE02,BedMaker,Arms (2 x 6-DOF),Wrist QDD actuators (8 x $300),"Actuators (joints, grippers, drives)",2400,581,387,310,4 per arm
+BE03,BedMaker,Arms (2 x 6-DOF),"Arm links, brackets, covers",Structure & housings,800,300,160,107,"Remainder of $6,600 arm driver"
+BE04,BedMaker,Arms (2 x 6-DOF),Motor driver boards,"Actuators (joints, grippers, drives)",600,145,97,77,Optimus model counts drivers inside actuators
+BE05,BedMaker,Linear rails (2 x 1.95 m),Rail motors + drivers,"Actuators (joints, grippers, drives)",500,121,81,65,Belt-driven axes
+BE06,BedMaker,Linear rails (2 x 1.95 m),"Extrusions, belts, carriages",Structure & housings,700,262,140,93,
+BE07,BedMaker,Grippers (2),Soft pinch gripper actuation,"Actuators (joints, grippers, drives)",600,145,97,77,Hands sit in the actuator module
+BE08,BedMaker,Grippers (2),Resistive tactile fingertip pads,Sensors & vision,500,212,115,77,
+BE09,BedMaker,Vision + compute,Jetson Orin NX 16GB,Compute & electronics,900,259,135,90,Stated in BOM
+BE10,BedMaker,Vision + compute,Headboard depth camera,Sensors & vision,335,142,77,52,Stated in BOM
+BE11,BedMaker,Vision + compute,Wrist cameras (2),Sensors & vision,300,127,69,46,Estimate
+BE12,BedMaker,"Power, safety, other",Bed-leg load cells (4),Sensors & vision,80,34,18,12,Estimate
+BE13,BedMaker,"Power, safety, other",48 V wall power supply,Battery & power,150,71,45,38,Wall-powered: no battery
+BE14,BedMaker,"Power, safety, other",E-stop + wiring harness,Structure & housings,60,22,12,8,Estimate
+BE15,BedMaker,"Power, safety, other",Fabric skirt / cover,Structure & housings,75,28,15,10,Estimate
+CH16,ChefRail,"Arms (2 x 6-DOF, 3 kg)",QDD joint actuators (12),"Actuators (joints, grippers, drives)",8400,2032,1355,1084,"~$4,200 of actuators per arm"
+CH17,ChefRail,"Arms (2 x 6-DOF, 3 kg)",Motor driver electronics,"Actuators (joints, grippers, drives)",600,145,97,77,
+CH18,ChefRail,"Arms (2 x 6-DOF, 3 kg)",Arm links and housings,Structure & housings,1000,375,200,133,"Remainder of $10,000 arm driver"
+CH19,ChefRail,Vision + compute,Jetson AGX Orin,Compute & electronics,2000,575,300,200,Stated in BOM
+CH20,ChefRail,Vision + compute,Ceiling RGB-D camera,Sensors & vision,300,127,69,46,Estimate
+CH21,ChefRail,Vision + compute,Wrist cameras (2),Sensors & vision,200,85,46,31,Estimate
+CH22,ChefRail,Ceiling rail (4.2 m),Rail motor + driver,"Actuators (joints, grippers, drives)",600,145,97,77,
+CH23,ChefRail,Ceiling rail (4.2 m),"Track, carriage, joist mounts",Structure & housings,1400,525,280,187,
+CH24,ChefRail,End effectors + tools,Parallel grippers (2),"Actuators (joints, grippers, drives)",1600,387,258,206,Stated in BOM
+CH25,ChefRail,End effectors + tools,Automatic tool changer,"Actuators (joints, grippers, drives)",900,218,145,116,Estimate
+CH26,ChefRail,End effectors + tools,"Dicer, spoon, ladle, tongs",Structure & housings,600,225,120,80,Passive hardware
+CH27,ChefRail,Safety,Safety light curtain,Sensors & vision,400,169,92,62,Estimate
+CH28,ChefRail,Safety,E-stop + power distribution,Battery & power,100,48,30,25,Wall-powered: no battery
+CL29,CleanSweep,Floor robot base,Lidar,Sensors & vision,120,51,28,18,
+CL30,CleanSweep,Floor robot base,Vacuum fan + brush roll motors,"Actuators (joints, grippers, drives)",110,27,18,14,
+CL31,CleanSweep,Floor robot base,Drive motors (2),"Actuators (joints, grippers, drives)",70,17,11,9,
+CL32,CleanSweep,Floor robot base,Mop module + 2 tanks,Structure & housings,90,34,18,12,
+CL33,CleanSweep,Floor robot base,Chassis + shell,Structure & housings,120,45,24,16,
+CL34,CleanSweep,Floor robot base,5 Ah battery,Battery & power,60,28,18,15,
+CL35,CleanSweep,Floor robot base,Bumper + cliff sensors,Sensors & vision,40,17,9,6,
+CL36,CleanSweep,Floor robot base,Main board + motor drivers,Compute & electronics,40,12,6,4,
+CL37,CleanSweep,Mast + lift + crevice arm,Telescoping mast + lift drive,"Actuators (joints, grippers, drives)",200,48,32,26,
+CL38,CleanSweep,Mast + lift + crevice arm,Crevice arm servos,"Actuators (joints, grippers, drives)",120,29,19,15,
+CL39,CleanSweep,Mast + lift + crevice arm,Mast tube + lift cradle,Structure & housings,130,49,26,17,
+CL40,CleanSweep,Suction climber,4-chamber suction fan (12 V),"Actuators (joints, grippers, drives)",110,27,18,14,
+CL41,CleanSweep,Suction climber,Tread motors (2),"Actuators (joints, grippers, drives)",70,17,11,9,
+CL42,CleanSweep,Suction climber,Spray pump,"Actuators (joints, grippers, drives)",30,7,5,4,
+CL43,CleanSweep,Suction climber,Microfibre pad + housing,Structure & housings,120,45,24,16,
+CL44,CleanSweep,Suction climber,Pressure + edge sensors,Sensors & vision,60,25,14,9,
+CL45,CleanSweep,Suction climber,1 Ah battery,Battery & power,30,14,9,8,
+CL46,CleanSweep,Vision + compute,Jetson Orin Nano,Compute & electronics,250,72,38,25,Stated in BOM
+CL47,CleanSweep,Vision + compute,RGB-D camera,Sensors & vision,150,63,35,23,Stated in BOM
+CL48,CleanSweep,Dock station,Water pumps,"Actuators (joints, grippers, drives)",40,10,6,5,
+CL49,CleanSweep,Dock station,Tanks + dock housing,Structure & housings,110,41,22,15,
+CL50,CleanSweep,Dock station,Dust-bag fan,"Actuators (joints, grippers, drives)",50,12,8,6,
+CL51,CleanSweep,Dock station,Pad heater + charger,Battery & power,80,38,24,20,
+LA52,LaundryBot,"Arm (6-DOF, 0.9 m)",Joint actuators (6),"Actuators (joints, grippers, drives)",3100,750,500,400,"2 x $750, $550, 3 x $350"
+LA53,LaundryBot,"Arm (6-DOF, 0.9 m)",Motor driver board,"Actuators (joints, grippers, drives)",300,73,48,39,
+LA54,LaundryBot,"Arm (6-DOF, 0.9 m)",Arm links + housings,Structure & housings,400,150,80,53,"Remainder of $3,800 arm driver"
+LA55,LaundryBot,Mobile base,24 V 20 Ah battery,Battery & power,450,214,135,112,
+LA56,LaundryBot,Mobile base,Drive motors + wheels,"Actuators (joints, grippers, drives)",350,85,56,45,
+LA57,LaundryBot,Mobile base,Lidar,Sensors & vision,300,127,69,46,
+LA58,LaundryBot,Mobile base,Bumpers + cliff sensors,Sensors & vision,100,42,23,15,
+LA59,LaundryBot,Mobile base,Chassis,Structure & housings,300,112,60,40,
+LA60,LaundryBot,Vision + compute,Jetson Orin NX 16GB,Compute & electronics,900,259,135,90,Stated in BOM
+LA61,LaundryBot,Vision + compute,RGB-D cameras (2),Sensors & vision,400,169,92,62,
+LA62,LaundryBot,Gripper,Soft pinch gripper actuation,"Actuators (joints, grippers, drives)",350,85,56,45,
+LA63,LaundryBot,Gripper,Tactile pads,Sensors & vision,200,85,46,31,
+LA64,LaundryBot,Fold board,Panel servos (2),"Actuators (joints, grippers, drives)",160,39,26,21,
+LA65,LaundryBot,Fold board,Panels + hinges,Structure & housings,240,90,48,32,
+LA66,LaundryBot,"Body, dock, wiring",Hamper body + 3 bins,Structure & housings,350,131,70,47,
+LA67,LaundryBot,"Body, dock, wiring",Pod cartridge,Structure & housings,120,45,24,16,
+LA68,LaundryBot,"Body, dock, wiring",Charging dock,Battery & power,230,109,69,58,
+LA69,LaundryBot,"Body, dock, wiring",Wiring harness,Structure & housings,150,56,30,20,
+LA70,LaundryBot,Unitemized,Gap between stated BOM and itemized assumptions,Structure & housings,1000,375,200,133,"laundrybot.json items sum to $8,400 vs bom_usd $9,400"
+TR71,TrashBot,Mobile base,Depth camera,Sensors & vision,150,63,35,23,Stated in BOM
+TR72,TrashBot,Mobile base,Raspberry Pi 5 + AI accelerator,Compute & electronics,150,43,22,15,Stated in BOM
+TR73,TrashBot,Mobile base,2D lidar,Sensors & vision,100,42,23,15,Stated in BOM
+TR74,TrashBot,Mobile base,Hub motors (2) + drivers,"Actuators (joints, grippers, drives)",80,19,13,10,
+TR75,TrashBot,Mobile base,4-cell Li-ion pack,Battery & power,40,19,12,10,
+TR76,TrashBot,Lift-and-tip,1.1 m telescoping linear actuator (~20 kg),"Actuators (joints, grippers, drives)",180,44,29,23,
+TR77,TrashBot,Lift-and-tip,Tilt actuator,"Actuators (joints, grippers, drives)",70,17,11,9,
+TR78,TrashBot,Lift-and-tip,Steel frame,Structure & housings,70,26,14,9,
+TR79,TrashBot,Seal + reline,Drawstring-pull motor,"Actuators (joints, grippers, drives)",50,12,8,6,
+TR80,TrashBot,Seal + reline,Bag-ring cartridge + reline mechanism,Structure & housings,100,38,20,13,Like today's self-sealing cans
+TR81,TrashBot,"Body, dock, sensors",Can body,Structure & housings,50,19,10,7,
+TR82,TrashBot,"Body, dock, sensors",Lid motor,"Actuators (joints, grippers, drives)",25,6,4,3,
+TR83,TrashBot,"Body, dock, sensors",Load cell (fill sensor),Sensors & vision,15,6,3,2,
+TR84,TrashBot,"Body, dock, sensors",Bumper switches,Sensors & vision,10,4,2,2,
+TR85,TrashBot,"Body, dock, sensors",Charging dock,Battery & power,60,28,18,15,
