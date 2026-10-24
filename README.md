@@ -26,7 +26,7 @@ Browsers block `fetch()` on `file://` pages, so serve the site over HTTP. Run th
 cd ~/BASES\ Challenge/docs && python3 serve.py
 ```
 
-Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pages → deploy from branch `main`, folder `/docs`). Live: https://andyangrisano.github.io/bases-house-sim/
+Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pages → deploy from branch `main`, folder `/docs`). Live: https://andyangrisano.github.io/FLAMA-Housing-BASES-Challenge/
 
 ## Using the scene
 
