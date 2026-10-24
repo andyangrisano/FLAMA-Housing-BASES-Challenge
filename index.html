@@ -45,10 +45,6 @@
   .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.22) 100%); }
   #fps { position: absolute; right: 10px; bottom: 10px; z-index: 2; font: 12px/1 ui-monospace, monospace; padding: 5px 7px;
     border-radius: 6px; background: var(--label-bg); color: var(--text); pointer-events: none; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
-  .tabs a { color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
-  .tabs a:hover { border-color: var(--accent); }
-  .tabs a.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .room-label { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--label-bg); color: var(--text); pointer-events: none; white-space: nowrap; }
   @media (max-width: 720px) { body { flex-direction: column; } #view { height: 55vh; flex: none; }
     #panel { width: 100%; border-left: 0; border-top: 1px solid var(--line); flex: 1; } }
@@ -66,7 +62,6 @@
   <div id="fps" hidden></div>
 </div>
 <aside id="panel">
-  <nav class="tabs"><a href="index.html" class="on">House sim</a><a href="schematics.html">Robot schematics</a></nav>
   <h1>BASES House Sim</h1>
   <div class="row">
     <button id="play" class="on">Pause</button>
@@ -87,7 +82,8 @@
     <label id="t-upper-wrap" hidden><input type="checkbox" id="t-upper" checked> Upper floor</label>
   </div>
   <h2>Scenario</h2>
-  <div class="row"><button id="make-mess">Make it messy</button><button id="clear-mess">Clear mess</button><span id="mess-status" class="hint"></span></div>
+  <div class="row"><label>Mess level <input type="range" id="mess-level" min="1" max="5" value="3"></label><b id="mess-level-name"></b></div>
+  <div id="mess-status" class="hint" style="margin-top:4px"></div>
   <h2>Robots</h2>
   <div id="robots" class="hint">Loading…</div>
   <h2>Phone notifications</h2>
@@ -859,6 +855,7 @@ function goIdle(R, reset) {
 
 function startRobot(R) {
   if (R.state === 'running') return;
+  if (reactive(R) && !mess.some(m => m.dirt && m.obj.visible)) { makeMess(); notify(R, 'A day later: the house is messy again'); }   // always something to clean
   cancel(R); plan(R); goIdle(R, true);
   R.state = 'running'; R.start = S.t;
   for (const l of R.legs) if (!l.move) runOps(R, R.path[l.i], R.start + l.t0, R.start + l.t1, false);
@@ -942,20 +939,26 @@ async function loadRobots() {
   }
 }
 function syncRobotUI() {
+  let cleaning = false;
   for (const R of robots) {
     if (!R.ui) continue;
     const running = R.state === 'running';
     const txt = running ? `running ${Math.floor(100 * (S.t - R.start) / R.total)}% · ${R.label}` : R.status;
     if (R.ui.status.textContent !== txt) R.ui.status.textContent = txt;
     R.ui.run.disabled = running;
+    if (running && reactive(R)) cleaning = true;
     R.ui.follow.classList.toggle('on', S.follow === R);
   }
+  $('mess-level').disabled = cleaning;
+  if (mess.length) syncMessStatus();
 }
 
 // ---------- mess + smart cleaning route ----------
-// "Make it messy" scatters dirt (crumbs, dust, spills) and obstacles (socks, toys, cords, shoes) on the floor.
-// A robot with "auto_clean" then plans its own route on a 10 cm grid: it drives to each bit of dirt, reaches
-// under furniture with its arm, steers around obstacles and reports what it skipped.
+// The house is always a bit messy; the Mess level slider sets how much. Dirt (crumbs, dust, spills) lands on the
+// floor and on tables and counters (mostly kitchen, dining and living room), plus a few obstacles (socks, toys,
+// cords, shoes) on the floor. A robot with "auto_clean" plans its own route on a 10 cm grid: it drives to each bit
+// of floor dirt, reaches under furniture with its arm, lifts its climber onto each dirty table or counter to clean
+// it, steers around obstacles and reports anything it couldn't reach.
 const messGroup = new THREE.Group(); scene.add(messGroup);
 const mess = [];            // { id, kind, label, room, pos: [x, z], obj, dirt: 'vacuum' | 'mop' | undefined }
 let messSeed = 7;
@@ -968,6 +971,14 @@ const MESS_KINDS = {
   cord:   { label: 'charging cord', rooms: ['living'], n: 1 },
   shoes:  { label: 'pair of shoes', rooms: ['foyer', 'hallway'], n: 1 },
 };
+// Raised surfaces the climber can clean (top height = fixture height). Items standing on them are avoided.
+const SURFACES = [
+  { id: 'island', name: 'kitchen island', n: 3 }, { id: 'counter_west', name: 'counter by the dishwasher', n: 1 },
+  { id: 'counter_east', name: 'counter by the fridge', n: 1 }, { id: 'dining_table', name: 'dining table', n: 2 },
+  { id: 'coffee_table', name: 'coffee table', n: 2 }, { id: 'side_table', name: 'side table', n: 1 },
+  { id: 'media_console', name: 'TV console', n: 1 },
+];
+const MESS_LEVELS = ['', 'Light', 'Lived-in', 'Messy', 'Very messy', 'Max'];
 function rng(seed) {
   return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 }
@@ -1032,10 +1043,11 @@ function buildGrid(r, withObstacles, rooms, height = 0.35) {
   return { free, nx, nz, x0, z0, cell, idx, isFree: (x, z) => { const k = idx(x, z); return k >= 0 && free[k] === 1; },
            center: k => [x0 + (k % nx + 0.5) * cell, z0 + (Math.floor(k / nx) + 0.5) * cell] };
 }
-function nearestFree(G, x, z, maxD) {
+// Nearest free cell to (x, z) within maxD; with `mask`, only cells set in it (e.g. the ones reachable from the dock).
+function nearestFree(G, x, z, maxD, mask) {
   let best = null, bd = Infinity; const n = Math.ceil(maxD / G.cell), ci = Math.floor((x - G.x0) / G.cell), cj = Math.floor((z - G.z0) / G.cell);
   for (let j = cj - n; j <= cj + n; j++) for (let i = ci - n; i <= ci + n; i++) {
-    if (i < 0 || j < 0 || i >= G.nx || j >= G.nz || !G.free[j * G.nx + i]) continue;
+    if (i < 0 || j < 0 || i >= G.nx || j >= G.nz || !G.free[j * G.nx + i] || (mask && !mask[j * G.nx + i])) continue;
     const c = G.center(j * G.nx + i), d = Math.hypot(c[0] - x, c[1] - z);
     if (d < bd && d <= maxD) { bd = d; best = c; }
   }
@@ -1113,59 +1125,106 @@ function clearMess() {
   for (const m of mess) { messGroup.remove(m.obj); m.obj.traverse(o => o.geometry?.dispose()); }
   mess.length = 0;
 }
-function makeMess() {
+function makeMess(level = +$('mess-level').value) {
   clearMess();
-  const rand = rng(messSeed++), G = buildGrid(0.21, false);
+  const rand = rng(messSeed++), G = buildGrid(0.21, false), f = level / 3;
   const cleaner = robots.find(R => R.def.auto_clean), start = cleaner ? cleaner.def.path[0].position : [0, 3];
   const rooms = cleaner?.def.auto_clean.rooms, r = (cleaner?.def.auto_clean.radius_m ?? 0.2);
   let n = 0;
-  for (const [kind, k] of Object.entries(MESS_KINDS)) for (let i = 0; i < k.n; i++) {
-    const room = roomById[k.rooms[Math.floor(rand() * k.rooms.length)]]; if (!room) continue;
-    for (let tries = 0; tries < 80; tries++) {
-      const x = room.origin[0] + 0.2 + rand() * (room.size[0] - 0.4), z = room.origin[1] + 0.2 + rand() * (room.size[1] - 0.4);
-      const solid = H.fixtures.some(f => f.type !== 'rug' && !(f.elevation > 0.05) && f.room === room.id && inFoot(f, x, z) && !(f.props?.under_clearance > 0.05));
-      if (solid || mess.some(o => Math.hypot(o.pos[0] - x, o.pos[1] - z) < 0.4)) continue;
-      if (kind === 'spill' && (room.finish === 'carpet' || rugAt(x, z))) continue;
-      if (!k.dirt && (!G.isFree(x, z) || H.doors.some(d => Math.hypot(d.position[0] - x, d.position[1] - z) < 0.8))) continue;
-      const obj = messMesh(kind, rand), rug = rugAt(x, z);
-      obj.position.set(x, rug ? rug.size[1] : 0, z); obj.rotation.y = rand() * Math.PI * 2;
-      const m = { id: `m${n++}`, kind, label: k.label, room: room.id, pos: [x, z], obj, dirt: k.dirt };
-      obj.traverse(o => { o.userData.mess = m; });
-      messGroup.add(obj); mess.push(m);
-      if (!k.dirt && roomsCut(r, rooms, start)) { messGroup.remove(obj); mess.pop(); n--; continue; }   // would block a room off
+  const add = (kind, label, room, x, y, z, dirt, surface) => {
+    const obj = messMesh(kind, rand);
+    if (surface) obj.scale.setScalar(0.7);
+    obj.position.set(x, y, z); obj.rotation.y = rand() * Math.PI * 2;
+    const m = { id: `m${n++}`, kind, label, room, pos: [x, z], obj, dirt, surface };
+    obj.traverse(o => { o.userData.mess = m; });
+    messGroup.add(obj); mess.push(m);
+    return m;
+  };
+  // on the floor: obstacles first, then dirt only where the robot can get to it (or reach it with its arm)
+  let canReach = null;
+  const kinds = Object.entries(MESS_KINDS).sort(([, a], [, b]) => !!a.dirt - !!b.dirt);
+  for (const [kind, k] of kinds) {
+    if (k.dirt && !canReach) {
+      const Gc = buildGrid(r, true, rooms, cleaner?.def.height_m ?? 0.35), seen = reachable(Gc, ...start), reach = (cleaner?.def.auto_clean.arm_reach_m ?? 0.4) + r;
+      canReach = (x, z) => { const n = Math.ceil(reach / Gc.cell), ci = Math.floor((x - Gc.x0) / Gc.cell), cj = Math.floor((z - Gc.z0) / Gc.cell);
+        for (let j = cj - n; j <= cj + n; j++) for (let i = ci - n; i <= ci + n; i++) {
+          if (i < 0 || j < 0 || i >= Gc.nx || j >= Gc.nz || !seen[j * Gc.nx + i]) continue;
+          const c = Gc.center(j * Gc.nx + i); if (Math.hypot(c[0] - x, c[1] - z) <= reach) return true;
+        }
+        return false; };
+    }
+    for (let i = 0; i < Math.max(k.dirt ? 1 : 0, Math.round(k.n * (k.dirt ? f : Math.min(f, 1)))); i++) {
+      const room = roomById[k.rooms[Math.floor(rand() * k.rooms.length)]]; if (!room) continue;
+      for (let tries = 0; tries < 80; tries++) {
+        const x = room.origin[0] + 0.2 + rand() * (room.size[0] - 0.4), z = room.origin[1] + 0.2 + rand() * (room.size[1] - 0.4);
+        const solid = H.fixtures.some(f => f.type !== 'rug' && !(f.elevation > 0.05) && f.room === room.id && inFoot(f, x, z) && !(f.props?.under_clearance > 0.05));
+        if (solid || mess.some(o => Math.hypot(o.pos[0] - x, o.pos[1] - z) < 0.4)) continue;
+        if (kind === 'spill' && (room.finish === 'carpet' || rugAt(x, z))) continue;
+        if (k.dirt && !canReach(x, z)) continue;
+        if (!k.dirt && (!G.isFree(x, z) || H.doors.some(d => Math.hypot(d.position[0] - x, d.position[1] - z) < 0.8))) continue;
+        const rug = rugAt(x, z);
+        const m = add(kind, k.label, room.id, x, rug ? rug.size[1] : 0, z, k.dirt);
+        if (!k.dirt && roomsCut(r, rooms, start)) { messGroup.remove(m.obj); mess.pop(); n--; continue; }   // would block a room off
+        break;
+      }
+    }
+  }
+  // on tables and counters
+  for (const sf of SURFACES) {
+    const fx = fixById[sf.id]; if (!fx) continue;
+    const [ax, bx, az, bz] = footprint(fx), top = fx.size[1] + (fx.elevation || 0);
+    const onTop = H.fixtures.filter(o => o !== fx && Math.abs((o.elevation || 0) - top) < 0.08);
+    for (let i = 0; i < Math.round(sf.n * f); i++) for (let tries = 0; tries < 40; tries++) {
+      const x = ax + 0.12 + rand() * (bx - ax - 0.24), z = az + 0.12 + rand() * (bz - az - 0.24);
+      if (onTop.some(o => { const b = footprint(o); return x > b[0] - 0.1 && x < b[1] + 0.1 && z > b[2] - 0.1 && z < b[3] + 0.1; })) continue;
+      if (mess.some(o => Math.hypot(o.pos[0] - x, o.pos[1] - z) < 0.25)) continue;
+      const spill = rand() < 0.45;
+      add(spill ? 'spill' : 'crumbs', `${spill ? 'sticky spill' : 'crumbs'} on the ${sf.name}`, fx.room, x, top + 0.001, z, spill ? 'mop' : 'vacuum', sf.id);
       break;
     }
   }
-  const dirt = mess.filter(m => m.dirt).length;
-  $('mess-status').textContent = `${dirt} messes + ${mess.length - dirt} things on the floor`;
+  $('mess-level-name').textContent = MESS_LEVELS[level];
+  syncMessStatus();
+}
+function syncMessStatus() {
+  const live = mess.filter(m => m.obj.visible), floor = live.filter(m => m.dirt && !m.surface).length, raised = live.filter(m => m.surface).length;
+  const txt = `${floor} on the floor · ${raised} on tables and counters · ${live.length - floor - raised} things to steer around`;
+  if ($('mess-status').textContent !== txt) $('mess-status').textContent = txt;
 }
 
 const reactive = R => !!R.def.auto_clean && /react/i.test(R.opts.Route ?? 'react');
 function buildCleanPath(R) {
   const ac = R.def.auto_clean, r = ac.radius_m ?? 0.2, P = { brush: 'brush', mop: 'mop', arm: 'arm', ...ac.parts };
   const G = buildGrid(r, true, ac.rooms, R.def.height_m ?? 0.35);
-  const dock = R.def.path[0], last = R.def.path[R.def.path.length - 1], dockPos = dock.position;
+  const dock = R.def.path[0], last = R.def.path[R.def.path.length - 1], dockPos = dock.position, seen = reachable(G, ...dockPos);
   const rn = p => roomAt(...p)?.name ?? '';
   const step = (p, label, extra = {}) => ({ label, room: roomAt(...p)?.id ?? dock.room, position: p.map(v => +v.toFixed(3)), dwell_s: 0, ...extra });
   const dirt = mess.filter(m => m.dirt && m.obj.visible && (!ac.rooms || ac.rooms.includes(m.room)));
   const obstacles = mess.filter(m => !m.dirt && m.obj.visible);
+  const raised = dirt.filter(m => m.surface).length;
   const path = [{ ...dock }, { ...R.def.path[1], notify: dirt.length
-    ? `Found ${dirt.length} messes; ${obstacles.length ? `will steer around ${obstacles.length} things on the floor` : 'floor is clear of obstacles'}`
-    : 'Floors already look clean' }];
+    ? `Found ${dirt.length - raised} messes on the floor and ${raised} on tables and counters; ${obstacles.length ? `will steer around ${obstacles.length} things on the floor` : 'floor is clear of obstacles'}`
+    : 'Everything already looks clean' }];
   const warned = new Set(), skipped = [], cleaned = [];
   const legs = (route, why) => route.slice(1, -1).forEach((p, i) => {
     const near = obstacles.find(o => !warned.has(o) && Math.hypot(o.pos[0] - p[0], o.pos[1] - p[1]) < 0.9);
     if (near) warned.add(near);
     path.push(step(p, near ? `camera spots a ${near.label} (${rn(near.pos)}): steer around it` : why));
   });
+  // one task per floor mess, one per dirty table / counter (the climber cleans all of a surface in one launch)
+  const todo = dirt.filter(m => !m.surface).map(m => ({ pos: m.pos, m }));
+  const bySurface = {};
+  for (const m of dirt.filter(m => m.surface)) (bySurface[m.surface] ??= []).push(m);
+  for (const [id, ms] of Object.entries(bySurface)) todo.push({ pos: ms[0].pos, surface: fixById[id], ms });
   let cur = dockPos.slice();
-  const todo = dirt.slice();
   while (todo.length) {
     todo.sort((a, b) => Math.hypot(a.pos[0] - cur[0], a.pos[1] - cur[1]) - Math.hypot(b.pos[0] - cur[0], b.pos[1] - cur[1]));
-    const m = todo.shift();
+    const task = todo.shift();
+    if (task.surface) { cur = cleanSurface(task.surface, task.ms) ?? cur; continue; }
+    const m = task.m;
     let goal = m.pos.slice(), arm = false;
-    if (!G.isFree(...goal)) {
-      goal = nearestFree(G, ...m.pos, (ac.arm_reach_m ?? 0.4) + r);
+    if (!seen[G.idx(...goal)]) {
+      goal = nearestFree(G, ...m.pos, (ac.arm_reach_m ?? 0.4) + r, seen);
       if (!goal) { skipped.push([m, 'too far under furniture']); continue; }
       arm = Math.hypot(goal[0] - m.pos[0], goal[1] - m.pos[1]) > r * 0.6;
     }
@@ -1187,18 +1246,54 @@ function buildCleanPath(R) {
     } else path.push(w);
     cleaned.push(m); cur = goal;
   }
+  // Drive up to the table / counter, raise the mast, set the climber on the edge, let it clean every mess on the top,
+  // then catch it and lower the mast. Returns where the robot ends up (or null if it can't get there).
+  function cleanSurface(f, ms) {
+    const [ax, bx, az, bz] = footprint(f), top = f.size[1] + (f.elevation || 0), cx = (ax + bx) / 2, cz = (az + bz) / 2, name = ms[0].label.replace(/^.* on the /, '');
+    const sides = [[ax - 0.45, cz, ax + 0.15, cz], [bx + 0.45, cz, bx - 0.15, cz], [cx, az - 0.45, cx, az + 0.15], [cx, bz + 0.45, cx, bz - 0.15]];
+    let best = null;
+    for (const [px, pz, ex, ez] of sides) {
+      const goal = nearestFree(G, px, pz, 0.35, seen); if (!goal) continue;
+      const route = findRoute(G, cur, goal); if (!route) continue;
+      let len = 0; for (let i = 1; i < route.length; i++) len += Math.hypot(route[i][0] - route[i - 1][0], route[i][1] - route[i - 1][1]);
+      if (!best || len < best.len) best = { goal, route, len, edge: [ex, ez] };
+    }
+    if (!best) { ms.forEach(m => skipped.push([m, `can't get next to the ${name}`])); return null; }
+    const { goal, route, edge } = best, lift = top + 0.02;
+    legs(route, `→ the ${name} (${rn(goal)})`);
+    const heading = Math.atan2(edge[0] - goal[0], edge[1] - goal[1]) * 180 / Math.PI;
+    path.push(step(goal, `raise the mast to the ${name}`, { dwell_s: 3, heading_deg: heading,
+      set: { mast: { scale: [1, 1 + (lift - 0.22) / 0.1, 1], over_s: 3 }, lift: { position: [0, lift, 0.03], over_s: 3 } } }));
+    path.push(step(goal, `set the climber on the ${name}; its suction grips`, { dwell_s: 3, detach: ['climber'],
+      set: { climber: { at: [edge[0], top + 0.002, edge[1]], over_s: 3 } } }));
+    let at = edge;
+    const left = ms.slice();
+    while (left.length) {
+      left.sort((a, b) => Math.hypot(a.pos[0] - at[0], a.pos[1] - at[1]) - Math.hypot(b.pos[0] - at[0], b.pos[1] - at[1]));
+      const m = left.shift(), t = m.dirt === 'mop' ? 10 : 6;
+      path.push(step(goal, `climber ${m.dirt === 'mop' ? 'sprays and wipes' : 'vacuums'} the ${m.label}`, { dwell_s: 3 + t,
+        set: { climber: { at: [m.pos[0], top + 0.002, m.pos[1]], over_s: 3 }, [`mess:${m.id}`]: { scale: 0.01, visible: false, over_s: t * 0.8, delay_s: 3 } },
+        effects: [{ type: m.dirt === 'mop' ? 'spray' : 'dust', at: 'climber', offset: [0, 0.05, 0.12], dir: [0, -0.4, 1], delay_s: 3, for_s: t },
+                  { type: 'sparkle', at: 'climber', offset: [0, 0.05, 0], delay_s: 3 + t * 0.6, for_s: t * 0.4 }] }));
+      cleaned.push(m); at = m.pos;
+    }
+    path.push(step(goal, 'climber drives back to the edge', { dwell_s: 3, set: { climber: { at: [edge[0], top + 0.002, edge[1]], over_s: 3 } } }));
+    path.push(step(goal, 'catch the climber and lower the mast', { dwell_s: 5, attach: { climber: 'lift' },
+      set: { climber: { position: [0, 0.02, 0], rotation: [0, 0, 0], over_s: 1.5 }, mast: { scale: [1, 1, 1], over_s: 3 }, lift: { position: [0, 0.22, 0.03], over_s: 3 } } }));
+    return goal;
+  }
   legs(findRoute(G, cur, dockPos) || [cur, dockPos], '→ back to the dock');
   const counts = {}; obstacles.forEach(o => { counts[o.label] = (counts[o.label] || 0) + 1; });
   const pick = Object.entries(counts).map(([k, v]) => v > 1 ? `${v} ${k}s` : `a ${k}`).join(', ');
-  path.push({ ...last, notify: `Cleaned ${cleaned.length} of ${dirt.length} messes.` +
+  path.push({ ...last, notify: `Cleaned ${cleaned.length} of ${dirt.length} messes (floor, tables and counters).` +
     (skipped.length ? ` Couldn't reach: ${skipped.map(([m, why]) => `${m.label} in ${rn(m.pos)} (${why})`).join(', ')}.` : '') +
     (pick ? ` Please pick up ${pick} so it can clean under them.` : '') });
   return path;
 }
 function showMess(m) {
   $('info').className = '';
-  $('info').innerHTML = `<dl><dt>On the floor</dt><dd><b>${esc(m.label)}</b></dd><dt>Room</dt><dd>${esc(roomById[m.room]?.name)}</dd>
-    <dt>Robot</dt><dd>${m.dirt === 'mop' ? 'mops it up' : m.dirt ? 'vacuums it (or reaches it with the arm under furniture)' : 'treats it as an obstacle: steers around it and asks you to pick it up'}</dd></dl>`;
+  $('info').innerHTML = `<dl><dt>${m.surface ? 'On a surface' : 'On the floor'}</dt><dd><b>${esc(m.label)}</b></dd><dt>Room</dt><dd>${esc(roomById[m.room]?.name)}</dd>
+    <dt>Robot</dt><dd>${m.surface ? 'lifts its climber onto the surface, which cleans it' : m.dirt === 'mop' ? 'mops it up' : m.dirt ? 'vacuums it (or reaches it with the arm under furniture)' : 'treats it as an obstacle: steers around it and asks you to pick it up'}</dd></dl>`;
 }
 
 // ---------- follow camera ----------
@@ -1311,8 +1406,10 @@ function syncLabels() {
 }
 $('t-labels').onchange = syncLabels;
 $('t-hq').onchange = e => { renderer.shadowMap.enabled = e.target.checked; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); };
-$('make-mess').onclick = () => { makeMess(); robots.filter(R => R.state !== 'running' && reactive(R)).forEach(R => { plan(R); goIdle(R, true); }); };
-$('clear-mess').onclick = () => { clearMess(); $('mess-status').textContent = ''; };
+// A new mess level re-messes the house. The slider is locked while the cleaner is running.
+function remess() { makeMess(); robots.filter(R => R.state !== 'running' && reactive(R)).forEach(R => { plan(R); goIdle(R, true); }); }
+$('mess-level').oninput = () => { $('mess-level-name').textContent = MESS_LEVELS[$('mess-level').value]; };
+$('mess-level').onchange = remess;
 $('t-paths').onchange = e => robots.forEach(R => { R.line.visible = e.target.checked && R.group.visible; });
 $('t-full').onchange = e => { S.full = e.target.checked; Object.keys(floors).forEach(f => buildWalls(+f)); };
 $('t-furnished').onchange = e => { S.furnished = e.target.checked; site.group.visible = S.furnished; syncBg(); buildHouse(); };
@@ -1377,6 +1474,7 @@ function tick() {
   window.sim = { S, robots, camera, controls };   // for poking at the scene from the browser console
   tick();
   await loadRobots();
+  remess();
 })();
 </script>
 </body>

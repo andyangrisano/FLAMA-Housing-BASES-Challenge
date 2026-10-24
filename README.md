@@ -6,7 +6,6 @@ A shared 3D model of an average Bay Area home: a single-story 1950s–60s ranch 
 
 ```
 index.html          Three.js scene (r160, no build step)
-schematics.html     Robot schematics tab: 2D breakdown of each robot
 visuals.js          Sky + procedural textures
 serve.py            Local server that never caches (python3 serve.py)
 house.json          The house as data: rooms, doors, windows, fixtures, furniture templates, materials
@@ -28,8 +27,7 @@ Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pa
 
 ## Using the scene
 
-- The **House sim / Robot schematics** tabs at the top of the panel switch between the 3D house and the robot schematics.
-- **Make it messy** scatters crumbs, dust and juice spills plus socks, toys, a cord and shoes. Then press CleanSweep's button with *Route: react to the mess*: it plans its own path around the furniture and clutter. It reaches under furniture with its crevice arm and lifts the mop on rugs. At the end it reports what it couldn't reach and what you should pick up.
+- **Mess level** (1 Light to 5 Max): the house is always a bit messy. Crumbs, dust and juice spills land on the floors, crumbs and sticky spills on the tables and counters (kitchen island and counters, dining table, coffee table, side table, TV console), plus a few socks, toys, a cord and shoes to steer around. Press CleanSweep's button and it cleans all of it: it plans its own path around the furniture and clutter, reaches under furniture with its crevice arm, lifts the mop on rugs, and at each dirty table or counter raises its mast and sets the climber on top to clean every spot. If the house is already clean when you press it, it gets messy again first. At the end it reports what you should pick up.
 - **Follow** on a robot card keeps the camera on that robot from above and a little back. It glides after the robot as it drives through the house but doesn't swing around when the robot turns. Orbit or zoom while following to change the angle.
 - **Shadows** turns shadows on or off (turn it off on slower laptops). **Show FPS** displays frames per second and draw calls.
 
@@ -50,10 +48,6 @@ Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pa
 | Take out the trash | [TrashBot](robots/trashbot.json): self-driving kitchen trash can | Opens its lid, pulls the drawstring to seal the bag, drives through the garage door, raises its can on a lift column and tips the bag into the landfill cart, relines itself from its bag cartridge and docks to charge |
 
 Each robot lists what it deliberately doesn't do (`tasks_excluded`) and the cheap house changes it needs (`env_changes_required`). Click a robot to see them.
-
-## Robot schematics page
-
-`schematics.html` (the **Robot schematics** tab) has a 2D breakdown of each robot, drawn from the team's design briefs: numbered drawings (side, top or underside views), a parts list grouped into mechanism and sensors, the robot's size, reach, payload and parts cost (read from its file in `robots/`), and a one-line "how it runs" sequence.
 
 ## Add a robot (three steps)
 
@@ -86,7 +80,7 @@ These are what make arms move smoothly and things in the house change. All of it
 - **`items`**: things the robot carries or changes, such as clothes, dishes, crumbs or a detachable unit: `{ "sock": { "at": [x,y,z] | "@fixture" | "<part>", "offset"?, "rotation"?, "visible"?, "primitives": [...] } }`. Item colours may also be house materials (`"fabric_blue"`, `"water"`, `"orange"`…).
 - **`setup`**: actions applied instantly when the button is pressed, to create the "before" state (the messy bed, the crumbs, the full hampers).
 - **`only_if`** on a waypoint, e.g. `{ "Fold top edge back": "yes" }`, runs that waypoint only when it matches the option's default. Options are written `"Label: choice A / choice B"`; the site always uses the first choice and doesn't show a picker.
-- **`auto_clean`** (cleaning robots): `{ "radius_m", "arm_reach_m", "vacuum_s", "mop_s", "rooms": [...], "parts": { "brush", "mop", "arm" } }`. With the default `Route: react to the mess`, the scene ignores `path` after the button press and plans the route itself around the clutter from **Make it messy**. Items marked `"demo_only": true` only appear in the scripted route.
+- **`auto_clean`** (cleaning robots): `{ "radius_m", "arm_reach_m", "vacuum_s", "mop_s", "rooms": [...], "parts": { "brush", "mop", "arm" } }`. With the default `Route: react to the mess`, the scene ignores `path` after the button press and plans the route itself from the current mess (floor dirt, plus tables and counters via the climber's `mast`, `lift` and `climber` parts). Items marked `"demo_only": true` only appear in the scripted route.
 - **`heading_deg`** on a waypoint turns the robot to face that way while it works there. `"turn_to_path": false` stops a rail robot from turning as it moves.
 
 Waypoint actions start when the robot arrives. Each can have `delay_s`, and lasts `over_s` (for `set`) or the waypoint's dwell (for `motion` / `effects`, unless `for_s` is given):
