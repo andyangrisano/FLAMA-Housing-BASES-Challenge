@@ -44,18 +44,12 @@
   button:disabled { opacity: .45; cursor: default; }
   #phone div { font-size: 12px; padding: 2px 0; color: var(--text); }
   .vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,.22) 100%); }
-  #fade { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: #0b0d10; opacity: 0; }
   #fps { position: absolute; right: 10px; bottom: 10px; z-index: 2; font: 12px/1 ui-monospace, monospace; padding: 5px 7px;
     border-radius: 6px; background: var(--label-bg); color: var(--text); pointer-events: none; }
-  #story { position: absolute; left: 16px; top: 16px; max-width: min(440px, calc(100% - 32px)); z-index: 2; padding: 14px 16px;
-    background: var(--label-bg); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 10px; }
-  #story h3 { margin: 2px 0 6px; font-size: 17px; }
-  #story p { margin: 0 0 8px; }
-  #story .story-step, #story .story-real { color: var(--muted); font-size: 12px; }
-  body.editing #story { top: auto; bottom: 16px; }
-  .story-bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-  .story-bar div { height: 100%; width: 0; background: var(--accent); }
-  #panel.story-mode #robots, #panel.story-mode #make-mess, #panel.story-mode #clear-mess, #panel.story-mode #roomcams, #panel.story-mode #cams { opacity: .4; pointer-events: none; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs a { color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
+  .tabs a:hover { border-color: var(--accent); }
+  .tabs a.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .room-label { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--label-bg); color: var(--text); pointer-events: none; white-space: nowrap; }
   @media (max-width: 720px) { body { flex-direction: column; } #view { height: 55vh; flex: none; }
     #panel { width: 100%; border-left: 0; border-top: 1px solid var(--line); flex: 1; } }
@@ -63,32 +57,18 @@
 <script type="importmap">
 { "imports": {
   "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-  "@theatre/core": "https://cdn.jsdelivr.net/npm/@theatre/core@0.7.2/+esm",
-  "@theatre/studio": "https://cdn.jsdelivr.net/npm/@theatre/studio@0.7.2/+esm"
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
 } }
 </script>
 </head>
 <body>
 <div id="view">
-  <div class="vignette"></div><div id="fade"></div>
+  <div class="vignette"></div>
   <div id="fps" hidden></div>
-  <div id="story" hidden>
-    <div class="story-step"></div><h3></h3><p class="story-body"></p><p class="story-real"></p>
-    <div class="row"><button id="st-prev">◀ Back</button><button id="st-next" class="on">Next ▶</button><button id="st-exit">Skip to the house</button></div>
-    <div class="story-bar"><div></div></div>
-  </div>
 </div>
 <aside id="panel">
+  <nav class="tabs"><a href="index.html" class="on">House sim</a><a href="roof.html">Roof automation</a></nav>
   <h1>BASES House Sim</h1>
-  <button id="story-start" class="on" style="width:100%;margin-bottom:8px">▶ Watch: robots build this house</button>
-  <div id="edit-box" hidden style="border:1px dashed var(--accent);border-radius:8px;padding:8px;margin-bottom:8px">
-    <b>Theatre.js edit mode</b>
-    <p class="hint" style="margin:4px 0 6px">Start the story, then scrub or play it on the Theatre timeline. Orbit to a view you like and press
-      <i>Capture camera view</i> to keyframe it at the playhead (in Theatre, right-click the Camera's props → <i>Sequence all</i> once first).
-      Save the keyframes file into the project as <code>story-theatre.json</code> and everyone sees your shots.</p>
-    <div class="row"><button id="capture-view">Capture camera view</button><button id="save-theatre">Save keyframes file</button></div>
-  </div>
   <div class="row">
     <button id="play" class="on">Pause</button>
     <button data-mult="1" class="on">1x</button><button data-mult="4">4x</button><button data-mult="16">16x</button><button data-mult="32">32x</button><button data-mult="64">64x</button>
@@ -124,7 +104,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { createStory } from './story.js';
 import { makeTextures, makeSky } from './visuals.js';
 
 const PAL = { wall: 0xF2F2F0, floor: 0xD9D4C7, fixture: 0x2B2B2B, body: 0xF2F2F0, joint: 0x2B2B2B, accent: 0x3A7BD5 };
@@ -267,7 +246,7 @@ function onLine(item, axis, c, eps) { return Math.abs((axis === 'x' ? item.posit
 function along(item, axis) { return axis === 'x' ? item.position[0] : item.position[1]; }
 
 // Every wall run on floor f: where two different rooms (or a room and the outside) meet, with the doors and
-// windows that cut it. Shared by the house walls and the construction story's stud frames.
+// windows that cut it.
 function wallSegments(f) {
   const rooms = H.rooms.filter(r => fl(r) === f);
   const doors = H.doors.filter(d => (d.floor || 0) === f);
@@ -423,7 +402,7 @@ function buildHouse() {
 const baseboard = mat('#f7f6f2', 1, { roughness: 0.4 });
 
 // ---------- the lot around the house ----------
-// Lawn, foundation, driveway, street, fence and trees. Shown in Furnished mode; the story builds on top of it.
+// Lawn, foundation, driveway, street, fence and trees. Shown in Furnished mode.
 const site = { group: new THREE.Group(), plinth: null };
 scene.add(site.group);
 // Textured floor finish, tiled at real-world scale (planks ~1.2 m per tile, tiles 1.2 m, carpet 1 m).
@@ -460,7 +439,7 @@ function buildSite() {
     const len = Math.hypot(x1 - x0, z1 - z0), f = box(x0 === x1 ? 0.05 : len, 1.8, x0 === x1 ? len : 0.05, wood);
     f.position.set((x0 + x1) / 2, 0.9 - 0.06, (z0 + z1) / 2); f.castShadow = f.receiveShadow = true; site.fence.add(f);
   }
-  // planting beds along the front of the house: mulch, shrubs and a few flowers (kept in site.garden so the story can plant them last)
+  // planting beds along the front of the house: mulch, shrubs and a few flowers
   const before = g.children.length;
   const mulch = tm('dirt', 6, 1, { color: '#7a5a42' }), leafy = [m('#456f35'), m('#55803f'), m('#3d6430')];
   const flower = ['#e9d36b', '#d96a6a', '#f1f1ee', '#b48ad6'].map(c => m(c, { roughness: 0.6 }));
@@ -1199,24 +1178,29 @@ function showMess(m) {
 }
 
 // ---------- follow camera ----------
-// Chase view: the camera keeps its offset in the robot's own frame (behind and above by default).
-// Orbit or zoom while following to change that offset.
+// A detached follow: the camera keeps the same view direction (it does not swing around with the robot) and
+// glides after the spot where the robot is working, so it stays steady while the robot turns on the spot and
+// tracks it smoothly when it drives through the house. Orbit or zoom while following to change the view.
 let followOff = null, dragging = false;
+const followAt = new THREE.Vector3();
 controls.addEventListener('start', () => { dragging = true; });
 controls.addEventListener('end', () => {
   dragging = false;
-  if (S.follow) followOff = camera.position.clone().sub(controls.target).applyAxisAngle(AXES.y, -S.follow.yaw);
+  if (S.follow) followOff = camera.position.clone().sub(controls.target);
 });
 function setFollow(R) {
   S.follow = R; tween = null;
-  followOff = R ? new THREE.Vector3(0, 3.1, -1.9) : null;   // high and close, so walls rarely get between
+  if (!R) { followOff = null; return; }
+  followOff = new THREE.Vector3(2.4, 5.4, -4.6);           // high, set back and off to the side: sees over the cut-down walls
+  R.group.getWorldPosition(followAt);
 }
 function followTick(dt) {
   const R = S.follow; if (!R || dragging) return;
-  const p = R.group.getWorldPosition(new THREE.Vector3()); p.y += 0.35;
-  const k = 1 - Math.exp(-dt * 4);
-  controls.target.lerp(p, k);
-  camera.position.lerp(p.clone().add(followOff.clone().applyAxisAngle(AXES.y, R.yaw)), k);
+  const p = R.group.getWorldPosition(new THREE.Vector3());
+  followAt.lerp(p, 1 - Math.exp(-dt * 2.2));               // the working spot trails the robot a little
+  const k = 1 - Math.exp(-dt * 3);
+  controls.target.lerp(followAt.clone().setY(0.4), k);
+  camera.position.lerp(followAt.clone().setY(0.4).add(followOff), k);
 }
 
 // ---------- selection ----------
@@ -1310,55 +1294,6 @@ $('t-upper').onchange = e => {
   syncLabels();
 };
 
-// ---------- story mode ----------
-let story = null, studio = null, theatreState = null;
-const editMode = new URLSearchParams(location.search).has('edit');
-const STORY = { file: 'story.js', world: { visible: true }, parts: {}, items: {}, group: scene };
-function storyContext() {
-  return {
-    scene, camera, controls, S, H, meta, wallSegments, floors, site, TEX, studio, theatreState,
-    ensureFurnished() { if (!S.furnished) $('t-furnished').click(); },
-    rebuildWalls: () => Object.keys(floors).forEach(f => buildWalls(+f)),
-    // one running emitter per effect type, moved and kept alive by the story each frame
-    fx(type, at, seconds, dir) {
-      let e = emitters.find(x => x.R === STORY && x.type === type);
-      if (!e) emitters.push(e = { R: STORY, type, acc: 0 });
-      Object.assign(e, { at, dir, from: S.t, to: S.t + seconds * Math.max(1, S.mult) });
-    },
-    setInteractive(on) {
-      $('panel').classList.toggle('story-mode', !on);
-      for (const R of robots) { if (!on) stopRobot(R); for (const g of [R.group, R.fixed, R.world]) g.visible = on; R.line.visible = on && $('t-paths').checked; }
-      messGroup.visible = on; S.follow = null;
-      if (on) { syncLabels(); frame(houseBox(), CAMS.threequarter); }
-    },
-    ui: {
-      show(on) { $('story').hidden = !on; },
-      caption(c, i, n) {
-        $('story').querySelector('.story-step').textContent = `Chapter ${i + 1} of ${n}`;
-        $('story').querySelector('h3').textContent = c.title;
-        $('story').querySelector('.story-body').textContent = c.body;
-        $('story').querySelector('.story-real').textContent = c.real || '';
-        $('st-next').textContent = i === n - 1 ? 'Explore the house ▶' : 'Next ▶';
-      },
-      fade() {                   // dip to black and back: a cut between story shots
-        const f = $('fade'); f.style.transition = 'none'; f.style.opacity = '0.92'; void f.offsetHeight;
-        f.style.transition = 'opacity .7s ease-out'; f.style.opacity = '0';
-      },
-      progress(p) { $('story').querySelector('.story-bar div').style.width = `${(p * 100).toFixed(1)}%`; },
-    },
-  };
-}
-$('story-start').onclick = () => story?.start();
-$('capture-view').onclick = () => story?.captureView();
-$('save-theatre').onclick = () => {           // download the Theatre project state; commit it as story-theatre.json
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(studio.createContentOfSaveFile('BASES construction story'), null, 2)], { type: 'application/json' }));
-  a.download = 'story-theatre.json'; a.click();
-};
-$('st-next').onclick = () => story?.next();
-$('st-prev').onclick = () => story?.prev();
-$('st-exit').onclick = () => story?.exit();
-
 // ---------- main ----------
 const clock = new THREE.Clock();
 let fpsAvg = 60;
@@ -1377,7 +1312,6 @@ function tick() {
   stepParticles(play);
   syncRobotUI();
   followTick(dt);
-  story?.tick(play);
   $('clock').textContent = fmtTime(S.t);
   if (S.sel?.def && $('wp')) $('wp').textContent = S.sel.label;
   if (tween) {
@@ -1413,13 +1347,6 @@ function tick() {
   });
   frame(houseBox(), CAMS.threequarter);
   camera.position.copy(tween.p1); controls.target.copy(tween.t1); tween = null;
-  // Theatre.js: saved camera keyframes (optional file), and the Studio editor when the page is opened with ?edit
-  try { theatreState = await getJSON('story-theatre.json'); } catch { /* no saved keyframes yet */ }
-  if (editMode) {
-    try { const m = await import('@theatre/studio'); studio = m.default?.default ?? m.default; studio.initialize(); $('edit-box').hidden = false; document.body.classList.add('editing'); }
-    catch (e) { showError(`Theatre Studio failed to load: ${e.message}`); }
-  }
-  story = createStory(storyContext());
   tick();
   await loadRobots();
 })();

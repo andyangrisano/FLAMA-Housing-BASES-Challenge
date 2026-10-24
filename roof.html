@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roof Automation</title>
+<style>
+  :root {
+    --bg: #E9E8E4; --panel: #FFFFFF; --text: #1E1E1E; --muted: #6B6B6B; --line: #D6D4CE;
+    --accent: #3A7BD5; --accent-soft: rgba(58,123,213,.12);
+    --wall: #F2F2F0; --wall-edge: #9C9A94; --wood: #C9A06A; --osb: #B98E57; --felt: #6E8FA8; --shingle: #4A4D52;
+    --metal: #8D9298; --ground: #8DAA6E; --robot: #F2F2F0; --robot-edge: #2B2B2B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #16181B; --panel: #1F2226; --text: #ECECEA; --muted: #9A9C9F; --line: #33373C;
+            --accent-soft: rgba(58,123,213,.2); --wall: #3A3E44; --wall-edge: #6D7178; --ground: #4E6440;
+            --robot: #D9DADB; --robot-edge: #0E0F11; --shingle: #70757C; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 6px; align-items: center; padding: 10px 16px;
+    background: var(--panel); border-bottom: 1px solid var(--line); }
+  .tabs b { margin-right: 10px; font-size: 15px; }
+  .tabs a { color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: 13px; }
+  .tabs a:hover { border-color: var(--accent); }
+  .tabs a.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 32px 0 10px; }
+  .lead { color: var(--muted); max-width: 760px; margin: 0 0 18px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 0 0 8px; }
+  .fact { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .fact b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .fact span { color: var(--muted); font-size: 12px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .flow a { color: var(--text); text-decoration: none; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .flow a:hover { border-color: var(--accent); }
+  .flow i { color: var(--muted); font-style: normal; }
+  .robot-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .robot-card ul { margin: 6px 0 0; padding-left: 18px; }
+  .robot-card svg { width: 100%; height: auto; }
+  .steps { display: grid; gap: 12px; }
+  .step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; scroll-margin-top: 64px; }
+  .step svg { width: 100%; height: auto; display: block; }
+  .num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; margin-right: 8px; }
+  .step h3 { display: flex; align-items: center; margin: 0 0 8px; font-size: 17px; }
+  .step dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
+  .step dt { color: var(--muted); font-size: 12px; padding-top: 2px; }
+  .step dd { margin: 0; }
+  .loop { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .loop span { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-weight: 600; }
+  .loop i { color: var(--muted); font-style: normal; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .legend em { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+  @media (max-width: 760px) { .step, .robot-card { grid-template-columns: 1fr; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<nav class="tabs"><b>BASES</b><a href="index.html">House sim</a><a href="roof.html" class="on">Roof automation</a></nav>
+<main>
+  <h1>How Robot 1 builds the roof</h1>
+  <p class="lead">One part of the house, fully automated: from bare wall top plates to a finished, inspected roof. No one climbs a ladder or
+    goes up on the roof. Robot 1 works from the ground, a remote supervisor approves its plan and its report, and the city inspector
+    reviews that report.</p>
+  <div class="facts" id="facts"></div>
+
+  <h2>The sequence</h2>
+  <div class="flow" id="flow"></div>
+
+  <h2>The robot</h2>
+  <div class="robot-card">
+    <div id="robot-svg"></div>
+    <div>
+      <b>Robot 1: outdoor track loader with an autonomy kit</b>
+      <ul>
+        <li>GPS, lidar and cameras on the roof rack; it sees the house, the material stacks and anyone nearby.</li>
+        <li>3.5 m safety field: if a person walks in, it stops until they leave.</li>
+        <li>Telescoping 6 m boom with a small arm and a tool changer at the tip, so it reaches the 4.1 m ridge without leaving the ground.</li>
+        <li>Roof tools on its rack: scan head, vacuum lifter, nail gun, roll dispenser, shingle head, gutter roll-former.</li>
+        <li>Materials are delivered and staged on the lot before it starts; it picks each piece from the stack.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="legend">
+    <span><em style="background:var(--accent)"></em>What this step adds</span>
+    <span><em style="background:var(--wood)"></em>Trusses</span>
+    <span><em style="background:var(--osb)"></em>Sheathing</span>
+    <span><em style="background:var(--felt)"></em>Underlayment</span>
+    <span><em style="background:var(--shingle)"></em>Shingles</span>
+    <span><em style="background:var(--metal)"></em>Metal (drip edge, flashing, gutters)</span>
+  </div>
+
+  <h2>Step by step</h2>
+  <div class="steps" id="steps"></div>
+
+  <h2>The same loop runs every step</h2>
+  <div class="loop"><span>Scan</span><i>→</i><span>Pick from stack</span><i>→</i><span>Place</span><i>→</i><span>Fasten</span><i>→</i><span>Verify</span><i>↺ next piece</i></div>
+</main>
+
+<script>
+// Roof of the sim's house (house.json): 15.8 m long, 10 m span, 2.44 m walls, 1.67 m rise (4:12), 0.45 m overhang,
+// trusses 0.6 m apart; plus the 6.1 m garage roof.
+const ROOF = { span: 10, wall: 2.44, rise: 1.67, oh: 0.45, len: 15.8, garSpan: 6.1, garLen: 6.1, garRise: 1.0, oc: 0.6 };
+const slopeLen = (run, rise) => Math.hypot(run, rise);
+const mainArea = 2 * slopeLen(ROOF.span / 2 + ROOF.oh, ROOF.rise * (1 + 2 * ROOF.oh / ROOF.span)) * (ROOF.len + 2 * ROOF.oh);
+const garArea = 2 * slopeLen(ROOF.garSpan / 2 + ROOF.oh, ROOF.garRise) * (ROOF.garLen + ROOF.oh);
+const area = mainArea + garArea;
+const trusses = Math.floor(ROOF.len / ROOF.oc) + 1 + Math.floor(ROOF.garLen / ROOF.oc) + 1;
+const osb = Math.ceil(area / (1.22 * 2.44) * 1.08);
+const squares = area * 10.764 / 100;
+const eaves = 2 * (ROOF.len + 2 * ROOF.oh) + 2 * (ROOF.garLen + ROOF.oh);
+
+document.getElementById('facts').innerHTML = [
+  [`${Math.round(area)} m²`, 'roof area (house + garage)'],
+  [`${trusses}`, 'trusses, 0.6 m apart'],
+  [`${osb}`, 'OSB sheets, 1.22 × 2.44 m'],
+  [`${Math.ceil(squares * 3)}`, 'shingle bundles (3 per 100 sq ft)'],
+  [`${Math.round(eaves)} m`, 'eaves: drip edge + gutters'],
+  ['4.1 m', 'ridge height, reached from the ground'],
+].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('');
+
+const STEPS = [
+  { title: 'Scan the walls against the plan', tool: 'Scan head (lidar + camera) on the boom',
+    does: 'Drives once around the house and scans every wall top plate. It compares length, height, squareness and the truss layout marks with the digital plan, then makes the placement map for every truss.',
+    check: 'Anything off by more than 6 mm is flagged. The remote supervisor approves the map before any material moves.',
+    material: 'None', work: [-4.6, 2.9], draw: 1 },
+  { title: 'Set the trusses', tool: 'Vacuum/clamp lifter, then a nail gun',
+    does: `Picks each truss off the staged stack, swings it up, and lowers it onto the top plates at its mark, 0.6 m apart, starting at a gable end. The nail gun fixes a hurricane tie at each end. ${trusses} trusses in all.`,
+    check: 'Camera and laser check each truss is plumb and on its mark before the next one is lifted.',
+    material: `${trusses} trusses, hurricane ties`, work: [0, 5.3], draw: 2 },
+  { title: 'Brace the trusses', tool: 'Lifter + nail gun',
+    does: 'Lays long lateral braces across the top chords and diagonal braces at the gable ends, so the trusses can\'t lean like dominoes.',
+    check: 'Re-scans the truss line: every truss still plumb, spacing unchanged.',
+    material: 'Bracing lumber, nails', work: [-2.4, 3.3], draw: 3 },
+  { title: 'Sheathe the roof (OSB)', tool: 'Vacuum lifter, then the nail gun',
+    does: 'Places OSB sheets from the eave upward, long side across the trusses, with staggered joints and H-clips. Nails every 15 cm on the edges and 30 cm in the field.',
+    check: 'Camera checks the 3 mm expansion gaps and that every nail hit a truss.',
+    material: `${osb} OSB sheets, H-clips, nails`, work: [-3.6, 3.1], draw: 4 },
+  { title: 'Eave drip edge', tool: 'Lifter + nail gun',
+    does: 'Nails metal drip edge along both eaves, so water drips clear of the fascia.',
+    check: 'Straightness checked against the laser line.',
+    material: `${Math.round(eaves)} m of drip edge`, work: [-5.45, 2.5], draw: 5 },
+  { title: 'Roll out the underlayment', tool: 'Roll dispenser + cap stapler',
+    does: 'Unrolls synthetic underlayment in horizontal strips, starting at the eave and working up, each strip overlapping the one below by 15 cm, stapled through plastic caps.',
+    check: 'Camera checks the overlaps and looks for wrinkles or tears.',
+    material: 'Synthetic underlayment rolls, cap staples', work: [-3.0, 3.3], draw: 6 },
+  { title: 'Rake edges and flashing', tool: 'Lifter + nail gun',
+    does: 'Puts drip edge on the sloped gable edges (over the underlayment) and bends step flashing where the garage roof meets the house wall.',
+    check: 'Scan confirms every edge is covered, with no gaps at the corners.',
+    material: 'Rake drip edge, step flashing', work: [0, 4.0], draw: 7 },
+  { title: 'Shingles, course by course', tool: 'Shingle head: picks a shingle, places it, 4 nails',
+    does: 'Lays a starter strip at the eave, then each course of shingles from the bottom up, offset so the joints never line up. The pattern is planned from the scan, so the last course lands evenly at the ridge.',
+    check: 'Camera checks exposure (the visible height) and the nail pattern on every shingle.',
+    material: `~${Math.ceil(squares * 3)} bundles of shingles, nails`, work: [-2.0, 3.6], draw: 8 },
+  { title: 'Ridge vent and cap', tool: 'Router + shingle head',
+    does: 'Cuts the ventilation slot along the ridge, fits the ridge vent over it and caps it with ridge shingles.',
+    check: 'The slot is kept back from the gable ends; the cap overlap is checked.',
+    material: 'Ridge vent, ridge cap shingles', work: [0, 4.15], draw: 9 },
+  { title: 'Gutters and downspouts', tool: 'Gutter roll-former + bracket driver',
+    does: 'Roll-forms a seamless gutter to exact length on the spot, lifts it to the eave, and fixes it to brackets with a slight slope to the downspouts. Then it fits the downspouts.',
+    check: 'The laser measures the slope (about 5 mm per 3 m) toward each downspout.',
+    material: `${Math.round(eaves)} m of gutter, 4 downspouts`, work: [-5.6, 2.3], draw: 10 },
+  { title: 'Final inspection and report', tool: 'Scan head',
+    does: 'Scans the whole roof one last time and photographs every nail line, edge, flashing and the ridge. It compiles a report against the plan and the building code checklist.',
+    check: 'Report goes to the remote supervisor and the city inspector. Any rework goes back into the robot\'s queue.',
+    material: 'None', work: [1.5, 5.2], draw: 11 },
+];
+
+// ---------- drawing: a section through the house (gable-end view) at each stage ----------
+const S = 18, CX = 250, GY = 200;                  // px per metre, house centre x, ground y
+const X = m => CX + m * S, Y = m => GY - m * S;
+const half = ROOF.span / 2, peakY = ROOF.wall + ROOF.rise, eaveX = half + ROOF.oh, eaveY = ROOF.wall - ROOF.rise * ROOF.oh / half;
+const roofLine = (off) => `M${X(-eaveX)},${Y(eaveY) - off} L${X(0)},${Y(peakY) - off} L${X(eaveX)},${Y(eaveY) - off}`;
+
+function robot(work, carry) {
+  // tracked loader at x = -9 m; the boom rises from the back of the cab to an elbow above the work spot,
+  // so it always passes over the eave, and the short arm comes down to the tool
+  const bx = -9.6, by = 1.3, [wx, wy] = work, ex = X(wx - 1.2), ey = Y(wy + 1.4);
+  return `<g>
+    <rect x="${X(-10.6)}" y="${Y(0.55)}" width="${2.7 * S}" height="${0.55 * S}" rx="${0.27 * S}" fill="var(--robot-edge)"/>
+    <rect x="${X(-10.4)}" y="${Y(1.25)}" width="${2.2 * S}" height="${0.75 * S}" rx="3" fill="var(--robot)" stroke="var(--robot-edge)" stroke-width="1"/>
+    <rect x="${X(-9.9)}" y="${Y(1.75)}" width="${0.9 * S}" height="${0.55 * S}" rx="3" fill="#2e3640"/>
+    <circle cx="${X(-9.45)}" cy="${Y(1.86)}" r="2.6" fill="var(--accent)"/>
+    <line x1="${X(bx)}" y1="${Y(by)}" x2="${ex}" y2="${ey}" stroke="var(--robot)" stroke-width="5" stroke-linecap="round"/>
+    <line x1="${ex}" y1="${ey}" x2="${X(wx)}" y2="${Y(wy + 0.12)}" stroke="var(--robot)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${ex}" cy="${ey}" r="3" fill="var(--robot-edge)"/>
+    <circle cx="${X(wx)}" cy="${Y(wy + 0.12)}" r="3.4" fill="var(--accent)"/>
+    ${carry || ''}
+  </g>`;
+}
+
+function section(stage, work) {
+  const hi = n => stage === n ? 'var(--accent)' : null;
+  const parts = [];
+  parts.push(`<rect x="0" y="${GY}" width="420" height="20" fill="var(--ground)"/>`);
+  // walls with top plates
+  for (const sx of [-1, 1]) parts.push(`<rect x="${X(sx * half) - (sx > 0 ? 4 : 0)}" y="${Y(ROOF.wall)}" width="4" height="${ROOF.wall * S}" fill="var(--wall)" stroke="var(--wall-edge)" stroke-width="1"/>`);
+  parts.push(`<line x1="${X(-half)}" y1="${Y(0.02)}" x2="${X(half)}" y2="${Y(0.02)}" stroke="var(--wall-edge)" stroke-width="2"/>`);
+  if (stage === 1) {                  // scan rays to the top plates
+    for (const t of [-half, -2.5, 0, 2.5, half]) parts.push(`<line x1="${X(work[0])}" y1="${Y(work[1] + 0.12)}" x2="${X(t)}" y2="${Y(ROOF.wall)}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>`);
+    for (const sx of [-1, 1]) parts.push(`<rect x="${X(sx * half) - 5}" y="${Y(ROOF.wall) - 3}" width="10" height="5" fill="var(--accent)"/>`);
+  }
+  if (stage >= 2) {                   // truss: bottom chord, top chords, king post, webs
+    const c = hi(2) || 'var(--wood)', w = 2.2;
+    parts.push(`<path d="${roofLine(0)}" fill="none" stroke="${c}" stroke-width="${w + 0.8}" stroke-linejoin="round"/>`);
+    parts.push(`<line x1="${X(-half)}" y1="${Y(ROOF.wall)}" x2="${X(half)}" y2="${Y(ROOF.wall)}" stroke="${c}" stroke-width="${w}"/>`);
+    parts.push(`<line x1="${X(0)}" y1="${Y(ROOF.wall)}" x2="${X(0)}" y2="${Y(peakY)}" stroke="${c}" stroke-width="${w - 0.6}"/>`);
+    for (const sx of [-1, 1]) parts.push(`<line x1="${X(0)}" y1="${Y(ROOF.wall)}" x2="${X(sx * half / 2)}" y2="${Y(ROOF.wall + ROOF.rise / 2)}" stroke="${c}" stroke-width="${w - 0.8}"/>`);
+  }
+  if (stage >= 3) {                   // lateral braces seen end-on, along the top chords
+    const c = hi(3) || 'var(--wood)';
+    for (const f of [0.3, 0.62]) for (const sx of [-1, 1]) parts.push(`<rect x="${X(sx * half * (1 - f)) - 2.5}" y="${Y(ROOF.wall + ROOF.rise * f) - 7}" width="5" height="5" fill="${c}"/>`);
+  }
+  if (stage >= 4) parts.push(`<path d="${roofLine(3)}" fill="none" stroke="${hi(4) || 'var(--osb)'}" stroke-width="3" stroke-linejoin="round"/>`);
+  if (stage >= 5) for (const sx of [-1, 1]) parts.push(`<path d="M${X(sx * eaveX)},${Y(eaveY) - 5} L${X(sx * (eaveX + 0.12))},${Y(eaveY) - 4} L${X(sx * (eaveX + 0.12))},${Y(eaveY) + 2}" fill="none" stroke="${hi(5) || 'var(--metal)'}" stroke-width="${hi(5) ? 3 : 2}"/>`);
+  if (stage >= 6) parts.push(`<path d="${roofLine(5.5)}" fill="none" stroke="${hi(6) || 'var(--felt)'}" stroke-width="2" stroke-linejoin="round"/>`);
+  if (stage >= 7) {                   // rake edge: outline of the gable end, and step flashing at the garage wall (small mark)
+    const c = hi(7) || 'var(--metal)';
+    parts.push(`<path d="${roofLine(7)}" fill="none" stroke="${c}" stroke-width="${hi(7) ? 2.4 : 1.2}" stroke-dasharray="${hi(7) ? '' : '2 3'}" stroke-linejoin="round"/>`);
+  }
+  if (stage >= 8) {                   // shingle courses: short overlapping strokes along each slope
+    const c = hi(8) || 'var(--shingle)';
+    for (const sx of [-1, 1]) for (let i = 0; i < 9; i++) {
+      const f0 = i / 9, f1 = f0 + 0.13;
+      const p = f => [X(sx * eaveX * (1 - f)), Y(eaveY + (peakY - eaveY) * f) - 9];
+      const [x0, y0] = p(f0), [x1, y1] = p(Math.min(f1, 0.99));
+      parts.push(`<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${c}" stroke-width="4" stroke-linecap="butt"/>`);
+    }
+  }
+  if (stage >= 9) parts.push(`<path d="M${X(-0.45)},${Y(peakY) - 7} Q${X(0)},${Y(peakY) - 17} ${X(0.45)},${Y(peakY) - 7}" fill="${hi(9) || 'var(--shingle)'}" stroke="${hi(9) || 'var(--shingle)'}" stroke-width="2"/>`);
+  if (stage >= 10) for (const sx of [-1, 1]) {
+    const c = hi(10) || 'var(--metal)', gx = X(sx * (eaveX + 0.2));
+    parts.push(`<path d="M${gx - 5},${Y(eaveY) - 1} L${gx - 5},${Y(eaveY) + 7} L${gx + 5},${Y(eaveY) + 7} L${gx + 5},${Y(eaveY) - 1}" fill="none" stroke="${c}" stroke-width="2.4"/>`);
+    parts.push(`<line x1="${X(sx * (half + 0.18))}" y1="${Y(eaveY) + 7}" x2="${X(sx * (half + 0.18))}" y2="${GY}" stroke="${c}" stroke-width="2.4"/>`);
+  }
+  if (stage === 11) for (const t of [-eaveX, -2.6, 0, 2.6, eaveX]) {
+    const ty = t === 0 ? peakY : eaveY + (peakY - eaveY) * (1 - Math.abs(t) / eaveX);
+    parts.push(`<line x1="${X(work[0])}" y1="${Y(work[1] + 0.12)}" x2="${X(t)}" y2="${Y(ty) - 8}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>`);
+  }
+  const carry = stage === 2 ? `<path d="M${X(work[0] - 1.8)},${Y(work[1] - 0.6)} L${X(work[0])},${Y(work[1])} L${X(work[0] + 1.8)},${Y(work[1] - 0.6)} Z" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>` : '';
+  parts.push(robot(work, carry));
+  return `<svg viewBox="40 50 340 175" role="img" aria-label="Section through the roof at step ${stage}">${parts.join('')}</svg>`;
+}
+
+document.getElementById('robot-svg').innerHTML = section(0, [-6.6, 3.2]);
+document.getElementById('steps').innerHTML = STEPS.map((s, i) => `
+  <section class="step" id="step-${i + 1}">
+    <div>${section(s.draw, s.work)}</div>
+    <div>
+      <h3><span class="num">${i + 1}</span>${s.title}</h3>
+      <dl>
+        <dt>Tool</dt><dd>${s.tool}</dd>
+        <dt>What it does</dt><dd>${s.does}</dd>
+        <dt>Check</dt><dd>${s.check}</dd>
+        <dt>Material</dt><dd>${s.material}</dd>
+      </dl>
+    </div>
+  </section>`).join('');
+const SHORT = ['Scan', 'Trusses', 'Bracing', 'Sheathing', 'Drip edge', 'Underlayment', 'Rakes + flashing', 'Shingles', 'Ridge', 'Gutters', 'Inspection'];
+document.getElementById('flow').innerHTML = SHORT.map((t, i) => `<a href="#step-${i + 1}">${i + 1}. ${t}</a>`).join('<i>→</i>');
+</script>
+</body>
+</html>

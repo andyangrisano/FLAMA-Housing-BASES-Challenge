@@ -6,9 +6,9 @@ A shared 3D model of an average Bay Area home: a single-story 1950s–60s ranch 
 
 ```
 index.html          Three.js scene (r160, no build step)
-story.js            Construction story (Theatre.js timeline)
+roof.html           Roof automation tab: step-by-step diagram of Robot 1 building the roof
 visuals.js          Sky + procedural textures
-story-theatre.json  Saved Theatre.js camera keyframes
+serve.py            Local server that never caches (python3 serve.py)
 house.json          The house as data: rooms, doors, windows, fixtures, furniture templates, materials
 robots/
   index.json        Plain array of robot filenames to load
@@ -21,17 +21,17 @@ README.md
 Browsers block `fetch()` on `file://` pages, so serve the folder over HTTP. Run the server **from inside this folder**; otherwise you get a file listing:
 
 ```bash
-cd ~/BASES\ Challenge && python3 -m http.server 8000
+cd ~/BASES\ Challenge && python3 serve.py
 ```
 
 Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pages → deploy from branch, root folder).
 
 ## Using the scene
 
-- **▶ Watch: robots build this house** plays the construction story (about 3 minutes, 14 chapters; see below). The finished house is then cut open, the furniture appears, and you're left in the interactive house. Use **Next / Back** to step through, or **Skip to the house**. You can orbit the camera at any time.
+- The **House sim / Roof automation** tabs at the top of the panel switch between the 3D house and the roof diagram.
 - **Make it messy** scatters crumbs, dust and juice spills plus socks, toys, a cord and shoes. Then press CleanSweep's button with *Route: react to the mess*: it plans its own path around the furniture and clutter. It reaches under furniture with its crevice arm and lifts the mop on rugs. At the end it reports what it couldn't reach and what you should pick up.
-- **Follow** on a robot card switches to a chase camera behind that robot. Orbit or zoom while following to change the angle.
-- **High quality** turns soft shadows and ambient occlusion on or off (turn it off on slower laptops). **Show FPS** displays frames per second and draw calls.
+- **Follow** on a robot card keeps the camera on that robot from above and a little back. It glides after the robot as it drives through the house but doesn't swing around when the robot turns. Orbit or zoom while following to change the angle.
+- **Shadows** turns shadows on or off (turn it off on slower laptops). **Show FPS** displays frames per second and draw calls.
 
 - **Furnished** toggle: full colours and materials, or the team's massing palette (dark boxes, no rugs) for clean diagrams.
 - **Click anything.** A robot shows its spec and current waypoint. A piece of furniture shows its id, size, height off the floor, robot-relevant props and the names of its parts. A room shows its area, floor finish, doors, windows and contents.
@@ -51,43 +51,9 @@ Then open http://localhost:8000. On GitHub Pages it works as-is (Settings → Pa
 
 Each robot lists what it deliberately doesn't do (`tasks_excluded`) and the cheap house changes it needs (`env_changes_required`). Click a robot to see them.
 
-## The construction story
+## Roof automation page
 
-Based on the team's research, two robots build the house, and people do the rest.
-
-**Robot 1 (outdoor):** a compact track loader with an autonomy kit (GPS, lidar, cameras) and a 3.5 m safety field. The field turns red and the robot stops when a person walks in. It changes tools at a rack on the lawn:
-
-| Tool | What it does in the story |
-|---|---|
-| Grading blade (laser-guided) | Levels the building pad; the laser level on the tripod sets the height |
-| Bucket | Digs the footing trenches along every outside wall |
-| Plate compactor | Packs the gravel base |
-| Auger | Drills the back-fence post holes |
-| Screed head | Strikes off the wet slab after the crew pours it |
-| 6 m boom + arm | Drops drywall stacks into rooms, sets trusses, lays sheathing and shingles, installs siding and gutters, paints trim, all from the ground |
-
-**Robot 2 (indoor):** a 0.65 m wide base that fits the 0.82 m doors, with a lift column, a 6-axis arm with a tool changer, lidar, a dust vacuum and outrigger legs.
-- In the living room it scans and sprays insulation.
-- It lifts drywall sheets off the stack and screws them on, including a ceiling sheet with the outriggers down.
-- It routs the outlet holes, sprays joint compound, sands with dust extraction, and paints.
-
-**People:** framing (the crew tilts up the stud walls), the concrete pour, windows, plumbing, electrical, inspections, and supervising the robots.
-
-The arms use inverse kinematics, so the tool tip actually tracks the sheet, screw, seam or truss it's working on. Machines drive along paths and turn smoothly, and the camera follows on a spring. The lot is a real ground mesh that the blade flattens. Grass, dirt, gravel, concrete, wood, OSB, shingles, siding and drywall use textures generated in code (no image downloads). The sky and its lighting come from a physically based sky model.
-
-### Choreographing the camera with Theatre.js
-
-The story runs on a [Theatre.js](https://www.theatrejs.com) timeline: one sequence for the whole ~3 minutes, with a **Camera** object on it. By default the camera follows the coded shots. To design your own shots:
-
-1. Open the site with `?edit` at the end of the address (e.g. `http://localhost:8000/?edit`). The Theatre Studio panels appear.
-2. Press **▶ Watch** to start the story, then scrub or play it on Theatre's timeline. **Next / Back** jump between chapters.
-3. In Theatre's outline, select **Camera**, right-click its props → **Sequence all** (once).
-4. Orbit the view to a shot you like and press **Capture camera view** in the side panel. This sets a keyframe at the playhead and switches the camera to *Keyframed here*. Repeat along the timeline; Theatre eases between your keyframes. You can also edit the numbers and curves directly in Studio.
-5. Press **Save keyframes file**, put the downloaded `story-theatre.json` in the project folder (replacing the old one) and commit it. Everyone watching then sees your shots.
-
-Set the Camera's **mode** back to *Automatic (coded shots)* for any stretch you want the code to film.
-
-The story lives in `story.js`; the shared sky and textures live in `visuals.js`. Every trench, slab, stud wall, truss, roof slope and siding panel is built from `house.json`, so a change to the house changes the story too.
+`roof.html` (the **Roof automation** tab) walks through how Robot 1 from the team's research, an outdoor track loader with a telescoping 6 m boom and swappable tools, builds the whole roof from the ground, with no construction workers: scan, trusses, bracing, sheathing, drip edge, underlayment, rake edges and flashing, shingles, ridge, gutters and a final inspection report. Each step shows a section drawing of the roof at that stage, the tool, what the robot does, how it checks its work, and the material. Quantities are computed from the sim's house (`house.json` roof dimensions).
 
 ## Add a robot (three steps)
 
